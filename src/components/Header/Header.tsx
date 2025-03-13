@@ -20,12 +20,11 @@ function Header({ setMenuOpen }: HeaderProps) {
 
       {/* Título "MATRACA" posicionado sobre a imagem */}
       <h1
-        className="absolute text-4xl text-white z-20"
+        className="text-3xl absolute left-1/2 transform -translate-x-1/2 text-white">MATRACA
         style={{
           fontFamily: "'Baloo 2', sans-serif", // Fonte infantil
         }}
-      ><h1 className="text-3xl absolute left-1/2 transform -translate-x-1/2 text-white">MATRACA</h1>
-        MATRACA
+              MATRACA
       </h1>
 
       {/* Botão de usuário */}
