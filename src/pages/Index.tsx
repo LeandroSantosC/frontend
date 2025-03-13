@@ -131,14 +131,28 @@ export default function Index() {
     // ];
   
     return (
-      <div className="flex flex-col h-screen w-screen overflow-hidden background-image-class">
+      <div className="flex flex-col h-screen w-screen overflow-hidden">
+        {/* Cabeçalho */}
         <Header setMenuOpen={setMenuOpen} />
-        <MainBoard mainBoard={mainBoard} setMainBoard={setMainBoard} />
-        <Tools setSearch={setSearch} setCategory={setCaregory} categories={categories} editMode={editMode} setEditMode={setEditMode} />
-        <Content search={search} category={category} cards={cards} editMode={editMode} setMainBoard={setMainBoard} />
+  
+        {/* Seção da prancha com imagem de fundo */}
+        <div
+          className="relative flex-1"
+          style={{
+            backgroundImage: 'url("/imagens/im1.png")', // Caminho da imagem
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center center',
+          }}
+        >
+          {/* Conteúdo da prancha (MainBoard, Tools, Content) */}
+          <MainBoard mainBoard={mainBoard} setMainBoard={setMainBoard} />
+          <Tools setSearch={setSearch} setCategory={setCaregory} categories={categories} editMode={editMode} setEditMode={setEditMode} />
+          <Content search={search} category={category} cards={cards} editMode={editMode} setMainBoard={setMainBoard} />
+        </div>
+  
+        {/* Menu, caso aberto */}
         {menuOpen && <Menu setMenuOpen={setMenuOpen} />}
       </div>
     );
-
-    
   }
