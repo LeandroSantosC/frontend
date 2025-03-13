@@ -5,7 +5,7 @@ interface HeaderProps {
 function Header({ setMenuOpen }: HeaderProps) {
   return (
     <header
-      className="relative flex items-center justify-between bg-blue-500 text-white p-2 h-[200px] w-full"
+      className="relative flex items-center justify-center bg-blue-500 text-white p-2 h-[200px] w-full"
       style={{
         backgroundImage: 'url("/imagens/im1.png")', // Caminho correto da imagem
         backgroundSize: 'cover',
@@ -14,22 +14,22 @@ function Header({ setMenuOpen }: HeaderProps) {
       }}
     >
       {/* Botão de menu */}
-      <button className="text-2xl z-10" onClick={() => setMenuOpen(true)}>☰</button>
+      <button className="absolute left-4 top-1/2 transform -translate-y-1/2 text-2xl z-10" onClick={() => setMenuOpen(true)}>
+        ☰
+      </button>
 
       {/* Título "MATRACA" posicionado sobre a imagem */}
       <h1
-        className="absolute left-1/2 transform -translate-x-1/2 z-20 text-4xl text-white"
+        className="absolute text-4xl text-white z-20"
         style={{
           fontFamily: "'Baloo 2', sans-serif", // Fonte infantil
-          top: '50%', // Centraliza verticalmente
-          transform: 'translateY(-50%)', // Ajusta para que o texto fique exatamente no centro vertical
         }}
       >
         MATRACA
       </h1>
 
       {/* Botão de usuário */}
-      <button className="text-2xl z-10">👤</button>
+      <button className="absolute right-4 top-1/2 transform -translate-y-1/2 text-2xl z-10">👤</button>
     </header>
   );
 }
