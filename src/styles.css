@@ -4,6 +4,13 @@
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
 }
+
+.background-image-class {
+  background-image: url('/imagens/istockphoto-1299657768-170667a.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-color: transparent;
+}
   
   .scrollbar-hide {
     -ms-overflow-style: none;
