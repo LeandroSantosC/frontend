@@ -139,6 +139,4 @@ export default function Index() {
         {menuOpen && <Menu setMenuOpen={setMenuOpen} />}
       </div>
     );
-
-    
   }
