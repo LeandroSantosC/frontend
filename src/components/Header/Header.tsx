@@ -13,23 +13,16 @@ function Header({ setMenuOpen }: HeaderProps) {
         backgroundPosition: 'center center',
       }}
     >
-      {/* Botão de menu */}
-      <button className="text-2xl z-10" onClick={() => setMenuOpen(true)}>☰</button>
+      {/* Botão Menu */}
+      <button className="text-2xl" onClick={() => setMenuOpen(true)}>☰</button>
 
-      {/* Título "MATRACA" posicionado sobre a imagem */}
-      <h1
-        className="absolute left-1/2 transform -translate-x-1/2 z-20 text-4xl text-white"
-        style={{
-          fontFamily: "'Baloo 2', sans-serif", // Fonte infantil
-          top: '50%', // Centraliza verticalmente
-          transform: 'translateY(-50%)', // Ajusta para que o texto fique exatamente no centro vertical
-        }}
-      >
+      {/* Título "MATRACA" posicionado sobre a imagem com a nova fonte */}
+      <h1 className="text-3xl absolute left-1/2 transform -translate-x-1/2 text-white" style={{ fontFamily: "'Baloo 2', sans-serif" }}>
         MATRACA
       </h1>
 
       {/* Botão de usuário */}
-      <button className="text-2xl z-10">👤</button>
+      <button className="text-2xl">👤</button>
     </header>
   );
 }
