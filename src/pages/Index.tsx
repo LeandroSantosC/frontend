@@ -132,7 +132,6 @@ export default function Index() {
   
     return (
       <div className="flex flex-col h-screen w-screen overflow-hidden">
-        {/* Cabeçalho */}
         <Header setMenuOpen={setMenuOpen} />
   
         {/* Seção da prancha com imagem de fundo */}
