@@ -131,7 +131,7 @@ export default function Index() {
     // ];
   
     return (
-      <div className="flex flex-col h-screen w-screen overflow-hidden background-image-class">
+      <div className="flex flex-col h-screen w-screen overflow-hidden">
         <Header setMenuOpen={setMenuOpen} />
         <MainBoard mainBoard={mainBoard} setMainBoard={setMainBoard} />
         <Tools setSearch={setSearch} setCategory={setCaregory} categories={categories} editMode={editMode} setEditMode={setEditMode} />
