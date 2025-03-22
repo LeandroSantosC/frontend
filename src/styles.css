@@ -4,6 +4,13 @@
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
 }
+
+.background-image-class {
+  background-image: url('/imagens/im1.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-color: transparent;
+}
   
   .scrollbar-hide {
     -ms-overflow-style: none;
