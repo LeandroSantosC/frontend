@@ -1,12 +1,15 @@
 import CardTools from "./CardTools/CardTools";
 import { useState } from "react";
+import { useMainBoardContext } from "../../../context/MainboardContext";
 import "./Card.css";
 
 export interface CardData {
   id: number;
   name: string;
-  img: string;
-  isVisible: boolean;
+  image: string;
+  sound: string;
+  visible: boolean;
+  position: number;
   category: {
     id: number;
     name: string;
@@ -16,22 +19,21 @@ export interface CardData {
 export interface CardProps {
   card: CardData;
   editMode: boolean;
-  addCardOnMainBoard: () => void;
 }
 
-function Card({ card, editMode, addCardOnMainBoard }: CardProps) {
-  const { name, img, isVisible } = card;
-  const [visible, setVisible] = useState(isVisible);
-
+function Card({ card, editMode }: CardProps) {
+  const { name, image } = card;
+  const [visible, setVisible] = useState(card.visible);
+  const { addCardOnMainBoard } = useMainBoardContext();
 
   return (
     <div className="card" style={!visible && !editMode ? { display: "none" } : { display: "flex" }}>
       <div 
       className="flex flex-col items-center w-full h-full" 
       style={!visible && editMode ? { opacity: 0.3 } : {}}
-      onClick={addCardOnMainBoard}
+      onClick={() => addCardOnMainBoard(card)}
       >
-        <img src={img} alt={name} className="flex relative h-full w-full aspect-square pointer-events-none" />
+        <img src={image} alt={name} className="flex relative h-full w-full aspect-square pointer-events-none" />
         <div className="flex justify-center">
           <span className="pointer-events-none">{name}</span>
         </div>

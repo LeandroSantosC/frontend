@@ -1,15 +1,15 @@
+import { useToolsContext } from "../../context/ToolsContext";
+
 interface ToolsProps {
   categories: {
     id: number;
     name: string;
   }[];
-  editMode: boolean;
-  setEditMode: (editMode: boolean) => void;
-  setCategory: (category: string) => void;
-  setSearch: (search: string) => void;
 }
 
-function Tools({ categories, editMode, setEditMode, setCategory, setSearch }: ToolsProps) {
+function Tools({ categories }:ToolsProps) {	
+  const { setCategory, setSearch, editMode, setEditMode } = useToolsContext();
+
   return (
     <div className="flex justify-around bg-gray-100 p-1 h-[6%] max-w-full">
       <select className="p-2 rounded-2xl bg-white border w-[40%] max-w-60" onChange={(e) => setCategory(e.target.value)}>

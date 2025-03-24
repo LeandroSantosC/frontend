@@ -1,30 +1,14 @@
 import Card, { CardData } from "./Card/Card";
-import { BoardCardData } from "../MainBoard/BoardCard/BoardCard";
 import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { useToolsContext } from "../../context/ToolsContext";
 
 interface ContentProps {
   cards: CardData[];
-  editMode: boolean;
-  category: string;
-  search: string;
-  setMainBoard: (value: BoardCardData[] | ((prevCards: BoardCardData[]) => BoardCardData[])) => void;
 }
 
-function Content({ cards, editMode, category, setMainBoard, search }: ContentProps) {
+function Content({ cards }: ContentProps) {
   const [tab, setTab] = useState(true);
-
-  const addCardOnMainBoard = (card: CardData) => {
-    const newBoardCard: BoardCardData = {
-      id: card.id,
-      tempId: uuidv4(),
-      name: card.name,
-      img: card.img,
-    };
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(card.name));
-    setMainBoard((prevCards: BoardCardData[]) => [...prevCards, newBoardCard]);
-  };
+  const { category, search, editMode } = useToolsContext();
 
 
   return (
@@ -35,7 +19,7 @@ function Content({ cards, editMode, category, setMainBoard, search }: ContentPro
       </div>
       {tab && <div className="flex grow-0 overflow-x-visible scrollbar-hide pb-4 pt-2 overflow-y-auto flex-row w-full justify-evenly gap-2 flex-wrap">
         {cards.map((card) => ( (category === card.category.id.toString() || category === "Tudo") && card.name.toLowerCase().includes(search.toLowerCase()) ?
-          <Card card={card} editMode={editMode} addCardOnMainBoard={() => addCardOnMainBoard(card)}/>
+          <Card card={card} editMode={editMode} />
         : "" ))}
       </div>}
       {!tab && 

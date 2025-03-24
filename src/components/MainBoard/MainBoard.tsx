@@ -1,25 +1,11 @@
 import "./MainBoard.css";
-import { BoardCardData } from "./BoardCard/BoardCard";
 import BoardCard from "./BoardCard/BoardCard";
+import { useMainBoardContext } from "../../context/MainboardContext";
+import { BoardContextType } from "../../context/MainboardContext";
 
-interface MainBoardProps {
-  mainBoard: BoardCardData[];
-  setMainBoard: (value: BoardCardData[] | ((prevCards: BoardCardData[]) => BoardCardData[])) => void;
-}
 
-export default function MainBoard({ mainBoard, setMainBoard }: MainBoardProps) {
-
-  const removeCard = (tempId: string) => {
-    setMainBoard((prevCards) => prevCards.filter((card) => card.tempId !== tempId));
-  }
-
-  const removeLastCard = () => {
-    setMainBoard((prevCards) => prevCards.slice(0, -1));
-  }
-
-  const removeAllCards = () => {
-    setMainBoard([]);
-  }
+export default function MainBoard() {
+  const { mainBoard, removeCard, removeAllCards, removeLastCard }:BoardContextType = useMainBoardContext();
 
   const speak = () => {
     const phrase = mainBoard.map((card) => card.name).join(" ");
