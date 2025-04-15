@@ -1,0 +1,33 @@
+@import "tailwindcss";
+/* @import "tailwindcss/preflight"; */
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+  
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none; 
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: rgba(144, 238, 144, 0.3);
+  backdrop-filter: blur(2px);
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+}
+
+#root {
+  background-color: rgba(144, 238, 144, 0.3);
+  backdrop-filter: blur(2px);
+  min-height: 100vh;
+}
+
+* {
+  font-family: "Comic Sans MS", "Comic Sans", cursive;
+}
