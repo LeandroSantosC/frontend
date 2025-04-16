@@ -1,21 +1,26 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-interface User {
-  username: string;
+interface ProfileData {
+  name: string;
+  email: string;
   password: string;
+  confirmPassword: string;
 }
 
-export default function Settings() {
-  const [user, setUser] = useState<User>({
-    username: '',
-    password: ''
+export default function Profile() {
+  const [formData, setFormData] = useState<ProfileData>({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
   });
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login data:', user);
+    console.log('Profile data:', formData);
+    // Aqui você implementaria a lógica de cadastro
   };
 
   const handleGoogleLogin = () => {
@@ -25,30 +30,50 @@ export default function Settings() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setUser(prev => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="relative w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg">
-        <div className="absolute top-4 right-4">
+    <div 
+      className="flex flex-col items-center justify-center min-h-screen"
+      style={{
+        backgroundColor: 'rgba(144, 238, 144, 0.3)',
+        backdropFilter: 'blur(2px)'
+      }}
+    >
+      <div 
+        className="relative w-full max-w-md p-8 space-y-8 rounded-lg shadow-lg"
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(2px)',
+          border: '1px solid rgba(144, 238, 144, 0.2)',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+        }}
+      >
+        <div className="absolute top-4 left-4">
           <button
-            onClick={() => navigate('/register')}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            onClick={() => navigate('/')}
+            className="text-2xl p-2 rounded-full"
+            style={{
+              backgroundColor: 'rgba(144, 238, 144, 0.3)',
+              backdropFilter: 'blur(2px)',
+              border: '1px solid rgba(144, 238, 144, 0.2)'
+            }}
           >
-            Cadastrar
+            ↩
           </button>
         </div>
+        
         <div className="relative">
           <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: 'url(/Img1.jpg)' }}></div>
           <div className="relative z-10 text-center">
             <h1 className="text-4xl font-bold text-gray-900 uppercase tracking-wider" style={{ fontFamily: '"Comic Sans MS", "Comic Sans", cursive', textShadow: '2px 2px 4px rgba(0,0,0,0.2)', letterSpacing: '0.1em' }}>
               MATRACA
             </h1>
-            <p className="mt-2 text-sm text-gray-600">Sistema de Gerenciamento de Cards</p>
+            <p className="mt-2 text-sm text-gray-600">Criar nova conta</p>
           </div>
         </div>
 
@@ -95,20 +120,17 @@ export default function Settings() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label 
-              htmlFor="username" 
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Nome de usuário
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              Nome completo
             </label>
             <input
               type="text"
-              id="username"
-              name="username"
-              value={user.username}
+              id="name"
+              name="name"
+              value={formData.name}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              placeholder="Digite seu nome de usuário"
+              placeholder="Digite seu nome completo"
               required
               style={{
                 backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -118,17 +140,34 @@ export default function Settings() {
           </div>
 
           <div>
-            <label 
-              htmlFor="password" 
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              E-mail
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              placeholder="Digite seu e-mail"
+              required
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(2px)'
+              }}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Senha
             </label>
             <input
               type="password"
               id="password"
               name="password"
-              value={user.password}
+              value={formData.password}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Digite sua senha"
@@ -140,24 +179,24 @@ export default function Settings() {
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                Lembrar-me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-                Esqueceu sua senha?
-              </a>
-            </div>
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              Confirmar senha
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              placeholder="Confirme sua senha"
+              required
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                backdropFilter: 'blur(2px)'
+              }}
+            />
           </div>
 
           <div>
@@ -165,22 +204,26 @@ export default function Settings() {
               type="submit"
               className="w-full flex justify-center py-2 px-4 rounded-lg text-white font-medium"
               style={{
-                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                backgroundColor: 'rgba(144, 238, 144, 0.8)',
                 backdropFilter: 'blur(2px)',
+                border: '1px solid rgba(144, 238, 144, 0.2)',
                 transition: 'all 0.3s ease'
               }}
             >
-              Entrar
+              Cadastrar
             </button>
           </div>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            Não tem uma conta?{' '}
-            <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
-              Cadastre-se
-            </a>
+            Já tem uma conta?{' '}
+            <button
+              onClick={() => navigate('/settings')}
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
+              Faça login
+            </button>
           </p>
         </div>
       </div>
