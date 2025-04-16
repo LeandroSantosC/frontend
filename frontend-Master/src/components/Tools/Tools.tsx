@@ -1,6 +1,5 @@
 import React from 'react';
 import { useToolsContext } from '../../context/ToolsContext';
-import './Tools.css';
 
 interface ToolsProps {
   categories: Array<{ id: number; name: string }>;
@@ -10,11 +9,9 @@ const Tools: React.FC<ToolsProps> = ({ categories }) => {
   const { setCategory, setSearch, editMode, setEditMode } = useToolsContext();
 
   return (
-    <div className="Tools">
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+      <div className="flex flex-row p-2 gap-2 items-center justify-between">
+        <div className="flex md:flex-row gap-4 w-full md:w-auto">
           <div className="w-full md:w-48">
-            <label htmlFor="category">Categoria</label>
             <select
               id="category"
               onChange={(e) => setCategory(e.target.value)}
@@ -30,7 +27,6 @@ const Tools: React.FC<ToolsProps> = ({ categories }) => {
           </div>
 
           <div className="w-full md:w-64">
-            <label htmlFor="search">Buscar</label>
             <input
               id="search"
               type="text"
@@ -42,7 +38,7 @@ const Tools: React.FC<ToolsProps> = ({ categories }) => {
         </div>
 
         <button 
-          className="rounded-full w-8 h-8 flex items-center justify-center"
+          className="rounded-full w-10 h-8 flex items-center justify-center"
           onClick={() => setEditMode(!editMode)}
           style={{
             backgroundColor: 'rgba(144, 238, 144, 0.3)',
@@ -54,7 +50,6 @@ const Tools: React.FC<ToolsProps> = ({ categories }) => {
           <span className="text-base">✏️</span>
         </button>
       </div>
-    </div>
   );
 };
 
