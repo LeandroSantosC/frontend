@@ -1,11 +1,15 @@
+import { useNavigate } from 'react-router-dom';
+
 interface HeaderProps {
   setMenuOpen: (open: boolean) => void;
 }
 
 function Header({ setMenuOpen }: HeaderProps) {
+  const navigate = useNavigate();
+
   return (
     <header
-      className="flex items-center justify-between text-white p-2 h-[7%] w-full"
+      className="flex items-center justify-center text-white p-2 h-[7%] w-full relative"
       style={{
         backgroundImage: `url(/Img1.jpg)`, // Caminho relativo à pasta src
         backgroundSize: 'cover', // Ajusta a imagem para cobrir o header
@@ -13,17 +17,6 @@ function Header({ setMenuOpen }: HeaderProps) {
         backgroundRepeat: 'no-repeat', // Evita repetição da imagem
       }}
     >
-      <button 
-        className="text-2xl p-2 rounded-full" 
-        onClick={() => setMenuOpen(true)}
-        style={{
-          backgroundColor: 'rgba(144, 238, 144, 0.3)',
-          backdropFilter: 'blur(2px)',
-          border: '1px solid rgba(144, 238, 144, 0.2)'
-        }}
-      >
-        ☰
-      </button>
       <h1 
         className="text-4xl font-bold tracking-wide" 
         style={{ 
@@ -38,11 +31,14 @@ function Header({ setMenuOpen }: HeaderProps) {
         MATRACA
       </h1>
       <button 
-        className="text-2xl p-2 rounded-full" 
+        className="text-2xl p-2 rounded-full absolute right-4" 
+        onClick={() => navigate('/profile')}
         style={{
-          backgroundColor: 'rgba(144, 238, 144, 0.3)',
+          backgroundColor: 'rgba(59, 130, 246, 0.8)',
           backdropFilter: 'blur(2px)',
-          border: '1px solid rgba(144, 238, 144, 0.2)'
+          border: '1px solid rgba(59, 130, 246, 0.3)',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          color: 'white'
         }}
       >
         👤

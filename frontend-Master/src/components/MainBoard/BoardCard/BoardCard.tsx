@@ -29,9 +29,9 @@ export default function BoardCard({ card, removeCard }: BoardCardProps) {
           <span className="text-gray-500">Imagem não disponível</span>
         </div>
       ) : (
-        <img 
-          src={img} 
-          alt={name} 
+        <img
+          src={img}
+          alt={name}
           className="flex relative h-full w-[100%] aspect-square pointer-events-none object-cover" 
           onError={handleImageError}
         />

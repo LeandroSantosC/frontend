@@ -19,9 +19,10 @@ export interface CardData {
 interface CardProps {
   card: CardData;
   editMode: boolean;
+  onDelete: () => void;
 }
 
-function Card({ card, editMode }: CardProps) {
+function Card({ card, editMode, onDelete }: CardProps) {
   const { name, image } = card;
   const [visible, setVisible] = useState(card.visible);
   const [imgError, setImgError] = useState(false);
@@ -55,7 +56,7 @@ function Card({ card, editMode }: CardProps) {
           <span className="pointer-events-none">{name}</span>
         </div>
       </div>
-      <CardTools isVisible={visible} setVisible={setVisible} editMode={editMode} />
+      <CardTools isVisible={visible} setVisible={setVisible} editMode={editMode} onDelete={onDelete} />
     </div>
   );
 }

@@ -3,7 +3,6 @@ import BoardCard from "./BoardCard/BoardCard";
 import { useMainBoardContext } from "../../context/MainboardContext";
 import { BoardContextType } from "../../context/MainboardContext";
 
-
 export default function MainBoard() {
   const { mainBoard, removeCard, removeAllCards, removeLastCard }:BoardContextType = useMainBoardContext();
 
@@ -26,10 +25,10 @@ export default function MainBoard() {
             backdropFilter: 'blur(2px)',
             border: '1px solid rgba(144, 238, 144, 0.2)'
           }}
-        >🔙</button>
-        <button 
+        >↩</button>
+        <button
           className="w-full rounded-full aspect-square" 
-          onClick={() => removeAllCards()} 
+          onClick={() => removeAllCards()}
           aria-label="Remover todos os cards"
           style={{
             backgroundColor: 'rgba(144, 238, 144, 0.3)',
@@ -39,7 +38,7 @@ export default function MainBoard() {
         >🗑️</button>
       </div>
       <div 
-        className="flex h-full grow overflow-x-scroll overflow-y-visible scrollbar-hide gap-2 p-1 items-center justify-center"
+        className="flex h-full grow overflow-x-scroll overflow-y-visible scrollbar-hide gap-2 p-1 items-center justify-start"
         style={{
           backgroundColor: 'rgba(144, 238, 144, 0.3)',
           backdropFilter: 'blur(2px)',

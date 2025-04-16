@@ -17,8 +17,8 @@ export default function MainBoard() {
   return (
     <div className="MainBoard">
       <div className="flex flex-col shrink-0 w-[15%] max-w-12 justify-around h-full">
-        <button className="bg-blue-500 w-full rounded-full aspect-square" onClick={() => removeLastCard()}>▶</button>
-        <button className="bg-blue-500 w-full rounded-full aspect-square" onClick={() => removeAllCards()} >▶</button>
+      <button className="bg-blue-500 w-full rounded-full aspect-square" onClick={removeLastCard} aria-label="Remover último card">🔙</button>
+        <button className="bg-blue-500 w-full rounded-full aspect-square" onClick={() => removeAllCards()} aria-label="Remover todos os cards">🗑️</button>
       </div>
       <div className="flex h-full grow overflow-x-scroll overflow-y-visible scrollbar-hide gap-2 p-1">
         {mainBoard.map((card) => {
@@ -26,7 +26,7 @@ export default function MainBoard() {
         })}
       </div>
       <div className="max-w-12 shrink-0 w-[15%]">
-        <button className="bg-blue-500 w-full rounded-full aspect-square" onClick={speak}>▶</button>
+        <button className="bg-blue-500 w-full rounded-full aspect-square" onClick={speak}>🔊</button>
       </div>
     </div>
   );
