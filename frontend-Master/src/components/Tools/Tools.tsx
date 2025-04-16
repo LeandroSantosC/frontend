@@ -42,7 +42,7 @@ const Tools: React.FC<ToolsProps> = ({ categories }) => {
         </div>
 
         <button 
-          className="p-2 rounded-full w-8 h-8 flex items-center justify-right"
+          className="rounded-full w-8 h-8 flex items-center justify-center"
           onClick={() => setEditMode(!editMode)}
           style={{
             backgroundColor: 'rgba(144, 238, 144, 0.3)',
@@ -51,7 +51,7 @@ const Tools: React.FC<ToolsProps> = ({ categories }) => {
             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
           }}
         >
-          <span className="text-lg">✏️</span>
+          <span className="text-base">✏️</span>
         </button>
       </div>
     </div>

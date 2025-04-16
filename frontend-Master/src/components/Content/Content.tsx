@@ -4,9 +4,10 @@ import { useToolsContext } from "../../context/ToolsContext";
 
 interface ContentProps {
   cards: CardData[];
+  onCardDelete: (cardId: number) => void;
 }
 
-function Content({ cards }: ContentProps) {
+function Content({ cards, onCardDelete }: ContentProps) {
   const [tab, setTab] = useState(true);
   const { category, search, editMode } = useToolsContext();
 
@@ -18,7 +19,7 @@ function Content({ cards }: ContentProps) {
       </div>
       {tab && <div className="flex grow-0 overflow-x-visible scrollbar-hide pb-4 pt-2 overflow-y-auto flex-row w-full justify-evenly gap-2 flex-wrap">
         {cards.map((card) => ( (category === card.category.name || category === "" || category === "Tudo") && card.name.toLowerCase().includes(search.toLowerCase()) ?
-          <Card card={card} editMode={editMode} />
+          <Card card={card} editMode={editMode} onDelete={() => onCardDelete(card.id)} />
         : "" ))}
       </div>}
       {!tab && 

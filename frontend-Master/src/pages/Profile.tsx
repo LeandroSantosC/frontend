@@ -44,7 +44,7 @@ export default function Profile() {
         backdropFilter: 'blur(2px)'
       }}
     >
-      <div 
+      <div
         className="relative w-full max-w-md p-8 space-y-8 rounded-lg shadow-lg"
         style={{
           backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -77,7 +77,7 @@ export default function Profile() {
           </div>
         </div>
 
-        <div className="mb-6">
+        <div>
           <button
             onClick={handleGoogleLogin}
             className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
@@ -118,7 +118,7 @@ export default function Profile() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit}>
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
               Nome completo
