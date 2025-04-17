@@ -16,7 +16,7 @@ interface MenuProps {
       <div 
         className="fixed top-0 left-0 w-full h-full flex items-center justify-center"
         style={{
-          backgroundColor: 'rgba(144, 238, 144, 0.3)',
+          backgroundColor: 'rgba(255, 255, 255, 0.7)',
           backdropFilter: 'blur(2px)'
         }}
       >

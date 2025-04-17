@@ -3,6 +3,7 @@ import Index from './pages/Index';
 import Settings from './pages/Settings';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import GoogleLogin from './pages/GoogleLogin';
 
 export default function App() {
   return (
@@ -12,6 +13,7 @@ export default function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/google-login" element={<GoogleLogin />} />
       </Routes>
     </Router>
   );

@@ -1,0 +1,1 @@
+<button class="rounded-full w-6 h-6 flex items-center justify-center" style="background-color: rgba(144, 238, 144, 0.3); backdrop-filter: blur(2px); border: 1px solid rgba(144, 238, 144, 0.2); box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;"><span class="text-sm">✏️</span></button> 

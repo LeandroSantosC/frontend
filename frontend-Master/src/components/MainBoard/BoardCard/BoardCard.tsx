@@ -1,44 +1,32 @@
-import "./BoardCard.css";
-import { useState } from "react";
-
-export interface BoardCardData {
-  id: number;
-  tempId: string;
-  name: string;
-  img: string;
-}
+import React, { useState } from 'react';
+import './BoardCard.css';
 
 interface BoardCardProps {
-  card: BoardCardData;
-  removeCard: () => void;
+  id: string;
+  name: string;
+  imageUrl: string;
 }
 
-export default function BoardCard({ card, removeCard }: BoardCardProps) {
-  const { name, img } = card;
+const BoardCard: React.FC<BoardCardProps> = ({ id, name, imageUrl }) => {
   const [imgError, setImgError] = useState(false);
 
-  const handleImageError = () => {
-    console.error('Error loading image:', img);
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     setImgError(true);
+    e.currentTarget.src = 'https://via.placeholder.com/150';
   };
 
   return (
-    <div className="boardCard overflow-hidden" onClick={removeCard}>
-      {imgError ? (
-        <div className="flex items-center justify-center h-full w-full bg-gray-200">
-          <span className="text-gray-500">Imagem não disponível</span>
-        </div>
-      ) : (
-        <img
-          src={img}
+    <div className="boardCard">
+      <div className="image-container">
+        <img 
+          src={imgError ? 'https://via.placeholder.com/150' : imageUrl} 
           alt={name}
-          className="flex relative h-full w-[100%] aspect-square pointer-events-none object-cover" 
           onError={handleImageError}
         />
-      )}
-      <div className="flex justify-center">
-        <span className="pointer-events-none">{name}</span>
       </div>
+      <div className="name">{name}</div>
     </div>
   );
-}
+};
+
+export default BoardCard;

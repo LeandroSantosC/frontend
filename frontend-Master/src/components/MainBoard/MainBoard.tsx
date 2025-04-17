@@ -21,9 +21,9 @@ export default function MainBoard() {
           onClick={removeLastCard} 
           aria-label="Remover último card"
           style={{
-            backgroundColor: 'rgba(144, 238, 144, 0.3)',
+            backgroundColor: 'rgba(255, 255, 255, 0.7)',
             backdropFilter: 'blur(2px)',
-            border: '1px solid rgba(144, 238, 144, 0.2)'
+            border: '1px solid rgba(0, 0, 0, 0.1)'
           }}
         >↩</button>
         <button
@@ -31,18 +31,18 @@ export default function MainBoard() {
           onClick={() => removeAllCards()}
           aria-label="Remover todos os cards"
           style={{
-            backgroundColor: 'rgba(144, 238, 144, 0.3)',
+            backgroundColor: 'rgba(255, 255, 255, 0.7)',
             backdropFilter: 'blur(2px)',
-            border: '1px solid rgba(144, 238, 144, 0.2)'
+            border: '1px solid rgba(0, 0, 0, 0.1)'
           }}
         >🗑️</button>
       </div>
       <div 
         className="flex h-full grow overflow-x-scroll overflow-y-visible scrollbar-hide gap-2 p-1 items-center justify-start"
         style={{
-          backgroundColor: 'rgba(144, 238, 144, 0.3)',
+          backgroundColor: 'rgba(255, 255, 255, 0.7)',
           backdropFilter: 'blur(2px)',
-          border: '1px solid rgba(144, 238, 144, 0.2)',
+          border: '1px solid rgba(0, 0, 0, 0.1)',
           borderRadius: '8px'
         }}
       >
@@ -55,9 +55,9 @@ export default function MainBoard() {
           className="w-full rounded-full aspect-square" 
           onClick={speak}
           style={{
-            backgroundColor: 'rgba(144, 238, 144, 0.3)',
+            backgroundColor: 'rgba(255, 255, 255, 0.7)',
             backdropFilter: 'blur(2px)',
-            border: '1px solid rgba(144, 238, 144, 0.2)'
+            border: '1px solid rgba(0, 0, 0, 0.1)'
           }}
         >🔊</button>
       </div>
