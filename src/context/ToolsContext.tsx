@@ -3,8 +3,8 @@ import { createContext, ReactNode, useContext, useState, Dispatch, SetStateActio
 export interface ToolsContextType {
     editMode: boolean;
     setEditMode: Dispatch<SetStateAction<boolean>>;
-    category: string;
-    setCategory: Dispatch<SetStateAction<string>>;
+    categorySelected: string;
+    setCategorySelected: Dispatch<SetStateAction<string>>;
     search: string;
     setSearch: Dispatch<SetStateAction<string>>;
 }
@@ -13,11 +13,11 @@ const ToolsContext = createContext<ToolsContextType | undefined>(undefined);
 
 export function ToolsProvider({ children }: { children: ReactNode }) {
     const [editMode, setEditMode] = useState(false);
-    const [category, setCategory] = useState<string>("Tudo");
+    const [categorySelected, setCategorySelected] = useState<string>("tudo");
     const [search, setSearch] = useState<string>("");
 
   return (
-    <ToolsContext.Provider value={{ editMode, setEditMode, category, setCategory, search, setSearch }}>
+    <ToolsContext.Provider value={{ editMode, setEditMode, categorySelected, setCategorySelected, search, setSearch }}>
       {children}
     </ToolsContext.Provider>
   );
