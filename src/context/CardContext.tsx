@@ -8,7 +8,7 @@ import { deleteCard as deleteCardAPI,
 export interface CardContextType {
   cards: CardData[];
   setCards: React.Dispatch<React.SetStateAction<CardData[]>>;
-  categories: string[];
+  categories: {id: string, name: string}[];
   createCard: (data: CardData) => Promise<void>;
   deleteCard: (id: string) => Promise<void>;
   updateCard: (id: string, data: CardData) => Promise<void>;
@@ -18,7 +18,7 @@ const CardContext = createContext<CardContextType | undefined>(undefined);
 
 export function CardProvider({ children }: { children: ReactNode }) {
   const [cards, setCards] = useState<CardData[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
 
   useEffect(() => {
     const fetchCards = async () => {
@@ -33,8 +33,8 @@ export function CardProvider({ children }: { children: ReactNode }) {
   
   useEffect(() => {
     setCategories(cards
-      .map((card) => card.category.name)
-      .filter((name, index, self) => self.findIndex((t) => t === name) === index));
+      .map((card) => card.category)
+      .filter((category, index, self) => self.findIndex((t) => t.name === category.name) === index));
   }, [cards]);
 
   const deleteCard = async (id: string) => {

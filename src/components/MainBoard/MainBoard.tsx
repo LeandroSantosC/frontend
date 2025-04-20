@@ -2,6 +2,7 @@ import "./MainBoard.css";
 import BoardCard from "./BoardCard/BoardCard";
 import { useMainBoardContext } from "../../context/MainboardContext";
 import { BoardContextType } from "../../context/MainboardContext";
+import { Icon } from "@iconify/react";
 
 
 export default function MainBoard() {
@@ -17,16 +18,17 @@ export default function MainBoard() {
   return (
     <div className="MainBoard">
       <div className="flex flex-col shrink-0 w-[15%] max-w-12 justify-around h-full">
-        <button className="bg-blue-500 w-full rounded-full aspect-square" onClick={() => removeLastCard()}>▶</button>
-        <button className="bg-blue-500 w-full rounded-full aspect-square" onClick={() => removeAllCards()} >▶</button>
+        <button className="bg-red-500 w-full rounded-full aspect-square text-white" onClick={() => removeLastCard()}><Icon icon="solar:backspace-bold" width="100%" height="70%" /></button>
+        <button className="bg-red-500 w-full rounded-full aspect-square text-white" onClick={() => removeAllCards()} ><Icon icon="solar:trash-bin-trash-bold" width="100%" height="70%" /></button>
       </div>
       <div className="flex h-full grow overflow-x-scroll overflow-y-visible scrollbar-hide gap-2 p-1">
         {mainBoard.map((card) => {
           return <BoardCard key={card.tempId} card={card} removeCard={() => removeCard(card.tempId)} />
         })}
       </div>
-      <div className="max-w-12 shrink-0 w-[15%]">
-        <button className="bg-blue-500 w-full rounded-full aspect-square" onClick={speak}>▶</button>
+            <div className="flex flex-col shrink-0 w-[15%] max-w-12 justify-around h-full">
+        <button className="bg-blue-500 w-full rounded-full text-center justify-center items-center align-middle aspect-square text-white" onClick={speak}><Icon icon="solar:clipboard-add-bold" width="100%" height="70%" /></button>
+        <button className="bg-blue-500 w-full rounded-full text-center justify-center items-center align-middle aspect-square text-white" onClick={speak}><Icon icon="solar:play-bold" width="100%" height="60%" /></button>
       </div>
     </div>
   );

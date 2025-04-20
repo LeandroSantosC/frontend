@@ -3,6 +3,8 @@ import { BoardCardData } from "../components/MainBoard/BoardCard/BoardCard";
 import { ReactNode } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { CardData } from "../components/Content/Card/Card";
+import { conjugate } from "../utils/conjugador.ts"
+
 
 export interface BoardContextType {
     mainBoard: BoardCardData[];
@@ -18,6 +20,26 @@ const MainBoardContext = createContext<BoardContextType | undefined>(undefined);
 export function MainBoardProvider({ children }: { children: ReactNode }) {
   const [mainBoard, setMainBoard] = useState<BoardCardData[]>([]);
 
+  const pronomes = {
+    eu: 0,
+    tu: 1,
+    você: 2,
+    voce: 2,
+    ele: 2,
+    ela: 2,
+    nós: 3,
+    nos: 3,
+    vós: 4,
+    vos: 4,
+    vocês: 5,
+    voces: 5,
+    eles: 5,
+    elas: 5,
+  } as const;
+  
+  type Pronome = keyof typeof pronomes;
+  
+
   const addCardOnMainBoard = (card: CardData) => {
     const newBoardCard: BoardCardData = {
       id: card.id,
@@ -25,8 +47,22 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
       name: card.name,
       img: card.image,
     };
+
+    if(card.name.endsWith("ar") || 
+      card.name.endsWith("er") || 
+      card.name.endsWith("ir") || 
+      card.name.endsWith("pôr")){
+
+      const lastWord = mainBoard.slice(-1)[0]?.name;
+
+      if(lastWord in pronomes){
+        const index = pronomes[lastWord as Pronome];
+        newBoardCard.name = conjugate(card.name).p[index];
+      }
+    }
+
     window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(card.name));
+    window.speechSynthesis.speak(new SpeechSynthesisUtterance(newBoardCard.name));
     setMainBoard((prevCards: BoardCardData[]) => [...prevCards, newBoardCard]);
   };
 

@@ -1,7 +1,7 @@
 import "./BoardCard.css";
 
 export interface BoardCardData {
-  id: number;
+  id: string;
   tempId: string;
   name: string;
   img: string;
