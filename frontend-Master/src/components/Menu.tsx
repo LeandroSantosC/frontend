@@ -11,6 +11,7 @@ function Menu({ setMenuOpen }: MenuProps) {
   const [voicePitch, setVoicePitch] = useState(1);
   const [selectedVoice, setSelectedVoice] = useState("");
   const [activeSection, setActiveSection] = useState<'main' | 'voice' | 'cards'>('main');
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const testVoice = () => {
     const utterance = new SpeechSynthesisUtterance("Teste de voz");
@@ -23,15 +24,29 @@ function Menu({ setMenuOpen }: MenuProps) {
     window.speechSynthesis.speak(utterance);
   };
 
+  const applyVoiceSettings = () => {
+    // Save voice settings to localStorage
+    localStorage.setItem('voiceSettings', JSON.stringify({
+      selectedVoice,
+      voiceSpeed,
+      voicePitch
+    }));
+    
+    // Show confirmation message
+    setShowConfirmation(true);
+    setTimeout(() => setShowConfirmation(false), 3000);
+  };
+
   const renderMainMenu = () => (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">Menu</h2>
+        <h2 className="text-xl font-semibold">CONFIGURAÇÕES</h2>
         <button
           onClick={() => setMenuOpen(false)}
-          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
+          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm flex items-center justify-center"
+          style={{ width: '30px', height: '30px' }}
         >
-          Fechar
+          ✕
         </button>
       </div>
       <button
@@ -126,6 +141,19 @@ function Menu({ setMenuOpen }: MenuProps) {
         >
           <span>▶</span> Testar voz
         </button>
+        
+        <button
+          onClick={applyVoiceSettings}
+          className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+        >
+          <span>✓</span> Aplicar configurações
+        </button>
+        
+        {showConfirmation && (
+          <div className="mt-2 p-2 bg-green-100 text-green-800 rounded text-center">
+            Configurações aplicadas com sucesso!
+          </div>
+        )}
       </div>
     </div>
   );

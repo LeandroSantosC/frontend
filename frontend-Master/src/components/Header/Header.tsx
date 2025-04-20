@@ -34,8 +34,23 @@ function Header({ setMenuOpen, setSettingsOpen }: HeaderProps) {
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
       
-      {/* Content layer */}
-      <div className="relative z-20 flex items-center justify-between w-full max-w-[1440px] mx-auto">
+      {/* Corner buttons */}
+      <div className="absolute top-3 right-4 flex gap-2 z-20">
+        <button
+          className="w-10 h-10 rounded-full flex items-center justify-center"
+          onClick={() => navigate("/settings")}
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.7)",
+            backdropFilter: "blur(2px)",
+            border: "1px solid rgba(0, 0, 0, 0.1)",
+            fontSize: "1.25rem"
+          }}
+        >
+          👤
+        </button>
+      </div>
+      
+      <div className="absolute top-3 left-4 z-20">
         <button 
           className="w-10 h-10 rounded-full flex items-center justify-center"
           onClick={() => setMenuOpen(true)}
@@ -46,9 +61,12 @@ function Header({ setMenuOpen, setSettingsOpen }: HeaderProps) {
             fontSize: "1.5rem"
           }}
         >
-          ☰
+          ⚙️
         </button>
-
+      </div>
+      
+      {/* Content layer - centered title */}
+      <div className="flex items-center justify-center w-full relative z-10">
         <h1
           className="text-3xl sm:text-4xl md:text-5xl font-bold uppercase tracking-wider"
           style={{
@@ -109,19 +127,6 @@ function Header({ setMenuOpen, setSettingsOpen }: HeaderProps) {
             display: 'inline-block'
           }}>A</span>
         </h1>
-
-        <button
-          className="w-10 h-10 rounded-full flex items-center justify-center"
-          onClick={() => navigate("/settings")}
-          style={{
-            backgroundColor: "rgba(255, 255, 255, 0.7)",
-            backdropFilter: "blur(2px)",
-            border: "1px solid rgba(0, 0, 0, 0.1)",
-            fontSize: "1.25rem"
-          }}
-        >
-          👤
-        </button>
       </div>
     </header>
   );

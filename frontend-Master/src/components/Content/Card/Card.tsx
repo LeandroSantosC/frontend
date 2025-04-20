@@ -60,5 +60,5 @@ function Card({ card, editMode, onDelete }: CardProps) {
     </div>
   );
 }
-
 export default Card;
+
