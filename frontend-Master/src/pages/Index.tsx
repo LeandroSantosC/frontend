@@ -29,6 +29,10 @@ export default function Index() {
     setCards((prevCards) => prevCards.filter((card) => card.id !== cardId));
   };
 
+  const handleCardReorder = (newOrder: CardData[]) => {
+    setCards(newOrder);
+  };
+
   const categories = cards
     .map((card) => card.category)
     .filter(
@@ -50,6 +54,7 @@ export default function Index() {
             <Content
               cards={cards}
               onCardDelete={handleCardDelete}
+              onReorder={handleCardReorder}
               className="flex-grow overflow-y-auto"
             />
           </ToolsProvider>

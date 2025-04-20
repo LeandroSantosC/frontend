@@ -2,14 +2,17 @@ import Card, { CardData } from "./Card/Card";
 import { useState, useEffect } from "react";
 import { useToolsContext } from "../../context/ToolsContext";
 import { useCardSize } from "../../context/CardSizeContext";
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 interface ContentProps {
   cards: CardData[];
   onCardDelete: (cardId: number) => void;
   className?: string;
+  onReorder?: (newOrder: CardData[]) => void;
 }
 
-function Content({ cards, onCardDelete, className = "" }: ContentProps) {
+function Content({ cards, onCardDelete, className = "", onReorder }: ContentProps) {
   const { editMode, category, search } = useToolsContext();
   const { cardSize } = useCardSize();
   const [filteredCards, setFilteredCards] = useState<CardData[]>([]);
@@ -44,20 +47,35 @@ function Content({ cards, onCardDelete, className = "" }: ContentProps) {
     console.log("Cards filtrados:", filtered.map(card => card.name));
   }, [cards, category, search]);
 
+  const moveCard = (dragIndex: number, hoverIndex: number) => {
+    const newCards = [...filteredCards];
+    const draggedCard = newCards[dragIndex];
+    newCards.splice(dragIndex, 1);
+    newCards.splice(hoverIndex, 0, draggedCard);
+    setFilteredCards(newCards);
+    if (onReorder) {
+      onReorder(newCards);
+    }
+  };
+
   return (
-    <div
-      className={`flex flex-wrap gap-4 p-4 justify-center content-start overflow-y-auto ${className}`}
-      style={style}
-    >
-      {filteredCards.map((card) => (
-        <Card 
-          key={card.id} 
-          card={card} 
-          editMode={editMode}
-          onDelete={() => onCardDelete(card.id)}
-        />
-      ))}
-    </div>
+    <DndProvider backend={HTML5Backend}>
+      <div
+        className={`flex flex-wrap gap-4 p-4 justify-center content-start overflow-y-auto ${className}`}
+        style={style}
+      >
+        {filteredCards.map((card, index) => (
+          <Card 
+            key={card.id} 
+            card={card} 
+            index={index}
+            editMode={editMode}
+            onDelete={() => onCardDelete(card.id)}
+            moveCard={moveCard}
+          />
+        ))}
+      </div>
+    </DndProvider>
   );
 }
 

@@ -1,22 +1,53 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { login, getStoredAuth } from '../services/AuthService';
 
 interface User {
   username: string;
   password: string;
+  rememberMe: boolean;
 }
 
 export default function Settings() {
   const [user, setUser] = useState<User>({
     username: '',
-    password: ''
+    password: '',
+    rememberMe: false
   });
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Check if user is already logged in
+    const { user: storedUser } = getStoredAuth();
+    if (storedUser) {
+      navigate('/');
+    }
+  }, [navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login data:', user);
-    navigate('/');
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const result = await login({
+        username: user.username,
+        password: user.password,
+        rememberMe: user.rememberMe
+      });
+
+      if (result.success) {
+        navigate('/');
+      } else {
+        setError(result.error || 'Erro ao fazer login');
+      }
+    } catch (err) {
+      setError('Erro ao fazer login. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGoogleLogin = () => {
@@ -25,10 +56,10 @@ export default function Settings() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setUser(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -163,6 +194,12 @@ export default function Settings() {
           </div>
         </div>
 
+        {error && (
+          <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label 
@@ -213,12 +250,14 @@ export default function Settings() {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
-                id="remember-me"
-                name="remember-me"
+                id="rememberMe"
+                name="rememberMe"
                 type="checkbox"
+                checked={user.rememberMe}
+                onChange={handleChange}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+              <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
                 Lembrar-me
               </label>
             </div>
@@ -240,10 +279,12 @@ export default function Settings() {
               style={{
                 backgroundColor: 'rgba(59, 130, 246, 0.8)',
                 backdropFilter: 'blur(2px)',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.3s ease',
+                opacity: isLoading ? 0.7 : 1
               }}
+              disabled={isLoading}
             >
-              Entrar
+              {isLoading ? 'Entrando...' : 'Entrar'}
             </button>
           </div>
         </form>
