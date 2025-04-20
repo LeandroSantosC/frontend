@@ -20,12 +20,10 @@ export default function Profile() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Profile data:', formData);
-    // Aqui você implementaria a lógica de cadastro
   };
 
   const handleGoogleLogin = () => {
     console.log('Google login clicked');
-    // Aqui você implementaria a lógica de login com o Google
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +36,7 @@ export default function Profile() {
 
   return (
     <div 
-      className="flex flex-col items-center justify-center min-h-screen"
+      className="flex flex-col items-center justify-center min-h-screen p-4"
       style={{
         backgroundColor: 'rgba(144, 238, 144, 0.3)',
         backdropFilter: 'blur(2px)'
@@ -53,23 +51,29 @@ export default function Profile() {
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
         }}
       >
-        <div className="absolute top-4 left-4">
-          <button
-            onClick={() => navigate('/')}
-            className="text-2xl p-2 rounded-full"
-            style={{
-              backgroundColor: 'rgba(144, 238, 144, 0.3)',
-              backdropFilter: 'blur(2px)',
-              border: '1px solid rgba(144, 238, 144, 0.2)'
-            }}
-          >
-            ↩
-          </button>
-        </div>
-        
         <div className="relative">
           <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: 'url(/Img1.jpg)' }}></div>
           <div className="relative z-10 text-center">
+            <button
+              onClick={() => {
+                console.log('Back button clicked, navigating to previous page');
+                try {
+                  navigate(-1);
+                } catch (error) {
+                  console.error('Navigation failed:', error);
+                  window.history.back();
+                }
+              }}
+              className="absolute left-0 top-1/2 -translate-y-1/2 text-2xl p-2 rounded-full z-20"
+              style={{
+                backgroundColor: 'rgba(144, 238, 144, 0.3)',
+                backdropFilter: 'blur(2px)',
+                border: '1px solid rgba(144, 238, 144, 0.2)',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ↩
+            </button>
             <h1 className="text-4xl font-bold text-gray-900 uppercase tracking-wider" style={{ fontFamily: '"Comic Sans MS", "Comic Sans", cursive', textShadow: '2px 2px 4px rgba(0,0,0,0.2)', letterSpacing: '0.1em' }}>
               MATRACA
             </h1>
@@ -118,7 +122,7 @@ export default function Profile() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
               Nome completo
@@ -229,4 +233,4 @@ export default function Profile() {
       </div>
     </div>
   );
-} 
+}

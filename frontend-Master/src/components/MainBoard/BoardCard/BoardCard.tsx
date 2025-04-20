@@ -4,10 +4,10 @@ import './BoardCard.css';
 interface BoardCardProps {
   id: string;
   name: string;
-  imageUrl: string;
+  image: string;
 }
 
-const BoardCard: React.FC<BoardCardProps> = ({ id, name, imageUrl }) => {
+const BoardCard: React.FC<BoardCardProps> = ({ id, name, image }) => {
   const [imgError, setImgError] = useState(false);
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -19,7 +19,7 @@ const BoardCard: React.FC<BoardCardProps> = ({ id, name, imageUrl }) => {
     <div className="boardCard">
       <div className="image-container">
         <img 
-          src={imgError ? 'https://via.placeholder.com/150' : imageUrl} 
+          src={imgError ? 'https://via.placeholder.com/150' : image} 
           alt={name}
           onError={handleImageError}
         />

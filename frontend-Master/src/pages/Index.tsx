@@ -1,6 +1,5 @@
-import Header from "../components/Header/Header"
-// import Board from "../components/Board";
-import Tools from "../components/Tools/Tools"
+import Header from "../components/Header/Header";
+import Tools from "../components/Tools/Tools";
 import Menu from "../components/Menu";
 import Content from "../components/Content/Content";
 import { useState, useEffect } from "react";
@@ -11,7 +10,6 @@ import { ToolsProvider } from "../context/ToolsContext";
 import { getCards } from "../services/CardAPI";
 
 export default function Index() {
-
   const [menuOpen, setMenuOpen] = useState(false);
   const [cards, setCards] = useState<CardData[]>([]);
 
@@ -27,24 +25,31 @@ export default function Index() {
   }, []);
 
   const handleCardDelete = (cardId: number) => {
-    setCards(prevCards => prevCards.filter(card => card.id !== cardId));
+    setCards((prevCards) => prevCards.filter((card) => card.id !== cardId));
   };
 
-  const categories = cards.map((card) => card.category).filter((category, index, self) => self.findIndex((t) => t.id === category.id) === index);
-
-  // const boardButtons = [
-  //   { id: 1, text: "BoardBtn 1" },
-  //   { id: 2, text: "BoardBtn 2" },
-  // ];
+  const categories = cards
+    .map((card) => card.category)
+    .filter(
+      (category, index, self) =>
+        self.findIndex((t) => t.id === category.id) === index
+    );
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden">
+    <div
+      className="flex flex-col min-h-screen w-screen"
+      style={{ boxSizing: "border-box" }}
+    >
       <Header setMenuOpen={setMenuOpen} />
       <MainBoardProvider>
         <MainBoard />
         <ToolsProvider>
           <Tools categories={categories} />
-          <Content cards={cards} onCardDelete={handleCardDelete} />
+          <Content
+            cards={cards}
+            onCardDelete={handleCardDelete}
+            className="flex-grow overflow-y-auto"
+          />
         </ToolsProvider>
       </MainBoardProvider>
       {menuOpen && <Menu setMenuOpen={setMenuOpen} />}

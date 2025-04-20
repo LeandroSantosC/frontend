@@ -31,11 +31,31 @@ export default function Register() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="relative w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg">
         <div className="relative">
           <div className="absolute inset-0 bg-cover bg-center opacity-20" style={{ backgroundImage: 'url(/im1.png)' }}></div>
           <div className="relative z-10 text-center">
+            <button
+              onClick={() => {
+                console.log('Back button clicked, navigating to previous page');
+                try {
+                  navigate(-1);
+                } catch (error) {
+                  console.error('Navigation failed:', error);
+                  window.history.back();
+                }
+              }}
+              className="absolute left-0 top-1/2 -translate-y-1/2 text-2xl p-2 rounded-full z-20"
+              style={{
+                backgroundColor: 'rgba(144, 238, 144, 0.3)',
+                backdropFilter: 'blur(2px)',
+                border: '1px solid rgba(144, 238, 144, 0.2)',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              ↩
+            </button>
             <h1 
               className="text-5xl font-bold uppercase tracking-wider" 
               style={{ 
@@ -222,4 +242,4 @@ export default function Register() {
       </div>
     </div>
   );
-} 
+}
