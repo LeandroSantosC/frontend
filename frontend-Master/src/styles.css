@@ -23,8 +23,8 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
   font-family: "Comic Sans MS", "Comic Sans", cursive;
-  transform: perspective(1000px);
-  transform-style: preserve-3d;
+ /* transform: perspective(1000px);
+  transform-style: preserve-3d; */
 }
 
 #root {
@@ -37,17 +37,20 @@ body {
     0 10px 20px rgba(0, 0, 0, 0.1),
     0 6px 6px rgba(0, 0, 0, 0.1),
     0 0 100px rgba(144, 238, 144, 0.2);
-  transform: translateZ(20px);
-  transform-style: preserve-3d;
+ /* transform: translateZ(20px);
+  transform-style: preserve-3d;*/
 }
 
 * {
   font-family: "Comic Sans MS", "Comic Sans", cursive;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Efeito 3D para elementos principais */
 header, main, footer {
-  transform: translateZ(30px);
+ /* transform: translateZ(30px); */
   box-shadow: 
     0 5px 15px rgba(0, 0, 0, 0.1),
     0 3px 3px rgba(0, 0, 0, 0.1);
@@ -55,7 +58,7 @@ header, main, footer {
 
 /* Efeito 3D para cards e botões */
 .card, button {
-  transform: translateZ(40px);
+  /* transform: translateZ(40px); */
   box-shadow: 
     0 8px 16px rgba(0, 0, 0, 0.1),
     0 4px 4px rgba(0, 0, 0, 0.1);
@@ -63,7 +66,7 @@ header, main, footer {
 }
 
 .card:hover, button:hover {
-  transform: translateZ(50px);
+  /* transform: translateZ(50px); */
   box-shadow: 
     0 12px 24px rgba(0, 0, 0, 0.15),
     0 6px 6px rgba(0, 0, 0, 0.15);

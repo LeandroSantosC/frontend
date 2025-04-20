@@ -1,11 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 interface User {
   username: string;
   email: string;
   password: string;
   confirmPassword: string;
+}
+
+interface FormErrors {
+  username?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  general?: string;
 }
 
 export default function Register() {
@@ -15,11 +24,71 @@ export default function Register() {
     password: '',
     confirmPassword: ''
   });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateForm = () => {
+    const newErrors: FormErrors = {};
+    
+    if (!user.username.trim()) {
+      newErrors.username = 'Nome de usuário é obrigatório';
+    }
+    
+    if (!user.email.trim()) {
+      newErrors.email = 'Email é obrigatório';
+    } else if (!/\S+@\S+\.\S+/.test(user.email)) {
+      newErrors.email = 'Email inválido';
+    }
+    
+    if (!user.password) {
+      newErrors.password = 'Senha é obrigatória';
+    } else if (user.password.length < 6) {
+      newErrors.password = 'A senha deve ter pelo menos 6 caracteres';
+    }
+    
+    if (user.password !== user.confirmPassword) {
+      newErrors.confirmPassword = 'As senhas não coincidem';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Register data:', user);
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsLoading(true);
+    setErrors({});
+    
+    try {
+      // Simulando uma chamada de API
+      // Substitua isso pela sua API real quando estiver pronta
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Simulando sucesso no cadastro
+      console.log('Usuário cadastrado com sucesso:', {
+        username: user.username,
+        email: user.email
+      });
+      
+      // Mostrar popup de sucesso
+      setShowSuccessPopup(true);
+      
+      // Redirecionar para a página de login após 2 segundos
+      setTimeout(() => {
+        navigate('/settings');
+      }, 2000);
+    } catch (error) {
+      setErrors({ general: 'Ocorreu um erro ao tentar cadastrar. Tente novamente.' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,6 +97,14 @@ export default function Register() {
       ...prev,
       [name]: value
     }));
+    
+    // Limpar o erro do campo quando o usuário começa a digitar
+    if (errors[name as keyof FormErrors]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }));
+    }
   };
 
   return (
@@ -61,7 +138,6 @@ export default function Register() {
               style={{ 
                 fontFamily: '"Comic Sans MS", "Comic Sans", cursive',
                 letterSpacing: '0.1em',
-                transform: 'perspective(500px) rotateX(10deg)',
                 WebkitTextFillColor: 'transparent',
                 WebkitBackgroundClip: 'text'
               }}
@@ -120,6 +196,29 @@ export default function Register() {
           </div>
         </div>
 
+        {showSuccessPopup && (
+          <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded-md">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-green-700">
+                  Cadastro efetuado com sucesso! Redirecionando para o login...
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {errors.general && (
+          <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+            {errors.general}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label 
@@ -134,7 +233,7 @@ export default function Register() {
               name="username"
               value={user.username}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className={`w-full px-4 py-2 rounded-lg border ${errors.username ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
               placeholder="Digite seu nome de usuário"
               required
               style={{
@@ -142,6 +241,7 @@ export default function Register() {
                 backdropFilter: 'blur(2px)'
               }}
             />
+            {errors.username && <p className="mt-1 text-sm text-red-500">{errors.username}</p>}
           </div>
 
           <div>
@@ -157,7 +257,7 @@ export default function Register() {
               name="email"
               value={user.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className={`w-full px-4 py-2 rounded-lg border ${errors.email ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
               placeholder="Digite seu email"
               required
               style={{
@@ -165,6 +265,7 @@ export default function Register() {
                 backdropFilter: 'blur(2px)'
               }}
             />
+            {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
           </div>
 
           <div>
@@ -180,7 +281,7 @@ export default function Register() {
               name="password"
               value={user.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className={`w-full px-4 py-2 rounded-lg border ${errors.password ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
               placeholder="Digite sua senha"
               required
               style={{
@@ -188,6 +289,7 @@ export default function Register() {
                 backdropFilter: 'blur(2px)'
               }}
             />
+            {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password}</p>}
           </div>
 
           <div>
@@ -203,7 +305,7 @@ export default function Register() {
               name="confirmPassword"
               value={user.confirmPassword}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className={`w-full px-4 py-2 rounded-lg border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'} focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
               placeholder="Confirme sua senha"
               required
               style={{
@@ -211,6 +313,7 @@ export default function Register() {
                 backdropFilter: 'blur(2px)'
               }}
             />
+            {errors.confirmPassword && <p className="mt-1 text-sm text-red-500">{errors.confirmPassword}</p>}
           </div>
 
           <div>
@@ -220,10 +323,12 @@ export default function Register() {
               style={{
                 backgroundColor: 'rgba(59, 130, 246, 0.8)',
                 backdropFilter: 'blur(2px)',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.3s ease',
+                opacity: isLoading ? 0.7 : 1
               }}
+              disabled={isLoading}
             >
-              Cadastrar
+              {isLoading ? 'Cadastrando...' : 'Cadastrar'}
             </button>
           </div>
         </form>

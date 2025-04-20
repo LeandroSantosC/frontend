@@ -55,7 +55,7 @@ export default function ForgotPassword() {
               style={{ 
                 fontFamily: '"Comic Sans MS", "Comic Sans", cursive',
                 letterSpacing: '0.1em',
-                transform: 'perspective(500px) rotateX(10deg)',
+                /* transform: 'perspective(500px) rotateX(10deg)', */
                 WebkitTextFillColor: 'transparent',
                 WebkitBackgroundClip: 'text'
               }}
