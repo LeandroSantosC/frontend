@@ -1,30 +1,27 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-interface User {
-  email: string;
-  password: string;
-}
-
-export default function GoogleLogin() {
-  const [user, setUser] = useState<User>({
-    email: '',
-    password: ''
-  });
+export default function ForgotPassword() {
+  const [email, setEmail] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Google login data:', user);
-    navigate('/');
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setUser(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Validação básica de email
+    if (!email || !email.includes('@')) {
+      setError('Por favor, insira um email válido');
+      return;
+    }
+    
+    // Simulação de envio de email de recuperação
+    console.log('Enviando email de recuperação para:', email);
+    
+    // Mostrar mensagem de sucesso
+    setIsSubmitted(true);
+    setError('');
   };
 
   return (
@@ -113,107 +110,67 @@ export default function GoogleLogin() {
                 display: 'inline-block'
               }}>A</span>
             </h1>
-            <p className="mt-2 text-sm text-gray-600">Login com Google</p>
+            <p className="mt-2 text-sm text-gray-600">RECUPERAR SENHA</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label 
-              htmlFor="email" 
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Email do Google
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={user.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              placeholder="Digite seu email do Google"
-              required
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(2px)'
-              }}
-            />
-          </div>
-
-          <div>
-            <label 
-              htmlFor="password" 
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Senha
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={user.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              placeholder="Digite sua senha"
-              required
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                backdropFilter: 'blur(2px)'
-              }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                Lembrar-me
+        {!isSubmitted ? (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label 
+                htmlFor="email" 
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Email
               </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                placeholder="Digite seu email cadastrado"
+                required
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  backdropFilter: 'blur(2px)'
+                }}
+              />
+              {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
             </div>
 
-            <div className="text-sm">
-              <button 
-                onClick={() => navigate('/forgot-password')}
-                className="font-medium text-blue-600 hover:text-blue-500"
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center py-2 px-4 rounded-lg text-white font-medium"
+                style={{
+                  backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                  backdropFilter: 'blur(2px)',
+                  transition: 'all 0.3s ease'
+                }}
               >
-                Esqueceu sua senha?
+                Enviar instruções
               </button>
             </div>
-          </div>
-
-          <div>
+          </form>
+        ) : (
+          <div className="text-center space-y-4">
+            <div className="text-green-600 text-xl">✓</div>
+            <h3 className="text-xl font-medium">Email enviado!</h3>
+            <p className="text-gray-600">
+              Enviamos instruções para redefinir sua senha para o email {email}.
+              Por favor, verifique sua caixa de entrada.
+            </p>
             <button
-              type="submit"
-              className="w-full flex justify-center py-2 px-4 rounded-lg text-white font-medium"
-              style={{
-                backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                backdropFilter: 'blur(2px)',
-                transition: 'all 0.3s ease'
-              }}
+              onClick={() => navigate('/settings')}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
             >
-              Entrar com Google
+              Voltar para o login
             </button>
           </div>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Voltar para{' '}
-            <button 
-              onClick={() => navigate('/settings')}
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
-              Login normal
-            </button>
-          </p>
-        </div>
+        )}
       </div>
     </div>
   );
-}
+} 

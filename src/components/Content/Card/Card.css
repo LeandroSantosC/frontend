@@ -2,7 +2,7 @@
     display: flex;
     /* flex: 0 1 clamp(80px, calc(33.3% - 2%), 130px); */
     border-radius: 10%;
-    width: clamp(80px, calc(33.3% - 4%), 130px);
+    width: var(--card-size);
     height: auto;
     aspect-ratio: 1 / 1.25;
     flex-direction: column;

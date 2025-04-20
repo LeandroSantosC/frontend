@@ -13,7 +13,7 @@ const ToolsContext = createContext<ToolsContextType | undefined>(undefined);
 
 export function ToolsProvider({ children }: { children: ReactNode }) {
     const [editMode, setEditMode] = useState(false);
-    const [category, setCategory] = useState<string>("Tudo");
+    const [category, setCategory] = useState<string>("");
     const [search, setSearch] = useState<string>("");
 
   return (

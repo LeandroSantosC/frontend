@@ -15,7 +15,7 @@ export default function MainBoard() {
 
   return (
     <div className="MainBoard">
-      <div className="flex flex-col shrink-0 w-[15%] max-w-[48px] justify-around h-full">
+      <div className="flex flex-col shrink-0 w-[15%] max-w-[48px] justify-around h-full px-2">
         <button
           className="w-full rounded-full aspect-square"
           onClick={removeLastCard}
@@ -63,7 +63,7 @@ export default function MainBoard() {
         ))}
       </div>
 
-      <div className="max-w-[48px] shrink-0 w-[15%]">
+      <div className="max-w-[48px] shrink-0 w-[15%] px-2">
         <button
           className="w-full rounded-full aspect-square"
           onClick={speak}

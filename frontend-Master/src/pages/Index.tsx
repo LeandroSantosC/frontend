@@ -7,6 +7,7 @@ import { CardData } from "../components/Content/Card/Card";
 import MainBoard from "../components/MainBoard/MainBoard";
 import { MainBoardProvider } from "../context/MainboardContext";
 import { ToolsProvider } from "../context/ToolsContext";
+import { CardSizeProvider } from "../context/CardSizeContext";
 import { getCards } from "../services/CardAPI";
 
 export default function Index() {
@@ -37,22 +38,24 @@ export default function Index() {
 
   return (
     <div
-      className="flex flex-col min-h-screen w-screen"
+      className="flex flex-col min-h-screen w-full overflow-x-hidden"
       style={{ boxSizing: "border-box" }}
     >
-      <Header setMenuOpen={setMenuOpen} />
-      <MainBoardProvider>
-        <MainBoard />
-        <ToolsProvider>
-          <Tools categories={categories} />
-          <Content
-            cards={cards}
-            onCardDelete={handleCardDelete}
-            className="flex-grow overflow-y-auto"
-          />
-        </ToolsProvider>
-      </MainBoardProvider>
-      {menuOpen && <Menu setMenuOpen={setMenuOpen} />}
+      <CardSizeProvider>
+        <Header setMenuOpen={setMenuOpen} setSettingsOpen={() => {}} />
+        <MainBoardProvider>
+          <MainBoard />
+          <ToolsProvider>
+            <Tools categories={categories} />
+            <Content
+              cards={cards}
+              onCardDelete={handleCardDelete}
+              className="flex-grow overflow-y-auto"
+            />
+          </ToolsProvider>
+        </MainBoardProvider>
+        {menuOpen && <Menu setMenuOpen={setMenuOpen} />}
+      </CardSizeProvider>
     </div>
   );
 }

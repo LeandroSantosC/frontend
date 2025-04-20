@@ -48,12 +48,12 @@ export default function Settings() {
                   window.history.back();
                 }
               }}
-              className="absolute left-0 top-1/2 -translate-y-1/2 text-2xl p-2 rounded-full z-20"
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center z-20"
               style={{
-                backgroundColor: 'rgba(144, 238, 144, 0.3)',
+                backgroundColor: 'rgba(255, 255, 255, 0.7)',
                 backdropFilter: 'blur(2px)',
-                border: '1px solid rgba(144, 238, 144, 0.2)',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                border: '1px solid rgba(0, 0, 0, 0.1)',
+                fontSize: '1.5rem'
               }}
             >
               ↩
@@ -224,9 +224,12 @@ export default function Settings() {
             </div>
 
             <div className="text-sm">
-              <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+              <button 
+                onClick={() => navigate('/forgot-password')}
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
                 Esqueceu sua senha?
-              </a>
+              </button>
             </div>
           </div>
 
