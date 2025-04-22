@@ -10,3 +10,9 @@
     flex-shrink: 0;
     flex-grow: 0;
 }
+
+@media (max-width: 768px) {
+    .MainBoard {
+        height: 15%;
+    }
+}

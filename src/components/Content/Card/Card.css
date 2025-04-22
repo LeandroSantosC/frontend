@@ -12,7 +12,7 @@
     flex: none;
     position: relative;
     box-shadow: 0px 0.15rem 0.4rem 0px;
-    transition: all 0.3s ease-in-out;
+    /* transition: all 0.3s ease-in-out; */
     overflow: hidden;
 }
 
@@ -20,6 +20,7 @@
     box-shadow: 0px 0.15rem 1rem 0rem;
     scale: 1.03;
 }
+
 
 .editCard{
     display: flex;
@@ -35,6 +36,6 @@
     flex: none;
     position: relative;
     box-shadow: 0px 0.15rem 0.4rem 0px;
-    transition: all 0.3s ease-in-out;
     overflow: hidden;
+    z-index: 100;
 }
