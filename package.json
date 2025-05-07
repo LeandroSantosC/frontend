@@ -25,13 +25,16 @@
     "@mui/material": "^7.0.2",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/vite": "^4.0.9",
+    "@toolpad/core": "^0.14.0",
     "axios": "^1.8.4",
     "conjugador": "^2.0.0",
     "framer-motion": "^12.7.3",
     "frontend": "file:",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^7.5.3",
     "tailwindcss": "^4.0.9",
+    "use-ripple-hook": "^1.0.24",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

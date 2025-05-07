@@ -3,8 +3,8 @@ import { createContext, ReactNode, useContext, useState, Dispatch, SetStateActio
 export interface ToolsContextType {
     editMode: boolean;
     setEditMode: Dispatch<SetStateAction<boolean>>;
-    categorySelected: string;
-    setCategorySelected: Dispatch<SetStateAction<string>>;
+    categorySelected: {id: string, name: string}[];
+    setCategorySelected: Dispatch<SetStateAction<{id: string, name: string}[]>>;
     search: string;
     setSearch: Dispatch<SetStateAction<string>>;
 }
@@ -13,7 +13,7 @@ const ToolsContext = createContext<ToolsContextType | undefined>(undefined);
 
 export function ToolsProvider({ children }: { children: ReactNode }) {
     const [editMode, setEditMode] = useState(false);
-    const [categorySelected, setCategorySelected] = useState<string>("tudo");
+    const [categorySelected, setCategorySelected] = useState<{id: string, name: string}[]>([]);
     const [search, setSearch] = useState<string>("");
 
   return (

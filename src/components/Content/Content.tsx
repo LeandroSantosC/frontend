@@ -1,19 +1,26 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useToolsContext } from "../../context/ToolsContext";
 import { useCardContext } from "../../context/CardContext";
-import Card, { CardData } from "./Card/Card";
-import CardEditor from "./Card/CardEditor";
-import { AnimatePresence } from "framer-motion";
+import Card from "./Card/Card";
+import CardEditor, { EditCardData } from "./Card/CardEditor";
+import { AnimatePresence, motion } from "framer-motion";
 import { closestCenter, DndContext, MeasuringStrategy, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
 import { arrayMove, rectSortingStrategy, SortableContext } from "@dnd-kit/sortable";
+import { Button, Skeleton, Tab, Tabs } from "@mui/material";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 
 function Content() {
-  const [tab, setTab] = useState(true);
+  const [tab, setTab] = useState<'cards' | 'boards'>('cards');
   const { editMode, categorySelected, search } = useToolsContext();
-  const { cards, setCards } = useCardContext();
-  const [editingCard, setEditingCard] = useState<CardData | null>(null);
+  const { cards, setCards, loadingCards, newCard, CardSnack, isPublicCard } = useCardContext();
+  const [editingCard, setEditingCard] = useState<EditCardData | null>(null);
   const [cardRect, setCardRect] = useState<DOMRect | null>(null);
+  const CardEditref = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const sensors = useSensors(useSensor(PointerSensor, {
     activationConstraint: {
       delay: 250, // tempo em milissegundos (0.25s)
@@ -24,9 +31,9 @@ function Content() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (active.id !== over.id) {
+    if (active.id !== over?.id) {
       const oldIndex = cards.findIndex((card) => card.id === active.id);
-      const newIndex = cards.findIndex((card) => card.id === over.id);
+      const newIndex = cards.findIndex((card) => card.id === over?.id);
       setCards(() => {
         const updatedCards = arrayMove(cards, oldIndex, newIndex);
         return updatedCards.map((card, index) => ({ ...card, position: index }));
@@ -34,41 +41,92 @@ function Content() {
     }
   };
 
-  const handleEdit = (card: CardData, rect: DOMRect) => {
-    setEditingCard(card);
-    setCardRect(rect);
+  const handleEdit = (card: EditCardData, ref: React.RefObject<HTMLDivElement | null>) => {
+    if(user){
+      if (ref.current) {
+        const rect = ref.current.getBoundingClientRect();
+        setEditingCard(card);
+        setCardRect(rect);
+      }
+    }
+    else{
+      navigate("/?login=true");
+    }
   };
 
   const filteredCards = cards
-    .filter((card) => card.category.name === categorySelected || categorySelected === "tudo")
+    .filter((card) => categorySelected.some((cat) => cat.name === card.category.name) || categorySelected.length === 0)
     .filter((card) => card.name.toLowerCase().includes(search.toLowerCase()))
     .filter((card) => card !== editingCard)
-    .filter((card) => editMode || card.visible );
+    .filter((card) => editMode || card.visible);
 
   return (
-    <div className="flex flex-col items-center w-full pt-1 h-[67%] overflow-hidden">
-      <div className="flex gap-4 h-[7%] grow-0 shrink-0 bg-amber-300 w-full justify-center">
-        <button className={`flex h-full text-[150%] text-center align-middle font-bold ${tab ? "bg-blue-500 text-white" : "bg-gray-300"} rounded-md`} onClick={() => setTab(true)}>Botões</button>
-        <button className={`flex h-full text-[150%] text-center align-middle font-bold ${!tab ? "bg-blue-500 text-white" : "bg-gray-300"} rounded-md`} onClick={() => setTab(false)}>Pranchas</button>
-      </div>
-      {tab &&
+    <div className="flex flex-col items-center w-full pt-1 h-[69%] overflow-visible">
+      <Tabs value={tab} onChange={(_, newValue) => setTab(newValue)} centered>
+        <Tab label={isPublicCard ? "Botões Públicos" : "Botões"} value='cards'/>
+        {!isPublicCard && <Tab label="Pranchas" value='boards'/>}
+      </Tabs>
+      {tab === "cards" && (
         <>
-          <div className="flex grow-0 overflow-x-hidden scrollbar-hide pb-4 pt-2 overflow-y-auto flex-row w-full justify-evenly gap-2 flex-wrap">
-          <DndContext sensors={sensors}
-          measuring={{droppable: {
-            strategy: MeasuringStrategy.Always,
-          }}}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-          autoScroll={{ threshold: { x: 0, y: 0.1 } }}
-          >
-            <SortableContext items={filteredCards.map((card) => card.id)} strategy={rectSortingStrategy}>
-                {filteredCards.map((card) => (
-                  <Card key={card.id} card={card} onEdit={handleEdit} />
-                  ))}
-            </SortableContext>
-          </DndContext>
-              </div>
+          <div className="flex w-full grow-0 overflow-x-visible scrollbar-hide p-2 overflow-y-auto flex-row justify-evenly gap-2 flex-wrap">
+            <AnimatePresence>
+              {editMode ? (
+                <motion.div
+                  ref={CardEditref}
+                  layout
+                  key="AddButton"
+                  style={{ width: 'clamp(80px, calc(33.3% - 4%), 130px)', aspectRatio: 1 / 1.25, left: 0 }}
+                  initial={{ width: 0 }}
+                  animate={{ width: 'clamp(80px, calc(33.3% - 4%), 130px)' }}
+                  exit={{ width: 0 }}
+                  transition={{
+                    ease: 'easeInOut',
+                    duration: 0.3
+                  }}
+                  onClick={() => handleEdit(newCard, CardEditref)}
+                >
+                  <Button className="card"
+                    style={{ backgroundColor: "oklch(0.623 0.214 259.815)", borderRadius: "16px", width: '100%', aspectRatio: 'auto', height: '100%' }}
+                  >
+                    <Icon icon="solar:add-circle-bold" className="flex relative w-full h-[50%] rounded-inherit pointer-events-none text-white" />
+                  </Button>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+            {!loadingCards ? (cards.length > 0 ?
+              <DndContext sensors={sensors}
+                measuring={{
+                  droppable: {
+                    strategy: MeasuringStrategy.Always,
+                  }
+                }}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+                autoScroll={{ threshold: { x: 0, y: 0.1 } }}
+              >
+                <SortableContext items={filteredCards.map((card) => card.id)} strategy={rectSortingStrategy}>
+                  {
+                    filteredCards.length > 0 ?
+                      filteredCards.map((card) => (
+                        <Card key={card.id} card={card} onEdit={handleEdit} />
+                      )) :
+                      <div className="flex h-[50vh] w-full justify-center items-center text-[2.5vh] flex-col gap-5 font-bold">
+                        <img src="sadshake.gif" width={'150vh'}></img>
+                        <span>Nenhuma correspondência encontrada</span>
+                      </div>
+                  }
+                </SortableContext>
+              </DndContext>
+              : editMode ? null : (<div className="flex absolute h-[50vh] w-full justify-center items-center text-[2.5vh] flex-col gap-5 font-bold">
+                <img src="sadshake.gif" width={'150vh'}></img>
+                <span>Você não tem nenhum card</span>
+              </div>)
+            )
+              : Array.from({ length: 30 }).map(() => (
+                <Skeleton className="card" variant="rounded" width="clamp(80px, calc(33.3% - 4%), 130px)" height="auto" sx={{ aspectRatio: 1 / 1.25, borderRadius: "16px" }} />
+              ))
+            }
+          </div>
           <AnimatePresence onExitComplete={() => setEditingCard(null)}>
             {editingCard && cardRect && (
               <CardEditor
@@ -78,10 +136,11 @@ function Content() {
               />
             )}
           </AnimatePresence>
-        </>
-      }
-      {!tab &&
+          {CardSnack()}
+        </>)}
+      {tab === "boards" &&
         <div>
+          pranchas
         </div>
       }
     </div>
