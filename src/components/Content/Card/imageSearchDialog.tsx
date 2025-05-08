@@ -10,7 +10,7 @@ import {
   CircularProgress,
   Box,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Icon } from '@iconify/react/dist/iconify.js';
 
 interface Pictogram {
   _id: number;
@@ -65,7 +65,7 @@ const ImageSearchDialog: React.FC<{ open: boolean; onClose: () => void; onSelect
             }}
           />
           <IconButton onClick={handleSearch} aria-label="buscar">
-            <SearchIcon />
+            <Icon icon="arcticons:pixel-search" width="24" height="24" />
           </IconButton>
         </Box>
         {loading ? (
