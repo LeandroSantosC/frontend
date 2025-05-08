@@ -41,7 +41,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
   const [loadingCards, setLoadingCards] = useState(false);
   const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
   const [editCard, setEditCard] = useState<{card: CardData, cardRef: React.RefObject<HTMLDivElement>} | null>(null);
-  const [openSnack, setOpenSnack] = useState<{ open: boolean, severity?:OverridableStringUnion<AlertColor, AlertPropsColorOverrides> | undefined , message?: string }>({ open: false });
+  const [openSnack, setOpenSnack] = useState<{ open: boolean, severity?:OverridableStringUnion<AlertColor, AlertPropsColorOverrides> | undefined , message?: string, noTime?:boolean }>({ open: false });
   const [ isPublicCard, setPublicCard ] = useState(false);
   
 
@@ -57,7 +57,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
   }
 
   const handleCloseSnack = (
-      event: React.SyntheticEvent | Event,
+      _event: React.SyntheticEvent | Event,
       reason?: SnackbarCloseReason,
     ) => {
       if (reason === 'clickaway') {
@@ -73,7 +73,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
           anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
           open={openSnack.open}
           onClose={handleCloseSnack}
-          autoHideDuration={5000}
+          autoHideDuration={openSnack.noTime ? null : 5000}
           slots={{ transition: Grow }}
         >
           <Alert
@@ -92,7 +92,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const fetchCards = async () => {
       setLoadingCards(true);
-      setOpenSnack({open: true, severity:'info', message: "Carregando!"})
+      setOpenSnack({open: true, severity:'info', message: "Carregando!", noTime:true})
       const { getCards } = createCardService(isPublicCard);
       const result = await getCards();
       console.log(result);

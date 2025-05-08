@@ -4,7 +4,7 @@ import { Icon } from '@iconify/react';
 import { useToolsContext } from "../../../../context/ToolsContext";
 import { ButtonBase } from "@mui/material";
 import { CardData } from "../Card";
-import DeleteCardDialog from "../../Dialog/deleteCardDialog";
+import DeleteCardDialog from "../../Dialog/DeleteCardDialog";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 

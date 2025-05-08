@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
-import { Autocomplete, Button, CircularProgress, FormControl, IconButton, ImageList, ImageListItem, styled, TextField } from '@mui/material';
+import { Autocomplete, Button, CircularProgress, FormControl, IconButton, styled, TextField } from '@mui/material';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { useEffect, useRef, useState } from 'react';
 import { ApiResponse } from '../../../services/api/request';
@@ -56,7 +56,7 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
       setIsUpdate(null);
     }, 5000);
     return () => clearTimeout(timeoutId);
-  }, [isUpdate]);
+  }, [isUpdate, closeEditor]);
 
   async function attCard(id: string | undefined, cardAtt: EditCardData) {
     console.log(cardAtt);
@@ -304,7 +304,7 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                   disableCloseOnSelect={false}
                   options={categories.map((category) => category.name)}
                   value={cardtoUpdate?.category?.name || ''}
-                  onChange={(event, newValue) => {
+                  onChange={(_, newValue) => {
                     if (newValue) {
                       const valueTrimmed = newValue.trim();
                       const categoryFound = categories.find((category) => category.name === valueTrimmed)

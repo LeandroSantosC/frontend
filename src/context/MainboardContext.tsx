@@ -57,7 +57,10 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
 
       if(lastWord in pronomes){
         const index = pronomes[lastWord as Pronome];
-        newBoardCard.name = conjugate(card.name).p[index];
+        const conjugated = conjugate(card.name);
+        if (conjugated?.p) {
+          newBoardCard.name = conjugated.p[index];
+        }
       }
     }
 

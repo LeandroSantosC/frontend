@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
   const handleCloseSnack = (
-    event: React.SyntheticEvent | Event,
+    _event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
     if (reason === 'clickaway') {
@@ -79,13 +79,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       </Snackbar>
     )
   }
-
-
-  function validateEmail(email: string): boolean {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailPattern.test(email);
-  }
-
 
   const fetchUser = async () => {
     const token = localStorage.getItem('token');

@@ -38,7 +38,7 @@ function Tools() {
             </li>
           );
         }}
-        onChange={(event, newValue) => {
+        onChange={(_, newValue) => {
           setCategorySelected(newValue);
         }}
         renderInput={(params) => (

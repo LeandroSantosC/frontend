@@ -1,13 +1,9 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { Avatar, Badge, Box, Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, styled, Switch, Tooltip, Typography } from "@mui/material";
+import { Badge, Box, Divider, IconButton, ListItemIcon, Menu, MenuItem, styled, Switch, Tooltip } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useRef, useState } from "react";
 import { useCardContext } from "../../context/CardContext";
-
-interface HeaderProps {
-  setMenuOpen: (open: boolean) => void;
-}
 
 const StyledBadge = styled(Badge)<{ online: boolean }>(({ theme, online }) => ({
   zIndex: 0,
