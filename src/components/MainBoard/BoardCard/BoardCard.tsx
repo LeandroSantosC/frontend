@@ -5,6 +5,7 @@ export interface BoardCardData {
   tempId: string;
   name: string;
   img: string;
+  sound?: string;
 }
 
 interface BoardCardProps {

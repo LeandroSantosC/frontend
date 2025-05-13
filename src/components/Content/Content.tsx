@@ -10,6 +10,40 @@ import { Button, Skeleton, Tab, Tabs } from "@mui/material";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import Board from "./Board/Board";
+
+
+const board: BoardData = {
+  id: "board",
+  name: "board",
+  visible: true,
+  cards: [
+    {
+      id: "card1",
+      name: "Card 1",
+      image: "",
+      sound: undefined,
+      visible: true,
+      position: 0,
+      category: {
+        id: undefined,
+        name: ""
+      }
+    },
+    {
+      id: "card2",
+      name: "Card 2",
+      image: "",
+      sound: undefined,
+      visible: true,
+      position: 1,
+      category: {
+        id: undefined,
+        name: ""
+      }
+    }
+  ]
+}
 
 
 function Content() {
@@ -139,8 +173,13 @@ function Content() {
           {CardSnack()}
         </>)}
       {tab === "boards" &&
-        <div>
-          pranchas
+        <div className="flex w-full grow-0 overflow-x-visible scrollbar-hide p-2 overflow-y-auto flex-row justify-evenly gap-2 flex-wrap">
+          <Board board={board}/>
+          <Board board={board}/>
+          <Board board={board}/>
+          <Board board={board}/>
+          <Board board={board}/>
+          <Board board={board}/>
         </div>
       }
     </div>

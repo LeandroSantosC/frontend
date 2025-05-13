@@ -57,6 +57,7 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
       tempId: uuidv4(),
       name: card.name,
       img: card.image,
+      sound: card.sound,
     };
 
     if(card.name.endsWith("ar") || 

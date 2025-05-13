@@ -27,14 +27,6 @@ export interface CardContextType {
   isPublicCard: boolean;
 }
 
-export interface NewCard {
-  name: string;
-  image: string;
-  sound: string | null;
-  category: {
-    name: string;
-  };
-}
 export const CardContext = createContext<CardContextType | undefined>(undefined);
 
 export function CardProvider({ children }: { children: ReactNode }) {
@@ -134,7 +126,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
       setOpenSnack({ open: true, severity: 'success', message: "Card deletado com sucesso!" })
     }
     else {
-      setOpenSnack({ open: true, severity: 'error', message: "Não foi possível deletar! " + result.error })
+      setOpenSnack({ open: true, severity: 'error', message: "Não foi possível deletar! tente novamente!" })
     }
 
     return result;

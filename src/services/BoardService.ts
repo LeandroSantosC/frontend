@@ -1,15 +1,16 @@
-import axios from 'axios'
-import config from './api/config'
+import { request } from './api/request'
+import { BoardData, NewBoardData } from '../components/Content/Board/Board'
 
-export const getBoards = async () => {
-    try {
-        const response = await axios.get(`${config}/api/board`, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        return { success: true, response }
-    } catch (error) {
-        return { success: false, error }
-    }
+export const createBoardService = () => {
+  const base = '/api/board'
+
+  return {
+    getBoards: () => request<BoardData[]>({ method: 'GET', url: base }),
+    createBoard: (data: NewBoardData) =>
+      request<BoardData>({ method: 'POST', url: base, data }),
+    updateBoard: (id: string, data: BoardData) =>
+      request<BoardData>({ method: 'PATCH', url: `${base}/${id}`, data }),
+    deleteBoard: (id: string) =>
+      request<string>({ method: 'DELETE', url: `${base}/${id}` }),
+  }
 }
