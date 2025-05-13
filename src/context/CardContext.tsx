@@ -6,6 +6,7 @@ import { Alert, CircularProgress, Grow, Snackbar, SnackbarCloseReason } from "@m
 import { OverridableStringUnion } from '@mui/types';
 import { AlertPropsColorOverrides } from "@mui/material";
 import { ApiResponse } from "../services/api/request";
+import { useAuth } from "./AuthContext";
 export type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 
@@ -24,6 +25,8 @@ export interface CardContextType {
   CardSnack: () => void;
   setPublicCard: (isPublicCard: boolean) => void
   isPublicCard: boolean;
+  layout: number;
+  setLayout: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export interface NewCard {
@@ -43,7 +46,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
   const [editCard, setEditCard] = useState<{card: CardData, cardRef: React.RefObject<HTMLDivElement>} | null>(null);
   const [openSnack, setOpenSnack] = useState<{ open: boolean, severity?:OverridableStringUnion<AlertColor, AlertPropsColorOverrides> | undefined , message?: string, noTime?:boolean }>({ open: false });
   const [ isPublicCard, setPublicCard ] = useState(false);
-  
+  const { user } = useAuth();
 
   const newCard:EditCardData = {
     id: undefined,
@@ -108,7 +111,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
     };
 
     fetchCards();
-  }, [isPublicCard]);
+  }, [isPublicCard, user?.fullname]);
   
   useEffect(() => {
       setCategories(cards
@@ -170,7 +173,20 @@ export function CardProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <CardContext.Provider value={{ cards, setCards, categories, createCard, deleteCard, updateCard, editCard, setEditCard, setVisible, loadingCards, newCard, CardSnack, setPublicCard, isPublicCard }}>
+    <CardContext.Provider value={{ cards, 
+    setCards, 
+    categories, 
+    createCard, 
+    deleteCard, 
+    updateCard, 
+    editCard, 
+    setEditCard, 
+    setVisible, 
+    loadingCards, 
+    newCard, 
+    CardSnack, 
+    setPublicCard, 
+    isPublicCard,}}>
       {children}
     </CardContext.Provider>
   );

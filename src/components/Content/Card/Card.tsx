@@ -8,6 +8,7 @@ import { CSS } from "@dnd-kit/utilities";
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import useRipple from "use-ripple-hook";
+import { useAuth } from "../../../context/AuthContext";
 
 export interface CardData {
   id: string;
@@ -28,6 +29,7 @@ export interface CardProps {
 
 function Card({ card, onEdit }: { card: CardData, onEdit: (card: CardData, ref:React.RefObject<HTMLDivElement | null>) => void }) {
   const { editMode } = useToolsContext();
+  const { user } = useAuth();
   const { id, name, image, visible } = card;
   const { addCardOnMainBoard } = useMainBoardContext();
   const [ripple, event] = useRipple({ color: "rgba(255, 255, 255, .5)" });
@@ -66,6 +68,7 @@ function Card({ card, onEdit }: { card: CardData, onEdit: (card: CardData, ref:R
     transition,
     touchAction: "none",
     zIndex: isDragging ? 100 : undefined,
+    width: user?.layoutScale ? `clamp(${240/user.layoutScale}px, calc(${1/user.layoutScale * 100}% - 3%), ${390/user.layoutScale}px)` : undefined,
   };
 
   return (

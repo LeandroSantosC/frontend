@@ -12,6 +12,9 @@ function Tools() {
     <div className="flex justify-around bg-gray-100 p-1 h-[6%] w-full">
       <Autocomplete
         multiple
+        disableCloseOnSelect
+        popupIcon
+        fullWidth
         limitTags={1}
         options={categories}
         sx={{
@@ -71,13 +74,23 @@ function Tools() {
                 top: '-8px',
                 '&.Mui-focused': {
                   top: '0' // Cor do rótulo quando focado
-                },   
+                },
               },
               '& .MuiAutocomplete-tag': {
-                  width: '100%',
-                  height: '70%',
-                  flexWrap: 'nowrap',
-                },
+                width: '100%',
+                height: '70%',
+                flexWrap: 'nowrap',
+              },
+              '& .MuiAutocomplete-inputRoot': {
+                borderRadius: '12px',
+                touchAction: 'manipulation',
+              },
+              '& .MuiAutocomplete-popupIndicator': {
+                transform: 'scale(1.5)',
+              },
+              '& .MuiAutocomplete-clearIndicator': {
+                transform: 'scale(1.5)',
+              },
             }}
           />
         )}

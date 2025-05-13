@@ -7,14 +7,7 @@ import { Button } from "@mui/material";
 
 
 export default function MainBoard() {
-  const { mainBoard, removeCard, removeAllCards, removeLastCard }:BoardContextType = useMainBoardContext();
-
-  const speak = () => {
-    const phrase = mainBoard.map((card) => card.name).join(" ");
-
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(phrase));
-  }  
+  const { mainBoard, speak, removeCard, removeAllCards, removeLastCard }:BoardContextType = useMainBoardContext(); 
 
   return (
     <div className="MainBoard">

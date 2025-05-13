@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { CardData } from "../components/Content/Card/Card";
 import { conjugate } from "../utils/conjugador.ts"
+import { useAuth } from "./AuthContext.tsx";
 
 
 export interface BoardContextType {
@@ -13,12 +14,22 @@ export interface BoardContextType {
     removeCard: (tempId: string) => void;
     removeLastCard: () => void;
     removeAllCards: () => void;
+    speak: () => void;
 }
 
 const MainBoardContext = createContext<BoardContextType | undefined>(undefined);
 
 export function MainBoardProvider({ children }: { children: ReactNode }) {
   const [mainBoard, setMainBoard] = useState<BoardCardData[]>([]);
+  const { user } = useAuth();
+  const utterance = new SpeechSynthesisUtterance;
+
+  if(user?.voice) {
+    const selectedVoice = window.speechSynthesis.getVoices().find((voice) => voice.name === user.voice);
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+  }
 
   const pronomes = {
     eu: 0,
@@ -65,9 +76,18 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
     }
 
     window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(newBoardCard.name));
+    utterance.text = newBoardCard.name;
+    window.speechSynthesis.speak(utterance);
     setMainBoard((prevCards: BoardCardData[]) => [...prevCards, newBoardCard]);
   };
+
+  const speak = () => {
+    const phrase = mainBoard.map((card) => card.name).join(" ");
+
+    window.speechSynthesis.cancel();
+    utterance.text = phrase;
+    window.speechSynthesis.speak(utterance);
+  } 
 
   const removeCard = (tempId: string) => {
     setMainBoard((prevCards) => prevCards.filter((card) => card.tempId !== tempId));
@@ -82,7 +102,7 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <MainBoardContext.Provider value={{ mainBoard, setMainBoard, addCardOnMainBoard, removeCard, removeLastCard, removeAllCards }}>
+    <MainBoardContext.Provider value={{ mainBoard, setMainBoard, addCardOnMainBoard, removeCard, removeLastCard, removeAllCards, speak }}>
       {children}
     </MainBoardContext.Provider>
   );

@@ -7,13 +7,20 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
 import Link from '@mui/material/Link';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
-import { Icon } from '@iconify/react/dist/iconify.js';
 import { useLocation, useNavigate } from 'react-router';
+import dayjs from 'dayjs';
+import { PhoneInput } from './inputs/phoneInput';
+import { EmailInput } from './inputs/emailInput';
+import { NameInput } from './inputs/nameInput';
+import { GenderInput } from './inputs/genderInput';
+import { BirthDateInput } from './inputs/birthDateInput';
+import { PasswordInput } from './inputs/passwordInput';
+import { UserRegister } from '../../context/AuthContext';
+import { isValidPhoneNumber } from 'libphonenumber-js';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -41,15 +48,18 @@ const SignUpContainer = styled(Stack)({
 })
 
 export default function SignUp() {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-  const [nameError, setNameError] = React.useState(false);
-  const [nameErrorMessage, setNameErrorMessage] = React.useState('');
+
   const location = useLocation();
   const navigate = useNavigate();
   const isRegisterOpen = new URLSearchParams(location.search).get('register') === 'true';
+  const [isValid, setIsValid] = React.useState(false);
+  const [date, setDate] = React.useState<string>('');
+  const [phone, setPhone] = React.useState<string>('');
+  const [name, setName] = React.useState<string>('');
+  const [email, setEmail] = React.useState<string>('');
+  const [gender, setGender] = React.useState<string>('');
+  const [password, setPassword] = React.useState<string>('');
+
 
   const openLogin = () => {
     navigate('?login=true');
@@ -61,54 +71,57 @@ export default function SignUp() {
 
 
   const validateInputs = () => {
-    const email = document.getElementById('email') as HTMLInputElement;
-    const password = document.getElementById('password') as HTMLInputElement;
-    const name = document.getElementById('name') as HTMLInputElement;
-
     let isValid = true;
 
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage('Por favor, insira um email válido.');
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
       isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage('');
+      console.log('email ' + email + ' não ta valido')
     }
 
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage('A senha precisa ter mais que 6 caracteres.');
+    if (!password || password.length < 6) {
       isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage('');
+      console.log('senha ' + password + ' não ta valido')
     }
 
-    if (!name.value || name.value.length < 1) {
-      setNameError(true);
-      setNameErrorMessage('Nome é requerido.');
+    if (isValidPhoneNumber(phone)) {
       isValid = false;
-    } else {
-      setNameError(false);
-      setNameErrorMessage('');
+      console.log('telefone ' + phone + ' não ta valido')
     }
 
-    return isValid;
+    if (!name) {
+      isValid = false;
+      console.log('nome ' + name + ' não ta valido')
+    }
+
+    if (!gender) {
+      isValid = false;
+      console.log('sexo ' + gender + ' não ta valido')
+    }
+
+    if (!dayjs(date).isValid() || dayjs(date).isAfter(dayjs()) || dayjs(date).isBefore(dayjs().subtract(100, 'year'))) {
+      isValid = false;
+      console.log('data ' + date + ' não ta valido')
+    }
+
+    setIsValid(isValid);
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    if (nameError || emailError || passwordError) {
+    if (!isValid) {
       event.preventDefault();
       return;
     }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      name: data.get('name'),
-      lastName: data.get('lastName'),
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    const data: UserRegister = {
+      fullname: name,
+      email: email,
+      phoneNumber: phone,
+      gender: gender as "masculino" | "feminino",
+      birthDate: date,
+      login: email,
+      password: password,
+    }
+    console.log(data);
+    event.preventDefault();
   };
 
   return (isRegisterOpen &&
@@ -139,66 +152,32 @@ export default function SignUp() {
             onSubmit={handleSubmit}
             sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
           >
-            <FormControl>
-              <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="name">Nome completo</FormLabel>
-              <TextField
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                  },
-                }}
-                autoComplete="name"
-                name="name"
-                required
-                fullWidth
-                id="name"
-                placeholder="José Santos"
-                error={nameError}
-                helperText={nameErrorMessage}
-                color={nameError ? 'error' : 'primary'}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="email">Email</FormLabel>
-              <TextField
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                  },
-                }}
-                required
-                fullWidth
-                id="email"
-                placeholder="seu@email.com"
-                name="email"
-                autoComplete="email"
-                variant="outlined"
-                error={emailError}
-                helperText={emailErrorMessage}
-                color={passwordError ? 'error' : 'primary'}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="password">Senha</FormLabel>
-              <TextField
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                  },
-                }}
-                required
-                fullWidth
-                name="password"
-                placeholder="••••••"
-                type="password"
-                id="password"
-                autoComplete="new-password"
-                variant="outlined"
-                error={passwordError}
-                helperText={passwordErrorMessage}
-                color={passwordError ? 'error' : 'primary'}
-              />
-            </FormControl>
+            <div className='overflow-y-scroll w-full flex flex-col h-[45vh]'>
+              <FormControl fullWidth variant="outlined">
+                <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="name">Nome completo</FormLabel>
+                <NameInput setData={setName}/>
+              </FormControl>
+              <FormControl fullWidth variant="outlined">
+                <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="email">Email</FormLabel>
+                <EmailInput setData={setEmail}/>
+              </FormControl>
+              <FormControl fullWidth variant="outlined">
+                <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="phone">Telefone</FormLabel>
+                <PhoneInput setPhone={setPhone}/>
+              </FormControl>
+              <FormControl fullWidth variant="outlined">
+                <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="gender">Genero</FormLabel>
+                <GenderInput setData={setGender} />
+              </FormControl>
+              <FormControl fullWidth variant="outlined">
+                <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="birthDate">Data de Nascimento</FormLabel>
+                <BirthDateInput setData={setDate} />
+              </FormControl>
+              <FormControl fullWidth variant="outlined">
+                <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="password">Senha</FormLabel>
+                <PasswordInput setData={setPassword} />
+              </FormControl>
+            </div>
             <FormControlLabel
               required
               sx={{
@@ -231,15 +210,6 @@ export default function SignUp() {
             <Typography sx={{ color: 'text.secondary' }}>ou</Typography>
           </Divider>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Button
-              sx={{ borderRadius: '12px' }}
-              fullWidth
-              variant="outlined"
-              onClick={() => alert('Sign up with Google')}
-              startIcon={<Icon icon="flat-color-icons:google" width="24" height="24" />}
-            >
-              Registrar-se com o Google
-            </Button>
             <Typography sx={{ textAlign: 'center' }}>
               Ja tem uma conta ?{' '}
               <Link

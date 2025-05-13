@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState, useEffect } from "react";
+import { createContext, ReactNode, useContext, useState, useEffect, SetStateAction } from "react";
 import {  createAuthService } from '../services/AuthService'
 import { Alert, Grow, Snackbar, SnackbarCloseReason } from "@mui/material";
 import { OverridableStringUnion } from '@mui/types';
@@ -8,10 +8,11 @@ export type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 export interface AuthContextType {
   user: UserData | null;
-  login: (data: UserLogin) => Promise<boolean>;
+  login: (data: UserLogin, stay:boolean) => Promise<boolean>;
   logout: () => void
   register: (data: UserRegister) => void;
   userSnack: () => void;
+  setUser: (user: SetStateAction<UserData | null>) => void;
 }
 
 export interface UserRegister {
@@ -25,14 +26,15 @@ export interface UserRegister {
 }
 
 export interface UserData {
-  fullname: string;
-  email: string;
-  phoneNumber: string;
-  gender: "masculino" | "feminino";
-  birthDate: string;
+  id?: string;
+  fullname?: string;
+  email?: string;
+  phoneNumber?: string;
+  gender?: "masculino" | "feminino";
+  birthDate?: string;
   voice?: string
   layoutScale?: number
-  credentials: { role: string }
+  credentials?: { role: string }
 }
 
 export interface UserLogin {
@@ -46,7 +48,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserData | null>(null);
   const [openSnack, setOpenSnack] = useState<{ open: boolean, severity?: OverridableStringUnion<AlertColor, AlertPropsColorOverrides> | undefined, message?: string }>({ open: false });
+  const [isSession, setIsSession] = useState(false);
 
+  useEffect(() => {
+    if(user?.layoutScale && user && !isSession){
+      localStorage.setItem('layout', user.layoutScale.toString());
+    }
+    if(user?.voice && user && !isSession){
+      localStorage.setItem('voice', user.voice);
+    }
+  }, [user?.layoutScale, user?.voice]);
 
   const handleCloseSnack = (
     _event: React.SyntheticEvent | Event,
@@ -81,12 +92,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const fetchUser = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') ?? sessionStorage.getItem('token');
+
     if (token) {
       const { getUser } = createAuthService();
       const result = await getUser();
       if (result.success && result.response) {
         setUser(result.response);
+        const layout = localStorage.getItem('layout');
+        const voice = localStorage.getItem('voice');
+        if (layout) {
+          setUser((prevUser) => ({ ...prevUser, layoutScale: parseFloat(layout) }));
+        }
+        if (voice) {
+          setUser((prevUser) => ({ ...prevUser, voice: voice }));
+        }
         setOpenSnack({ open: true, severity: 'success', message: "Bem vindo! " + user?.fullname })
       }
       else {
@@ -133,13 +153,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await register(data);
   };
 
-  const login = async (data: UserLogin) => {
+  const login = async (data: UserLogin, stay:boolean) => {
     const { login } = createAuthService();
     const result = await login(data);
 
     if (result.success && result.response) {
-      localStorage.setItem('token', result.response);
-      console.log("acabei de setar o token = " + localStorage.getItem('token'));
+      if(stay){
+        setIsSession(false);
+        localStorage.setItem('token', result.response);
+      }
+      else{
+        setIsSession(true);
+        sessionStorage.setItem('token', result.response);
+        localStorage.removeItem('token');
+      }
       fetchUser();
     }
     else {
@@ -148,14 +175,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return result.success;
   };
 
-  const logout = () => {
+  const logout = async () => {
+    const { updateUser } = createAuthService();
+    if (user) {
+      const result = await updateUser(user)
+      if (result.success) {
+        setOpenSnack({ open: true, severity: 'success', message: "Até logo, " + user?.fullname })
+      }
+      else {
+        setOpenSnack({ open: true, severity: 'error', message: "Não foi possível salvar alterações " + result.error })
+      }
+    }
+    sessionStorage.removeItem('token');
     localStorage.removeItem('token');
+    localStorage.removeItem('voice');
+    localStorage.removeItem('layout');
     setUser(null);
-    setOpenSnack({ open: true, severity: 'success', message: "Deslogado com sucesso!" })
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register, userSnack }}>
+    <AuthContext.Provider value={{ user, login, logout, register, userSnack, setUser }}>
       {children}
     </AuthContext.Provider>
   );

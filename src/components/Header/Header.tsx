@@ -1,15 +1,17 @@
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { Badge, Box, Divider, IconButton, ListItemIcon, Menu, MenuItem, styled, Switch, Tooltip } from "@mui/material";
+import { Badge, Box, Divider, IconButton, ListItemIcon, Menu, MenuItem, Slider, styled, Switch, Tooltip, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useRef, useState } from "react";
 import { useCardContext } from "../../context/CardContext";
+import { Collapse } from "@mui/material";
+import VoiceSelector from "./VoiceSelector";
 
 const StyledBadge = styled(Badge)<{ online: boolean }>(({ theme, online }) => ({
   zIndex: 0,
   '& .MuiBadge-badge': {
     backgroundColor: online ? '#44b700' : 'red',
-    color: online ? '#44b700': 'red',
+    color: online ? '#44b700' : 'red',
     boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
     '&::after': {
       position: 'absolute',
@@ -37,10 +39,12 @@ const StyledBadge = styled(Badge)<{ online: boolean }>(({ theme, online }) => ({
 
 function Header() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout, setUser } = useAuth();
   const ref = useRef(null);
   const [open, setOpen] = useState(false);
   const { isPublicCard, setPublicCard } = useCardContext();
+  const [layoutOpen, setLayoutOpen] = useState(false);
+  const [voiceOpen, setVoiceOpen] = useState(false);
 
   const openMenu = () => {
     if (user) {
@@ -101,44 +105,88 @@ function Header() {
           open={open}
           onClose={() => setOpen(false)}
         >
-          <MenuItem>
-            <ListItemIcon>
-              <Icon icon="solar:user-bold" width="32px" height="32px" />
-            </ListItemIcon>
+          <Typography
+            variant="h5"
+            component="div"
+            sx={{
+              position: 'relative',
+            }}
+          >
             {user?.fullname}
-          </MenuItem>
+          </Typography>
+          <Divider sx={{ my: 0.5 }} />
           <MenuItem>
             <ListItemIcon>
               <Icon icon="solar:user-bold" width="32px" height="32px" />
             </ListItemIcon>
             Perfil
           </MenuItem>
-          {user?.credentials.role == 'ADMIN' ? 
-          <MenuItem>
-            <ListItemIcon>
-              <Icon icon="solar:user-bold" width="32px" height="32px" />
-            </ListItemIcon>
-            Botões Públicos
-            <Switch 
-            checked={isPublicCard}
-            onChange={(_, checked) => setPublicCard(checked)}
-            />
-          </MenuItem> : null }
+          {user?.credentials?.role == 'ADMIN' ?
+            <MenuItem
+              onClick={() => {
+                setPublicCard(!isPublicCard)
+              }}
+            >
+              <ListItemIcon>
+                <Icon icon="solar:pen-new-square-bold" width="32px" height="32px" />
+              </ListItemIcon>
+              Botões Públicos
+              <Switch
+                checked={isPublicCard}
+                onChange={(_, checked) => setPublicCard(checked)}
+              />
+            </MenuItem> : null}
           <Divider sx={{ my: 0.5 }} />
-          <MenuItem>
+          <MenuItem
+            onClick={() => setLayoutOpen(!layoutOpen)}
+          >
             <ListItemIcon>
               <Icon icon="solar:settings-bold" width="32px" height="32px" />
             </ListItemIcon>
             Layout
+            <Icon icon={ layoutOpen ? "solar:alt-arrow-down-bold" : "solar:alt-arrow-left-bold"} style={{position: 'absolute', right: 30}} width="28" height="28" />
           </MenuItem>
-          <MenuItem>
+          <Collapse in={layoutOpen} timeout="auto" unmountOnExit sx={{ width: '100%',
+            alignItems: 'center',
+            justifyContent: 'center' }}>
+            <Box px={2} py={1}>
+              <Slider
+              sx={{ width: '100%' }}
+                aria-label="layout-slider"
+                value={user?.layoutScale || 0}
+                onChange={(_, value) =>
+                  setUser(prev => prev ? { ...prev, layoutScale: value as number } : prev)
+                }
+                valueLabelDisplay="auto"
+                marks
+                min={0.5}
+                max={6}
+                step={0.5}
+              />
+            </Box>
+          </Collapse>
+          <MenuItem
+          onClick={() => setVoiceOpen(true)}
+          >
             <ListItemIcon>
               <Icon icon="solar:volume-loud-bold" width="32px" height="32px" />
             </ListItemIcon>
             Voz
           </MenuItem>
+          <MenuItem
+            onClick={() => {
+              logout();
+              setOpen(false);
+            }}
+          >
+            <ListItemIcon>
+              <Icon icon="solar:logout-3-bold" width="32px" height="32px" />
+            </ListItemIcon>
+            Sair
+          </MenuItem>
         </Menu>
       </Box>
+      <VoiceSelector voiceOpen={voiceOpen} setVoiceOpen={setVoiceOpen} />
     </header>
   );
 }

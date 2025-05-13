@@ -5,7 +5,6 @@ import Divider from '@mui/material/Divider';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
 import Link from '@mui/material/Link';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
@@ -19,6 +18,10 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth, UserLogin } from '../../context/AuthContext';
+import { PasswordInput } from './inputs/passwordInput';
+import { EmailInput } from './inputs/emailInput';
+import { Checkbox, FormControlLabel } from '@mui/material';
+import { useState } from 'react';
 
 interface ForgotPasswordProps {
   open: boolean;
@@ -97,12 +100,12 @@ const SignInContainer = styled(Stack)({
 });
 
 export default function SignIn() {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-  const [open, setOpen] = React.useState(false);
-  const [isLoading, setLoading ] = React.useState(false);
+  const [isValid, setIsValid] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState<string>('');
+  const [open, setOpen] = useState(false);
+  const [isLoading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const isLoginOpen = new URLSearchParams(location.search).get('login') === 'true';
@@ -127,47 +130,32 @@ export default function SignIn() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
-    if (emailError || passwordError) {
+    if (!isValid) {
       return;
     }
-    const data = new FormData(event.currentTarget);
-    const objectData = Object.fromEntries(data.entries());
     const userLogin: UserLogin = {
-      login: objectData.email?.toString(),
-      password: objectData.password?.toString(),
+      login: email,
+      password: password,
     }
 
-    login(userLogin).finally(() => {
+    login(userLogin, rememberMe).finally(() => {
       setLoading(false)
       closeLogin()
     })
   };
 
   const validateInputs = () => {
-    const email = document.getElementById('email') as HTMLInputElement;
-    const password = document.getElementById('password') as HTMLInputElement;
-
     let isValid = true;
 
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage('Por favor, insira um email válido.');
+    if (!email) {
       isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage('');
     }
 
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage('A senha deve ser maior que 6 digitos.');
+    if (!password) {
       isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage('');
     }
 
-    return isValid;
+    return setIsValid(isValid);
   };
 
   return (isLoginOpen &&
@@ -206,49 +194,23 @@ export default function SignIn() {
             }}
           >
             <FormControl>
-              <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="email">Email</FormLabel>
-              <TextField
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                  },
-                }}
-                error={emailError}
-                helperText={emailErrorMessage}
-                id="email"
-                type="email"
-                name="email"
-                placeholder="seu@email.com"
-                autoComplete="email"
-                autoFocus
-                required
-                fullWidth
-                variant="outlined"
-                color={emailError ? 'error' : 'primary'}
-              />
+              <EmailInput setData={setEmail} />
             </FormControl>
             <FormControl>
               <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="password">Senha</FormLabel>
-              <TextField
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                  },
-                }}
-                error={passwordError}
-                helperText={passwordErrorMessage}
-                name="password"
-                placeholder="••••••"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                autoFocus
-                required
-                fullWidth
-                variant="outlined"
-                color={passwordError ? 'error' : 'primary'}
-              />
+              <PasswordInput autoComplete="current-password" setData={setPassword} />
             </FormControl>
+            <FormControlLabel
+              sx={{
+                '& .MuiFormControlLabel-asterisk': {
+                  display: 'none',
+                },
+              }}
+              control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} color="primary" />}
+              label={<Typography sx={{ textAlign: 'center' }}>
+                Lembre-se de mim
+              </Typography>}
+            />
             <ForgotPassword open={open} handleClose={handleClose} />
             <Button
               loading={isLoading}
@@ -278,6 +240,7 @@ export default function SignIn() {
               variant="outlined"
               onClick={() => alert('Sign in with Google')}
               startIcon={<Icon icon="flat-color-icons:google" width="24" height="24" />}
+              href="/login/oauth2/code/google"
             >
               Entre com o google
             </Button>

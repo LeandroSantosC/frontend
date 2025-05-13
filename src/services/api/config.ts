@@ -19,7 +19,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token'); // pega o token salvo no login
+    const token = localStorage.getItem('token') ?? sessionStorage.getItem('token'); // pega o token salvo no login
 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`; // adiciona o token no header
