@@ -25,8 +25,6 @@ export interface CardContextType {
   CardSnack: () => void;
   setPublicCard: (isPublicCard: boolean) => void
   isPublicCard: boolean;
-  layout: number;
-  setLayout: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export interface NewCard {
