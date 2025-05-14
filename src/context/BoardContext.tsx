@@ -1,52 +1,40 @@
 import { createContext, ReactNode, useContext, useState, useEffect } from "react";
-import { CardData } from "../components/Content/Card/Card";
-import { createCardService } from "../services/CardService";
-import { EditCardData } from "../components/Content/Card/CardEditor";
+import { createBoardService } from "../services/BoardService";
 import { Alert, CircularProgress, Grow, Snackbar, SnackbarCloseReason } from "@mui/material";
 import { OverridableStringUnion } from '@mui/types';
 import { AlertPropsColorOverrides } from "@mui/material";
 import { ApiResponse } from "../services/api/request";
 import { useAuth } from "./AuthContext";
+import { BoardData, NewBoardData } from "../components/Content/Board/Board";
 export type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 
-export interface CardContextType {
-  cards: CardData[];
-  setCards: React.Dispatch<React.SetStateAction<CardData[]>>;
-  categories: {id: string, name: string}[];
-  createCard: (data: EditCardData) => Promise<ApiResponse<CardData>>;
-  deleteCard: (id: string) => Promise<ApiResponse<string>>;
-  updateCard: (id: string, data: EditCardData) => Promise<ApiResponse<CardData>>;
-  editCard: {card: CardData, cardRef: React.RefObject<HTMLDivElement>} | null;
-  setEditCard: React.Dispatch<React.SetStateAction<{card: CardData, cardRef: React.RefObject<HTMLDivElement>} | null>>;
+export interface BoardContextType {
+  boards: BoardData[];
+  setBoards: React.Dispatch<React.SetStateAction<BoardData[]>>;
+  createBoard: (data: NewBoardData) => Promise<ApiResponse<BoardData>>;
+  deleteBoard: (id: string) => Promise<ApiResponse<string>>;
+  updateBoard: (id: string, data: BoardData) => Promise<ApiResponse<BoardData>>;
+  editBoard: {board: BoardData, boardRef: React.RefObject<HTMLDivElement>} | null;
+  setEditBoard: React.Dispatch<React.SetStateAction<{board: BoardData, boardRef: React.RefObject<HTMLDivElement>} | null>>;
   setVisible: (id: string) => void;
-  loadingCards: boolean;
-  newCard:EditCardData;
-  CardSnack: () => void;
-  setPublicCard: (isPublicCard: boolean) => void
-  isPublicCard: boolean;
+  loadingBoards: boolean;
+  newBoard:NewBoardData;
+  BoardSnack: () => void;
 }
 
-export const CardContext = createContext<CardContextType | undefined>(undefined);
+export const BoardContext = createContext<BoardContextType | undefined>(undefined);
 
-export function CardProvider({ children }: { children: ReactNode }) {
-  const [cards, setCards] = useState<CardData[]>([]);
-  const [loadingCards, setLoadingCards] = useState(false);
-  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
-  const [editCard, setEditCard] = useState<{card: CardData, cardRef: React.RefObject<HTMLDivElement>} | null>(null);
+export function BoardProvider({ children }: { children: ReactNode }) {
+  const [boards, setBoards] = useState<BoardData[]>([]);
+  const [loadingBoards, setLoadingBoards] = useState(false);
+  const [editBoard, setEditBoard] = useState<{board: BoardData, boardRef: React.RefObject<HTMLDivElement>} | null>(null);
   const [openSnack, setOpenSnack] = useState<{ open: boolean, severity?:OverridableStringUnion<AlertColor, AlertPropsColorOverrides> | undefined , message?: string, noTime?:boolean }>({ open: false });
-  const [ isPublicCard, setPublicCard ] = useState(false);
   const { user } = useAuth();
 
-  const newCard:EditCardData = {
-    id: undefined,
+  const newBoard:NewBoardData = {
     name: "",
-    image: "",
-    sound: undefined,
-    category:{
-      id: undefined,
-      name: ""
-    }
+    cards: []
   }
 
   const handleCloseSnack = (
@@ -60,7 +48,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
       setOpenSnack({ open: false });
     };
 
-  function CardSnack(){
+  function BoardSnack(){
     return (
       <Snackbar
           anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
@@ -72,7 +60,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
           <Alert
             onClose={handleCloseSnack}
             severity={openSnack.severity}
-            icon={loadingCards ? <CircularProgress size={'20px'}/> : false}
+            icon={loadingBoards ? <CircularProgress size={'20px'}/> : false}
             variant="filled"
             sx={{ width: '100%' }}
           >
@@ -83,47 +71,41 @@ export function CardProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    const fetchCards = async () => {
-      setLoadingCards(true);
+    const fetchBoards = async () => {
+      setLoadingBoards(true);
       setOpenSnack({open: true, severity:'info', message: "Carregando!", noTime:true})
-      const { getCards } = createCardService(isPublicCard);
-      const result = await getCards();
+      const { getBoards } = createBoardService();
+      const result = await getBoards();
       console.log(result);
       if (result.success) {
-        setLoadingCards(false);
+        setLoadingBoards(false);
         setOpenSnack({open: true, severity: 'success' , message: "Carregado com sucesso"});
-        setCards(result.response?.sort((a: CardData, b: CardData) => a.position - b.position) || []);
+        setBoards(result.response?.sort((a: BoardData, b: BoardData) => a.position - b.position) || []);
       }
       else{
-        setLoadingCards(false);
+        setLoadingBoards(false);
         setOpenSnack({open: true, severity: 'error' , message: "Erro ao carregar " + result.error});
       }
     };
 
-    fetchCards();
-  }, [isPublicCard, user?.fullname]);
+    fetchBoards();
+  }, [user?.fullname]);
   
-  useEffect(() => {
-      setCategories(cards
-        .map((card) => card.category)
-        .filter((category) => category.id !== null)
-        .filter((category, index, self) => self.findIndex((t) => t.name === category.name) === index) as { id: string; name: string }[]);
-  }, [cards]);
 
   const setVisible = (id: string) => {
-    setCards((prevCards) =>
-      prevCards.map((card) =>
-        card.id === id ? { ...card, visible: !card.visible } : card
+    setBoards((prevBoards) =>
+      prevBoards.map((board) =>
+        board.id === id ? { ...board, visible: !board.visible } : board
       )
     );
   };
 
-  const deleteCard = async (id: string) => {
-    const { deleteCard } = createCardService(isPublicCard);
-    const result = await deleteCard(id);
+  const deleteBoard = async (id: string) => {
+    const { deleteBoard } = createBoardService();
+    const result = await deleteBoard(id);
     if (result.success) {
-      setCards((prevCards) => prevCards.filter((card) => card.id !== id));
-      setOpenSnack({ open: true, severity: 'success', message: "Card deletado com sucesso!" })
+      setBoards((prevBoards) => prevBoards.filter((board) => board.id !== id));
+      setOpenSnack({ open: true, severity: 'success', message: "Board deletado com sucesso!" })
     }
     else {
       setOpenSnack({ open: true, severity: 'error', message: "Não foi possível deletar! tente novamente!" })
@@ -132,13 +114,13 @@ export function CardProvider({ children }: { children: ReactNode }) {
     return result;
   };
 
-  const updateCard = async (id: string, data: EditCardData) => {
-    const { updateCard } = createCardService(isPublicCard);
-    const result = await updateCard(id, data);
+  const updateBoard = async (id: string, data: NewBoardData) => {
+    const { updateBoard } = createBoardService();
+    const result = await updateBoard(id, data);
     if (result.success && result.response) {
-      const updatedCard: CardData = result.response;
-      setCards((prevCards) => prevCards.map((card) => (card.id === updatedCard.id ? updatedCard : card)));
-      setOpenSnack({ open: true, severity: 'success', message: "Card atualizado com sucesso!" })
+      const updatedBoard: BoardData = result.response;
+      setBoards((prevBoards) => prevBoards.map((board) => (board.id === updatedBoard.id ? updatedBoard : board)));
+      setOpenSnack({ open: true, severity: 'success', message: "Board atualizado com sucesso!" })
     }
     else {
       setOpenSnack({ open: true, severity: 'error', message: "Não foi possível atualizar! tente novamente!" })
@@ -147,14 +129,14 @@ export function CardProvider({ children }: { children: ReactNode }) {
     return result;
   };
 
-  const createCard = async (data: EditCardData) => {
-    const { createCard } = createCardService(isPublicCard);
-    const result = await createCard(data);
+  const createBoard = async (data: NewBoardData) => {
+    const { createBoard } = createBoardService();
+    const result = await createBoard(data);
     if (result.success && result.response) {
-      console.log("aqui o card sendo setado nos Cards:" + result.response)
-      const newCard: CardData = result.response;
-      setCards((prevCards) => [...prevCards, newCard]);
-      setOpenSnack({ open: true, severity: 'success', message: "Card criado com sucesso!" })
+      console.log("aqui o Board sendo setado nos Boards:" + result.response)
+      const newBoard: BoardData = result.response;
+      setBoards((prevBoards) => [...prevBoards, newBoard]);
+      setOpenSnack({ open: true, severity: 'success', message: "Board criado com sucesso!" })
     }
     else {
       setOpenSnack({ open: true, severity: 'error', message: "Não foi possível criar! tente novamente!" })
@@ -163,29 +145,27 @@ export function CardProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <CardContext.Provider value={{ cards, 
-    setCards, 
-    categories, 
-    createCard, 
-    deleteCard, 
-    updateCard, 
-    editCard, 
-    setEditCard, 
+    <BoardContext.Provider value={{ boards, 
+    setBoards, 
+    createBoard, 
+    deleteBoard, 
+    updateBoard, 
+    editBoard, 
+    setEditBoard, 
     setVisible, 
-    loadingCards, 
-    newCard, 
-    CardSnack, 
-    setPublicCard, 
-    isPublicCard,}}>
+    loadingBoards, 
+    newBoard, 
+    BoardSnack, 
+    }}>
       {children}
-    </CardContext.Provider>
+    </BoardContext.Provider>
   );
 }
 
-export function useCardContext():CardContextType {
-  const context = useContext(CardContext);
+export function useBoardContext():BoardContextType {
+  const context = useContext(BoardContext);
   if (!context) {
-    throw new Error("CardContext deve ser usado dentro de um CardProvider");
+    throw new Error("BoardContext deve ser usado dentro de um BoardProvider");
   }
   return context;
 }

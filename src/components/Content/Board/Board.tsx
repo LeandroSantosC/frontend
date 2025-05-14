@@ -15,13 +15,16 @@ import BoardTools from "./BoardTools/BoardTools";
 export interface BoardData {
   id: string;
   name: string;
-  visible?: boolean;
-  position?: number;
+  visible: boolean;
+  position: number;
   cards: CardData[];
 }
 
 export interface NewBoardData {
+  id?: string
   name: string;
+  visible?: boolean;
+  position?: number;
   cards: CardData[];
 }
 
@@ -40,7 +43,7 @@ function Board({ board }: { board: BoardData }) {
 
   const handleClick = () => {
     if (ref.current) {
-      onEdit(board, ref); // chama o handler do Content
+      onEdit(board, ref);
     }
   };
 

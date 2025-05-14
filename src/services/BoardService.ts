@@ -8,7 +8,7 @@ export const createBoardService = () => {
     getBoards: () => request<BoardData[]>({ method: 'GET', url: base }),
     createBoard: (data: NewBoardData) =>
       request<BoardData>({ method: 'POST', url: base, data }),
-    updateBoard: (id: string, data: BoardData) =>
+    updateBoard: (id: string, data: NewBoardData) =>
       request<BoardData>({ method: 'PATCH', url: `${base}/${id}`, data }),
     deleteBoard: (id: string) =>
       request<string>({ method: 'DELETE', url: `${base}/${id}` }),

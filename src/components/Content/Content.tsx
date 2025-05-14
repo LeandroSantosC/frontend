@@ -10,13 +10,16 @@ import { Button, Skeleton, Tab, Tabs } from "@mui/material";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import Board from "./Board/Board";
+import Board, { BoardData, NewBoardData } from "./Board/Board";
+import BoardEditor from "./Board/BoardEditor";
+import { useBoardContext } from "../../context/BoardContext";
 
 
 const board: BoardData = {
   id: "board",
   name: "board",
   visible: true,
+  position:1,
   cards: [
     {
       id: "card1",
@@ -50,9 +53,13 @@ function Content() {
   const [tab, setTab] = useState<'cards' | 'boards'>('cards');
   const { editMode, categorySelected, search } = useToolsContext();
   const { cards, setCards, loadingCards, newCard, CardSnack, isPublicCard } = useCardContext();
+  const { boards, setBoards, loadingBoards, newBoard, BoardSnack } = useBoardContext();
   const [editingCard, setEditingCard] = useState<EditCardData | null>(null);
+  const [editingBoard, setEditingBoard] = useState<NewBoardData | null>(null);
   const [cardRect, setCardRect] = useState<DOMRect | null>(null);
+  const [boardRect, setBoardRect] = useState<DOMRect | null>(null);
   const CardEditref = useRef<HTMLDivElement>(null);
+  const BoardEditref = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
   const sensors = useSensors(useSensor(PointerSensor, {
@@ -81,6 +88,19 @@ function Content() {
         const rect = ref.current.getBoundingClientRect();
         setEditingCard(card);
         setCardRect(rect);
+      }
+    }
+    else{
+      navigate("/?login=true");
+    }
+  };
+
+  const handleEditBoard = (board: NewBoardData, ref: React.RefObject<HTMLDivElement | null>) => {
+    if(user){
+      if (ref.current) {
+        const rect = ref.current.getBoundingClientRect();
+        setEditingBoard(board);
+        setBoardRect(rect);
       }
     }
     else{
@@ -173,7 +193,32 @@ function Content() {
           {CardSnack()}
         </>)}
       {tab === "boards" &&
+      <>
         <div className="flex w-full grow-0 overflow-x-visible scrollbar-hide p-2 overflow-y-auto flex-row justify-evenly gap-2 flex-wrap">
+        <AnimatePresence>
+              {editMode ? (
+                <motion.div
+                  ref={BoardEditref}
+                  layout
+                  key="AddBoard"
+                  style={{ width: 'clamp(80px, calc(33.3% - 4%), 130px)', aspectRatio: 1 / 1.25, left: 0 }}
+                  initial={{ width: 0 }}
+                  animate={{ width: 'clamp(80px, calc(33.3% - 4%), 130px)' }}
+                  exit={{ width: 0 }}
+                  transition={{
+                    ease: 'easeInOut',
+                    duration: 0.3
+                  }}
+                  onClick={() => handleEditBoard(newBoard, BoardEditref)}
+                >
+                  <Button className="card"
+                    style={{ backgroundColor: "oklch(0.623 0.214 259.815)", borderRadius: "16px", width: '100%', aspectRatio: 'auto', height: '100%' }}
+                  >
+                    <Icon icon="solar:add-circle-bold" className="flex relative w-full h-[50%] rounded-inherit pointer-events-none text-white" />
+                  </Button>
+                </motion.div>
+              ) : null}
+          </AnimatePresence>
           <Board board={board}/>
           <Board board={board}/>
           <Board board={board}/>
@@ -181,6 +226,17 @@ function Content() {
           <Board board={board}/>
           <Board board={board}/>
         </div>
+        <AnimatePresence onExitComplete={() => setEditingBoard(null)}>
+        {editingBoard && boardRect && (
+          <BoardEditor
+          board={editingBoard}
+          boardRect={boardRect}
+          closeEditor={() => setBoardRect(null)}
+          />
+        )}
+      </AnimatePresence>
+      {BoardSnack()}
+      </>
       }
     </div>
   );

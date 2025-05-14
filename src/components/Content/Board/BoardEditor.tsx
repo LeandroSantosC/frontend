@@ -9,40 +9,22 @@ import { Autocomplete, Button, CircularProgress, FormControl, IconButton, styled
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { useEffect, useRef, useState } from 'react';
 import { ApiResponse } from '../../../services/api/request';
-
-export interface EditCardData {
-  id?: string;
-  name: string;
-  image: string;
-  sound?: string;
-  category: {
-    id?: string;
-    name: string;
-  };
-}
+import { BoardData, NewBoardData } from './Board';
+import { useBoardContext } from '../../../context/BoardContext';
 
 interface CardEditorProps {
-  card: EditCardData;
-  cardRect: DOMRect;
+  board: NewBoardData;
+  boardRect: DOMRect;
   closeEditor: () => void;
 }
 
-function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
-  const [cardtoUpdate, setCardtoUpdate] = useState<EditCardData>(card);
-  const { id, name, image } = cardtoUpdate;
-  const { categories } = useCardContext();
+function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
+  const [boardtoUpdate, setBoardtoUpdate] = useState<NewBoardData>(board);
+  const { id, name, cards } = boardtoUpdate;
   const [isFocused, setIsFocused] = useState(false);
-  const { updateCard, createCard, CardSnack } = useCardContext();
-  const inputImgRef = useRef<HTMLInputElement>(null);
+  const { updateBoard, createBoard, BoardSnack } = useBoardContext();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isUpdate, setIsUpdate] = useState<{ response?: ApiResponse<unknown>; loading: boolean } | null | undefined>(null);
-  const [openDialog, setOpenDialog] = useState(false);
-
-  useEffect(() => {
-    if (openDialog) {
-      return
-    }
-  }, [openDialog]);
 
   useEffect(() => {
     if (!isUpdate || isUpdate.loading) return;
@@ -57,12 +39,12 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
     return () => clearTimeout(timeoutId);
   }, [isUpdate, closeEditor]);
 
-  async function attCard(id: string | undefined, cardAtt: EditCardData) {
-    console.log(cardAtt);
-    if (cardAtt === card) return closeEditor()
+  async function attCard(id: string | undefined, boardAtt: NewBoardData) {
+    console.log(boardAtt);
+    if (boardAtt === board) return closeEditor()
 
     setIsUpdate({ loading: true });
-    const response = id ? await updateCard(id, cardAtt) : await createCard(cardAtt);
+    const response = id ? await updateBoard(id, boardAtt) : await createBoard(boardAtt);
     console.log("passou o await, response:" + response.response + ", success: " + response.success + ", error: " + response.error)
 
     setIsUpdate({ response, loading: false })
@@ -76,18 +58,6 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
     }
   };
 
-  const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
-
   return (
     <LayoutGroup>
       <>
@@ -98,7 +68,7 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
           backgroundRepeat: 'no-repeat',}}
           onClick={() => isUpdate?.loading ? null : closeEditor()}
           layout
-          layoutId={`card-${id}`}
+          layoutId={`board-${id}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.7 }}
           exit={{
@@ -108,7 +78,7 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
         />
         <Box component="form" onSubmit={(event) => {
           event.preventDefault()
-          attCard(id, cardtoUpdate)
+          attCard(id, boardtoUpdate)
         }} >
           <FormControl
             disabled={isUpdate?.loading}
@@ -117,10 +87,10 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
               style={{ opacity: 1, zIndex: 100 }}
               className="flex flex-col items-center justify-around"
               initial={{
-                top: cardRect.top,
-                left: cardRect.left,
-                width: cardRect.width,
-                height: cardRect.height,
+                top: boardRect.top,
+                left: boardRect.left,
+                width: boardRect.width,
+                height: boardRect.height,
                 position: 'absolute',
               }}
               animate={{
@@ -132,10 +102,10 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                 zIndex: 100,
               }}
               exit={{
-                top: cardRect.top,
-                left: cardRect.left,
-                width: cardRect.width,
-                height: cardRect.height,
+                top: boardRect.top,
+                left: boardRect.left,
+                width: boardRect.width,
+                height: boardRect.height,
                 transform: 'translate(0, 0)',
                 position: 'absolute',
                 transition: { delay: 0.5 }
@@ -169,15 +139,15 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                   duration: 0.7,
                   ease: easeInOut
                 }}>
-                <span className="flex text-white text-[4vh] top-0">{id ? "Editar" : "Novo Card"}</span>
+                <span className="flex text-white text-[4vh] top-0">{id ? "Editar" : "Nova Prancha"}</span>
               </motion.div>
               <motion.div
                 layout
                 className="editCard"
                 initial={{
                   top: '0',
-                  width: cardRect.width,
-                  height: cardRect.height,
+                  width: boardRect.width,
+                  height: boardRect.height,
                   position: 'absolute',
                 }}
                 animate={{
@@ -187,8 +157,8 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                   position: 'relative',
                 }}
                 exit={{
-                  width: cardRect.width,
-                  height: cardRect.height,
+                  width: boardRect.width,
+                  height: boardRect.height,
                   position: 'absolute',
                   transform: 'translate(0, 0)',
                   transition: { delay: 0.5 }
@@ -199,38 +169,6 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                 }}
               >
                 <div className="flex flex-col items-center h-full w-full">
-                  <SpeedDial
-                    FabProps={{ disabled: isUpdate?.loading }}
-                    ariaLabel="SpeedDial basic example"
-                    sx={{ position: 'absolute', top: 10, right: 10 }}
-                    icon={<SpeedDialIcon />}
-                    direction='down'
-                  >
-                    <SpeedDialAction
-                      key={"URL"}
-                      tooltipTitle={"URL"}
-                      icon={<Icon icon="solar:link-bold" width="100%" height="70%" />}
-                      onClick={() => setOpenDialog(true)}
-                    >
-                    </SpeedDialAction>
-                    <SpeedDialAction
-                      key={"Arquivos"}
-                      onClick={() => inputImgRef.current?.click()}
-                      tooltipTitle={"Arquivos"}
-                      icon={<Icon icon="solar:archive-bold" width="100%" height="70%" />}
-                    />
-                    <VisuallyHiddenInput
-                      ref={inputImgRef}
-                      type="file"
-                      // onChange={(event) => setCardtoUpdate(prev => ({...prev, image: event.target.files}))}
-                      multiple
-                    />
-                  </SpeedDial>
-                  <div className="flex relative h-full w-full rounded-inherit pointer-events-none">
-                    {image && (
-                      <img src={image} alt={name} className="flex relative h-full w-full rounded-inherit pointer-events-none" />
-                    )}
-                  </div>
                   <div className='flex h-[15%] items-center w-full relative'>
                     <input
                       required
@@ -245,7 +183,7 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                       className="flex justify-center w-full items-center h-[90%] self-start text-center text-[200%] font-bold outline-none"
                       defaultValue={name}
                       onChange={(event) => {
-                        setCardtoUpdate(prev => ({ ...prev, name: event.target.value }))
+                        setBoardtoUpdate(prev => ({ ...prev, name: event.target.value }))
                       }}
                     />
                     <IconButton
@@ -296,151 +234,6 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                   ease: easeInOut
                 }}>
                 <motion.button className='flex absolute h-full rounded-4xl bg-blue-600 aspect-square'></motion.button>
-                <Autocomplete
-                  disabled={isUpdate?.loading}
-                  sx={{ width: '100%', justifyContent: 'center' }}
-                  freeSolo
-                  disableCloseOnSelect={false}
-                  options={categories.map((category) => category.name)}
-                  value={cardtoUpdate?.category?.name || ''}
-                  onChange={(_, newValue) => {
-                    if (newValue) {
-                      const valueTrimmed = newValue.trim();
-                      const categoryFound = categories.find((category) => category.name === valueTrimmed)
-                      setCardtoUpdate(prev => ({ ...prev, category: { id: categoryFound?.id, name: valueTrimmed } }))
-                    }
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      required
-                      {...params}
-                      label="Categoria"
-                      variant="outlined"
-                      onInput={(e) => {
-                        const target = e.target as HTMLInputElement;
-                        target.value = target.value.toLowerCase();
-                      }}
-                      onBlur={(e) => {
-                        const typedValue = e.target.value.trim();
-                        if (typedValue) {
-                          const categoryFound = categories.find((category) => category.name === typedValue);
-                          setCardtoUpdate(prev => ({
-                            ...prev,
-                            category: {
-                              id: categoryFound?.id,
-                              name: typedValue
-                            }
-                          }));
-                        }
-                      }}
-                      sx={{
-                        '& .MuiInputLabel-root': {
-                          fontSize: '2.5vh',
-                          top: '-3px',
-                          '&.Mui-focused': {
-                            color: 'white',
-                            backgroundColor: '#155dfc',
-                            top: '5px',
-                            left: '-3px',
-                            borderRadius: '32px',
-                            paddingX: '15px',
-                            fontSize: '2.2vh',
-                          },
-                          '&.MuiInputLabel-shrink:not(.Mui-focused)': {
-                            color: 'white',
-                            backgroundColor: 'gray',
-                            top: '5px',
-                            left: '-3px',
-                            borderRadius: '32px',
-                            paddingX: '15px',
-                            fontSize: '2.2vh',
-                          },
-                          '&.MuiInputLabel-shrink:hover': {
-                            color: 'white',
-                            backgroundColor: '#155dfc',
-                          },
-                        },
-                        '& .MuiOutlinedInput-root': {
-                          fontWeight: 'bold',
-                          backgroundColor: 'white',
-                          borderRadius: '32px',
-                          '& fieldset': {
-                            border: '1px solid gray',
-                          },
-                          '&:hover fieldset': {
-                            border: '1px solid #155dfc',
-                          },
-                          '&.Mui-focused fieldset': {
-                            border: '1px solid #155dfc',
-                          },
-                        },
-                      }}
-                    />
-                  )}
-                />
-              </motion.div>
-              <motion.div className="flex h-[7%] w-full bg-gray-100 rounded-4xl items-center"
-                layout
-                initial={{
-                  top: "-50%",
-                  opacity: 0,
-                  scaleX: 0,
-                  position: 'absolute',
-                }}
-                animate={{
-                  top: 0,
-                  opacity: 1,
-                  scaleX: 1,
-                  position: 'relative',
-                }}
-                exit={{
-                  top: "-50%",
-                  opacity: 0,
-                  scaleX: 0,
-                  position: 'relative',
-                  transition: { delay: 0.1 }
-                }}
-                transition={{
-                  duration: 0.9,
-                  ease: easeInOut
-                }}>
-                <Button
-                  disabled={isUpdate?.loading}
-                  variant="contained"
-                  color="primary"
-                  sx={{
-                    position: 'absolute',
-                    height: '110%',
-                    aspectRatio: '1 / 1',
-                    borderRadius: '32px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 0,
-                    minWidth: 0,
-                  }}
-                >
-                  <Icon icon="solar:microphone-large-bold" width="100%" height="70%" />
-                </Button>
-                <div className='flex w-full justify-center text-sm'>Nenhum audio selecionado</div>
-                <SpeedDial
-                  FabProps={{ disabled: isUpdate?.loading }}
-                  ariaLabel="Menu de adicionar som"
-                  sx={{ position: 'absolute', right: 0 }}
-                  icon={<SpeedDialIcon />}
-                  direction='left'
-                >
-                  <SpeedDialAction
-                    key={"URL"}
-                    tooltipTitle={"URL"}
-                    icon={<Icon icon="solar:link-bold" width="100%" height="70%" />}
-                  />
-                  <SpeedDialAction
-                    key={"Arquivos"}
-                    tooltipTitle={"Arquivos"}
-                    icon={<Icon icon="solar:archive-bold" width="100%" height="70%" />}
-                  />
-                </SpeedDial>
               </motion.div>
               <motion.div className="flex h-[7%] w-full bg-transparent rounded-4xl items-center"
                 layout
@@ -518,7 +311,7 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
             </motion.div>
           </FormControl>
         </Box>
-        {CardSnack()}
+        {BoardSnack()}
       </>
     </LayoutGroup >
   );

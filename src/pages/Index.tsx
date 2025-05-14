@@ -9,6 +9,7 @@ import { CardProvider } from "../context/CardContext";
 import SignUp from "../components/Form/RegisterForm";
 import SignIn from "../components/Form/LoginForm";
 import { AuthProvider } from "../context/AuthContext";
+import { BoardProvider } from "../context/BoardContext";
 
 export default function Index() {
 
@@ -23,10 +24,12 @@ export default function Index() {
         <MainBoardProvider>
           <ToolsProvider>
             <CardProvider>
+              <BoardProvider>
               <Header />
               <MainBoard />
               <Tools />
               <Content />
+              </BoardProvider>
             </CardProvider>
           </ToolsProvider>
         </MainBoardProvider>
