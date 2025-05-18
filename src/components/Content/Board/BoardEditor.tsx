@@ -1,16 +1,15 @@
 import { motion, easeInOut, LayoutGroup } from 'framer-motion';
-import './Card.css';
-import { useCardContext } from '../../../context/CardContext';
+import { v4 as uuidv4 } from "uuid";
+import '../Card/Card.css';
+import './Board.css';
 import Box from '@mui/material/Box';
-import SpeedDial from '@mui/material/SpeedDial';
-import SpeedDialIcon from '@mui/material/SpeedDialIcon';
-import SpeedDialAction from '@mui/material/SpeedDialAction';
-import { Autocomplete, Button, CircularProgress, FormControl, IconButton, styled, TextField } from '@mui/material';
+import { Button, CircularProgress, FormControl, IconButton, useMediaQuery } from '@mui/material';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { useEffect, useRef, useState } from 'react';
 import { ApiResponse } from '../../../services/api/request';
-import { BoardData, NewBoardData } from './Board';
+import { NewBoardData } from './Board';
 import { useBoardContext } from '../../../context/BoardContext';
+import { useCardContext } from '../../../context/CardContext';
 
 interface CardEditorProps {
   board: NewBoardData;
@@ -19,8 +18,9 @@ interface CardEditorProps {
 }
 
 function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
+  const { cards } = useCardContext();
   const [boardtoUpdate, setBoardtoUpdate] = useState<NewBoardData>(board);
-  const { id, name, cards } = boardtoUpdate;
+  const { id, name, button: boardCards } = boardtoUpdate;
   const [isFocused, setIsFocused] = useState(false);
   const { updateBoard, createBoard, BoardSnack } = useBoardContext();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -35,11 +35,11 @@ function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
         closeEditor();
       }
       setIsUpdate(null);
-    }, 5000);
+    }, 1500);
     return () => clearTimeout(timeoutId);
   }, [isUpdate, closeEditor]);
 
-  async function attCard(id: string | undefined, boardAtt: NewBoardData) {
+  async function attBoard(id: string | undefined, boardAtt: NewBoardData) {
     console.log(boardAtt);
     if (boardAtt === board) return closeEditor()
 
@@ -58,14 +58,18 @@ function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
     }
   };
 
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   return (
     <LayoutGroup>
       <>
         <motion.div
           className="absolute top-0 left-0 right-0 bottom-0 bg-black flex items-center justify-center z-50"
-          style={{backgroundImage:
-            'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
-          backgroundRepeat: 'no-repeat',}}
+          style={{
+            backgroundImage:
+              'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
+            backgroundRepeat: 'no-repeat',
+          }}
           onClick={() => isUpdate?.loading ? null : closeEditor()}
           layout
           layoutId={`board-${id}`}
@@ -78,14 +82,16 @@ function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
         />
         <Box component="form" onSubmit={(event) => {
           event.preventDefault()
-          attCard(id, boardtoUpdate)
-        }} >
+          attBoard(id, boardtoUpdate)
+        }}
+        sx={{ overflow: 'hidden', height: '100vh'}}
+        >
           <FormControl
             disabled={isUpdate?.loading}
-            variant="outlined" sx={{ display: 'contents' }}>
+            variant="outlined" sx={{ display: 'contents', overflow: 'hidden' }}>
             <motion.div
               style={{ opacity: 1, zIndex: 100 }}
-              className="flex flex-col items-center justify-around"
+              className="flex flex-col items-center justify-around gap-4 my-0 h-full overflow-hidden"
               initial={{
                 top: boardRect.top,
                 left: boardRect.left,
@@ -97,8 +103,9 @@ function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
                 transform: 'translate(-50%, -50%)',
                 top: '50%',
                 left: '50%',
-                width: '40vh',
-                height: '100vh',
+                width: isMobile ? '90vw' : '70vw',
+                height: '95vh',
+                overflow: 'hidden',
                 zIndex: 100,
               }}
               exit={{
@@ -130,7 +137,7 @@ function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
                   position: 'relative',
                 }}
                 exit={{
-                  top: '20%',
+                  top: '50%',
                   opacity: 0,
                   scaleX: 0,
                   position: 'relative',
@@ -141,35 +148,92 @@ function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
                 }}>
                 <span className="flex text-white text-[4vh] top-0">{id ? "Editar" : "Nova Prancha"}</span>
               </motion.div>
-              <motion.div
-                layout
-                className="editCard"
+              <div className="flex flex-col h-[80%] w-full bg-transparent items-center justify-center grow-0 shrink-0">
+                <motion.div
+                  layout
                 initial={{
-                  top: '0',
-                  width: boardRect.width,
-                  height: boardRect.height,
+                  width: '100%',
+                  height: '30vh',
+                  opacity: 0,
                   position: 'absolute',
+                  top: '0',
                 }}
                 animate={{
-                  top: '0',
-                  width: '40vh',
-                  height: '50vh',
+                  height: '70%',
+                  opacity: 1,
                   position: 'relative',
                 }}
                 exit={{
-                  width: boardRect.width,
-                  height: boardRect.height,
+                  width: '100%',
+                  height: '30vh',
+                  opacity: 0,
                   position: 'absolute',
-                  transform: 'translate(0, 0)',
-                  transition: { delay: 0.5 }
+                  top: "50%",
                 }}
                 transition={{
-                  duration: 0.5,
+                  duration: 0.7,
                   ease: easeInOut
                 }}
-              >
-                <div className="flex flex-col items-center h-full w-full">
-                  <div className='flex h-[15%] items-center w-full relative'>
+                  className="flex w-full h-full grow-0 overflow-x-visible scrollbar-hide p-2 overflow-y-auto flex-row justify-start items-start gap-2 flex-wrap">
+                  {cards.map((card) => (
+                    <div
+                      key={card.id}
+                      className="card"
+                      onClick={() => setBoardtoUpdate(prev => ({ ...prev, button: [...prev.button, { ...card, tempId: uuidv4() }] }))}
+                    >
+                      <div
+                        className="flex flex-col items-center h-full w-full m-0 p-0"
+                      >
+                        <img src={card.image} alt={card.name} className="flex relative h-full w-full rounded-inherit pointer-events-none" />
+                        <div className="flex justify-center items-center h-[15%] w-fit">
+                          <span className="pointer-events-none overflow-hidden text-center text-nowrap whitespace-nowrap font-bold text-[110%]">{card.name}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+                <motion.div
+                  layout
+                  initial={{
+                    top: '0',
+                    width: boardRect.width,
+                    height: boardRect.height,
+                    position: 'absolute',
+                  }}
+                  animate={{
+                    bottom: '0',
+                    width: '100%',
+                    height: '30%',
+                    position: 'relative',
+                    flexGrow: 0,
+                    zIndex: 100,
+                  }}
+                  exit={{
+                    top: '0',
+                    width: boardRect.width,
+                    height: boardRect.height,
+                    position: 'absolute',
+                    transition: { delay: 0.5 }
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    ease: easeInOut
+                  }}
+                  className="bg-[#f0f0f0] flex flex-col grow-0 items-center h-[30%] w-full m-0 p-0 rounded-xl overflow-clip">
+                  <div className="flex flex-row items-center justify-evenly w-full h-[80%] m-0 p-1 overflow-y-auto scrollbar-hide gap-1">
+                    {boardCards.map((card) => (
+                      <div className="card"
+                        style={{ height: '100%', width: 'auto' }}
+                        onClick={() => setBoardtoUpdate(prev => ({ ...prev, button: prev.button.filter((c) => c.tempId !== card.tempId) }))}
+                      >
+                        <img src={card.image} alt={card.name} className="flex relative h-[80%] w-full aspect-square pointer-events-none" />
+                        <div className="flex justify-center">
+                          <span className="pointer-events-none">{card.name}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className='flex h-[20%] items-center w-full relative'>
                     <input
                       required
                       disabled={isUpdate?.loading}
@@ -180,7 +244,7 @@ function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
                       }}
                       onFocus={handleFocus}
                       onBlur={handleBlur}
-                      className="flex justify-center w-full items-center h-[90%] self-start text-center text-[200%] font-bold outline-none"
+                      className="flex justify-center w-full items-center h-[90%] self-start text-center text-[170%] font-bold outline-none"
                       defaultValue={name}
                       onChange={(event) => {
                         setBoardtoUpdate(prev => ({ ...prev, name: event.target.value }))
@@ -204,38 +268,12 @@ function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
                           backgroundColor: isFocused ? 'transparent' : 'grey.500',
                         },
                       }}
-                    ><Icon icon="solar:pen-bold" width="100%" height="80%" /></IconButton>
+                    ><Icon icon="solar:pen-bold" width="100%" height="100%" /></IconButton>
                   </div>
-                </div>
-              </motion.div>
-              <motion.div className='flex h-[7%] w-full rounded-4xl items-center'
-                layout
-                initial={{
-                  top: "-50%",
-                  opacity: 0,
-                  scaleX: 0,
-                  position: 'absolute',
-                }}
-                animate={{
-                  top: 0,
-                  opacity: 1,
-                  scaleX: 1,
-                  position: 'relative',
-                }}
-                exit={{
-                  top: "-30%",
-                  opacity: 0,
-                  scaleX: 0,
-                  position: 'relative',
-                  transition: { delay: 0.2 }
-                }}
-                transition={{
-                  duration: 0.7,
-                  ease: easeInOut
-                }}>
-                <motion.button className='flex absolute h-full rounded-4xl bg-blue-600 aspect-square'></motion.button>
-              </motion.div>
-              <motion.div className="flex h-[7%] w-full bg-transparent rounded-4xl items-center"
+                </motion.div>
+              </div>
+              <motion.div
+                className="flex h-[7%] w-full bg-transparent rounded-4xl items-center justify-center gap-[10%]"
                 layout
                 initial={{
                   top: '-50%',
@@ -260,7 +298,7 @@ function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
                   duration: 1.1,
                   ease: easeInOut
                 }}>
-                <Box position="relative" width="45%" height="100%">
+                <Box position="relative" width={isMobile ? '45%' : '300px'} height="100%">
                   <Button
                     type='submit'
                     variant="contained"
@@ -285,7 +323,7 @@ function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
                     }}
                   >
                     {isUpdate?.loading ? <CircularProgress color="inherit" size="20px" /> :
-                    <Icon icon={isUpdate ? (isUpdate.response?.success ? "solar:like-bold" : "solar:dislike-bold") : "solar:diskette-bold"} width="100%" height="70%" />}
+                      <Icon icon={isUpdate ? (isUpdate.response?.success ? "solar:like-bold" : "solar:dislike-bold") : "solar:diskette-bold"} width="100%" height="70%" />}
                   </Button>
                 </Box>
                 <Button
@@ -294,10 +332,10 @@ function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
                   color="error"
                   onClick={closeEditor}
                   sx={{
-                    position: 'absolute',
+                    position: 'relative',
                     right: 0,
                     height: '100%',
-                    width: '45%',
+                    width: isMobile ? '45%' : '300px',
                     borderRadius: '32px',
                     justifyContent: 'center',
                     padding: 0,
@@ -307,7 +345,7 @@ function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
                   <Icon icon="solar:close-circle-bold" width="100%" height="70%" />
                 </Button>
               </motion.div>
-              <div className="flex h-[7%] w-full bg-transparent rounded-4xl items-center pointer-events-none"></div>
+              {/* <div className="flex h-[5%] w-full bg-transparent rounded-4xl items-center pointer-events-none"></div> */}
             </motion.div>
           </FormControl>
         </Box>

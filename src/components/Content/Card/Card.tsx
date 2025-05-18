@@ -17,10 +17,7 @@ export interface CardData {
   sound?: string;
   visible: boolean;
   position: number;
-  category: {
-    id?: string;
-    name: string;
-  };
+  category: string;
 }
 
 export interface CardProps {
@@ -68,7 +65,7 @@ function Card({ card, onEdit }: { card: CardData, onEdit: (card: CardData, ref:R
     transition,
     touchAction: "none",
     zIndex: isDragging ? 100 : undefined,
-    width: user?.layoutScale ? `clamp(${240/user.layoutScale}px, calc(${1/user.layoutScale * 100}% - 3%), ${390/user.layoutScale}px)` : undefined,
+    width: user?.layoutScale ? `clamp(${240/user.layoutScale.card}px, calc(${1/user.layoutScale.card * 100}% - 3%), ${390/user.layoutScale.card}px)` : undefined,
   };
 
   return (

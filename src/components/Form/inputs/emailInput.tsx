@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { TextField } from '@mui/material';
 
-export function EmailInput({setData}: { setData: React.Dispatch<React.SetStateAction<string>> }) {
+export function EmailInput({ setData, data }: { setData: React.Dispatch<React.SetStateAction<string | undefined>>, data?: string }) {
   const [rawValue, setRawValue] = useState('');
   const [error, setError] = React.useState(false);
   const [helper, setHelper] = React.useState('');
   const valueId = 'email';
+
+  if(data){
+      setRawValue(data);
+    }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const data = e.target.value;

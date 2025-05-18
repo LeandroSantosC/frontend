@@ -1,12 +1,8 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
-import Divider from '@mui/material/Divider';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
-import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
@@ -19,8 +15,9 @@ import { NameInput } from './inputs/nameInput';
 import { GenderInput } from './inputs/genderInput';
 import { BirthDateInput } from './inputs/birthDateInput';
 import { PasswordInput } from './inputs/passwordInput';
-import { useAuth, UserRegister } from '../../context/AuthContext';
+import { useAuth, UserData } from '../../context/AuthContext';
 import { isValidPhoneNumber } from 'libphonenumber-js';
+import { useState } from 'react';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -48,11 +45,11 @@ const SignUpContainer = styled(Stack)({
 })
 
 export default function SignUp() {
-  const [isLoading, setLoading] = React.useState(false);
-  const { register } = useAuth();
+  const [isLoading, setLoading] = useState(false);
+  const { user, updateUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const isRegisterOpen = new URLSearchParams(location.search).get('register') === 'true';
+  const isUpdateOpen = new URLSearchParams(location.search).get('update') === 'true';
   const [isValid, setIsValid] = React.useState(false);
   const [date, setDate] = React.useState<string | undefined>();
   const [phone, setPhone] = React.useState<string | undefined>();
@@ -61,10 +58,13 @@ export default function SignUp() {
   const [gender, setGender] = React.useState<string | undefined>();
   const [password, setPassword] = React.useState<string | undefined>();
 
-
-  const openLogin = () => {
-    navigate('?login=true');
-  };
+  if(user){
+    setDate(user.birthDate);
+    setPhone(user.phoneNumber);
+    setName(user.fullname);
+    setEmail(user.email);
+    setGender(user.gender)
+  }
 
   const closeRegister = () => {
     navigate('/');
@@ -113,28 +113,28 @@ export default function SignUp() {
     if (!isValid) {
       return;
     }
-    if(name && email && phone && gender && date && password){
-      const data: UserRegister = {
-        fullname: name,
-        email: email,
-        phoneNumber: phone,
-        gender: gender as "masculino" | "feminino",
-        birthDate: date,
+    const data: UserData = {
+      fullname: name,
+      email: email,
+      phoneNumber: phone,
+      gender: gender as "masculino" | "feminino",
+      birthDate: date,
+      credentials: {
         login: email,
-        password: password,
+        password: password
       }
-      console.log(data);
-      register(data).then((resolve) => {
+    }
+    console.log(data);
+    updateUser(data).then((resolve) => {
         if(resolve){
           closeRegister()
         }
       }).finally(() => {
         setLoading(false)
       })
-    }
   };
 
-  return (isRegisterOpen &&
+  return (isUpdateOpen &&
     <>
       <SignUpContainer direction="column" justifyContent="space-between">
         <div
@@ -166,27 +166,27 @@ export default function SignUp() {
               <FormControl fullWidth variant="outlined"
               disabled={isLoading}>
                 <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="name">Nome completo</FormLabel>
-                <NameInput setData={setName}/>
+                <NameInput setData={setName} data={name}/>
               </FormControl>
               <FormControl fullWidth variant="outlined"
               disabled={isLoading}>
                 <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="email">Email</FormLabel>
-                <EmailInput setData={setEmail}/>
+                <EmailInput setData={setEmail} data={email}/>
               </FormControl>
               <FormControl fullWidth variant="outlined"
               disabled={isLoading}>
                 <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="phone">Telefone</FormLabel>
-                <PhoneInput setData={setPhone}/>
+                <PhoneInput setData={setPhone} data={phone}/>
               </FormControl>
               <FormControl fullWidth variant="outlined"
               disabled={isLoading}>
                 <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="gender">Genero</FormLabel>
-                <GenderInput setData={setGender} />
+                <GenderInput setData={setGender} data={gender} />
               </FormControl>
               <FormControl fullWidth variant="outlined"
               disabled={isLoading}>
                 <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="birthDate">Data de Nascimento</FormLabel>
-                <BirthDateInput setData={setDate} />
+                <BirthDateInput setData={setDate} data={date} />
               </FormControl>
               <FormControl fullWidth variant="outlined"
               disabled={isLoading}>
@@ -194,24 +194,6 @@ export default function SignUp() {
                 <PasswordInput setData={setPassword} />
               </FormControl>
             </div>
-            <FormControlLabel
-              required
-              sx={{
-                '& .MuiFormControlLabel-asterisk': {
-                  display: 'none',
-                },
-              }}
-              control={<Checkbox value="acceptTerms" color="primary" />}
-              label={<Typography sx={{ textAlign: 'center' }}>
-                Eu concordo com os{' '}
-                <Link
-                  href=""
-                  sx={{ alignSelf: 'center' }}
-                >
-                  Termos e Condições
-                </Link>
-              </Typography>}
-            />
             <Button
               sx={{ borderRadius: '12px' }}
               type="submit"
@@ -220,24 +202,8 @@ export default function SignUp() {
               onClick={validateInputs}
               loading={isLoading}
             >
-              Registrar
+              Atualizar
             </Button>
-          </Box>
-          <Divider>
-            <Typography sx={{ color: 'text.secondary' }}>ou</Typography>
-          </Divider>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Typography sx={{ textAlign: 'center' }}>
-              Ja tem uma conta ?{' '}
-              <Link
-                component="button"
-                variant="body2"
-                sx={{ alignSelf: 'center' }}
-                onClick={openLogin}
-              >
-                Entre aqui
-              </Link>
-            </Typography>
           </Box>
         </Card>
       </SignUpContainer>

@@ -2,10 +2,14 @@ import React, { useState } from 'react';
 import { MuiTelInput } from 'mui-tel-input'
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
-export function PhoneInput({setPhone}: { setPhone: React.Dispatch<React.SetStateAction<string>> }) {
+export function PhoneInput({ setData, data }: { setData: React.Dispatch<React.SetStateAction<string | undefined>>, data?: string }) {
   const [rawValue, setRawValue] = useState('');
   const [error, setError] = React.useState(false);
   const [helper, setHelper] = React.useState('');
+
+  if(data){
+    setRawValue(data);
+  }
 
   return (
     <MuiTelInput
@@ -37,14 +41,14 @@ export function PhoneInput({setPhone}: { setPhone: React.Dispatch<React.SetState
       }}
       onChange={(value) => {
         setRawValue(value)
-        setPhone('');
+        setData('');
         if(rawValue.length == 0 || rawValue.length < 15){
             setError(true);
             setHelper('Por favor, insira um número de celular válido');
         }else{
             setError(false);
             setHelper('');
-            setPhone(value.replace(/\D/g, ''));
+            setData(value.replace(/\D/g, ''));
         }
       }}
     />

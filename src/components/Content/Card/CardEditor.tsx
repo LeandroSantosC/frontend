@@ -16,10 +16,7 @@ export interface EditCardData {
   name: string;
   image: string;
   sound?: string;
-  category: {
-    id?: string;
-    name: string;
-  };
+  category: string;
 }
 
 interface CardEditorProps {
@@ -54,7 +51,7 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
         closeEditor();
       }
       setIsUpdate(null);
-    }, 5000);
+    }, 1500);
     return () => clearTimeout(timeoutId);
   }, [isUpdate, closeEditor]);
 
@@ -302,13 +299,12 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                   sx={{ width: '100%', justifyContent: 'center' }}
                   freeSolo
                   disableCloseOnSelect={false}
-                  options={categories.map((category) => category.name)}
-                  value={cardtoUpdate?.category?.name || ''}
+                  options={categories.map((category) => category)}
+                  value={cardtoUpdate?.category || ''}
                   onChange={(_, newValue) => {
                     if (newValue) {
                       const valueTrimmed = newValue.trim();
-                      const categoryFound = categories.find((category) => category.name === valueTrimmed)
-                      setCardtoUpdate(prev => ({ ...prev, category: { id: categoryFound?.id, name: valueTrimmed } }))
+                      setCardtoUpdate(prev => ({ ...prev, category: valueTrimmed }))
                     }
                   }}
                   renderInput={(params) => (
@@ -324,13 +320,9 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                       onBlur={(e) => {
                         const typedValue = e.target.value.trim();
                         if (typedValue) {
-                          const categoryFound = categories.find((category) => category.name === typedValue);
                           setCardtoUpdate(prev => ({
                             ...prev,
-                            category: {
-                              id: categoryFound?.id,
-                              name: typedValue
-                            }
+                            category:typedValue
                           }));
                         }
                       }}

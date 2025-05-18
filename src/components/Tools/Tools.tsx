@@ -28,7 +28,7 @@ function Tools() {
             whiteSpace: 'nowrap',
           },
         }}
-        getOptionLabel={(option) => option.name}
+        getOptionLabel={(option) => option}
         renderOption={(props, option, { selected }) => {
           const { key, ...optionProps } = props;
           return (
@@ -37,7 +37,7 @@ function Tools() {
                 style={{ marginRight: 8 }}
                 checked={selected}
               />
-              {option.name}
+              {option}
             </li>
           );
         }}

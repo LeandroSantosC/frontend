@@ -5,11 +5,15 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import ptBr from 'dayjs/locale/pt-br';
 
-export function BirthDateInput({ setData }: { setData: React.Dispatch<React.SetStateAction<string>> }) {
+export function BirthDateInput({ setData, data }: { setData: React.Dispatch<React.SetStateAction<string | undefined>>, data?: string }) {
   const [date, setDate] = useState<Dayjs | null>(dayjs(null).locale(ptBr));
   const [error, setError] = useState(false);
   const [helper, setHelper] = useState('');
   const valueId = 'bday';
+
+  if (data) {
+    setDate(dayjs(data).locale(ptBr));
+  }
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">

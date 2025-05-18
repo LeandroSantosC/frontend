@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { TextField } from '@mui/material';
 
-export function NameInput({setData}: { setData: React.Dispatch<React.SetStateAction<string>> }) {
+export function NameInput({ setData, data }: { setData: React.Dispatch<React.SetStateAction<string | undefined>>, data?: string }) {
   const [rawValue, setRawValue] = useState('');
   const [error, setError] = React.useState(false);
   const [helper, setHelper] = React.useState('');
   const valueId = 'name';
+
+  if(data){
+    setRawValue(data);
+  }
 
   const format = (value: string): string => {
     const name = value.replace(/[^\p{L}\s]/gu, '');

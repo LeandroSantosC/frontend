@@ -2,13 +2,17 @@ import React, { useState } from 'react';
 import { FormHelperText, IconButton, InputAdornment, OutlinedInput } from '@mui/material';
 import { Icon } from '@iconify/react/dist/iconify.js';
 
-export function PasswordInput({ setData, autoComplete }: { setData: React.Dispatch<React.SetStateAction<string>>, autoComplete?: string }) {
+export function PasswordInput({ setData, autoComplete, data }: { setData: React.Dispatch<React.SetStateAction<string | undefined>>, autoComplete?: string, data?: string }) {
   const [showPassword, setShowPassword] = React.useState(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const [rawValue, setRawValue] = useState('');
   const [error, setError] = React.useState(false);
   const [helper, setHelper] = React.useState('');
   const valueId = 'password';
+
+  if(data){
+    setRawValue(data);
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const data = e.target.value;

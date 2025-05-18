@@ -51,7 +51,7 @@ const ImageSearchDialog: React.FC<{ open: boolean; onClose: () => void; onSelect
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Selecionar Imagem</DialogTitle>
       <DialogContent>
-        <Box display="flex" alignItems="center" mb={2}>
+        <Box display="flex" alignItems="center" m={1}>
           <TextField
             fullWidth
             label="Buscar pictograma"

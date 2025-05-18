@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import { MenuItem, TextField } from '@mui/material';
 
-export function GenderInput({ setData }: { setData: React.Dispatch<React.SetStateAction<string>> }) {
+export function GenderInput({ setData, data }: { setData: React.Dispatch<React.SetStateAction<string | undefined>>, data?: string }) {
   const [rawValue, setRawValue] = useState('');
   const [error, setError] = React.useState(false);
   const [helper, setHelper] = React.useState('');
   const valueId = 'gender';
-
+  
   const values = [
-    { value: 'Masculino', label: 'Masculino' },
-    { value: 'Feminino', label: 'Feminino' },
+    { value: 'masculino', label: 'Masculino' },
+    { value: 'feminino', label: 'Feminino' },
   ]
-
+  
+  if(data){
+    setRawValue(data);
+  }
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 

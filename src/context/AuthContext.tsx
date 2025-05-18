@@ -3,6 +3,7 @@ import {  createAuthService } from '../services/AuthService'
 import { Alert, Grow, Snackbar, SnackbarCloseReason } from "@mui/material";
 import { OverridableStringUnion } from '@mui/types';
 import { AlertPropsColorOverrides } from "@mui/material";
+import { ApiResponse } from "../services/api/request";
 export type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 
@@ -10,9 +11,11 @@ export interface AuthContextType {
   user: UserData | null;
   login: (data: UserLogin, stay:boolean) => Promise<boolean>;
   logout: () => void
-  register: (data: UserRegister) => void;
+  register: (data: UserRegister) => Promise<boolean>;
   userSnack: () => void;
   setUser: (user: SetStateAction<UserData | null>) => void;
+  updateUser: (data: UserData) => Promise<ApiResponse<UserData> | undefined>;
+  verifyEmail: (token: string) => Promise<ApiResponse<string>>;
 }
 
 export interface UserRegister {
@@ -33,8 +36,8 @@ export interface UserData {
   gender?: "masculino" | "feminino";
   birthDate?: string;
   voice?: string
-  layoutScale?: number
-  credentials?: { role: string }
+  layoutScale?: { card: number, board: number }
+  credentials?: { password?:string, login?: string, role?: string }
 }
 
 export interface UserLogin {
@@ -52,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if(user?.layoutScale && user && !isSession){
-      localStorage.setItem('layout', user.layoutScale.toString());
+      localStorage.setItem('layout', JSON.stringify(user.layoutScale));
     }
     if(user?.voice && user && !isSession){
       localStorage.setItem('voice', user.voice);
@@ -102,7 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const layout = localStorage.getItem('layout');
         const voice = localStorage.getItem('voice');
         if (layout) {
-          setUser((prevUser) => ({ ...prevUser, layoutScale: parseFloat(layout) }));
+          const parsedLayout = JSON.parse(layout);
+          setUser((prevUser) => ({ ...prevUser, layoutScale: parsedLayout }));
         }
         if (voice) {
           setUser((prevUser) => ({ ...prevUser, voice: voice }));
@@ -150,7 +154,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (data: UserRegister) => {
     const { register } = createAuthService();
-    await register(data);
+    const result = await register(data);
+    return result.success;
   };
 
   const login = async (data: UserLogin, stay:boolean) => {
@@ -193,8 +198,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const updateUser = async (data: UserData) => {
+    const { updateUser } = createAuthService();
+    let result;
+    if (user) {
+      result = await updateUser(data);
+      if (result.success) {
+        setOpenSnack({ open: true, severity: 'success', message: "Usuário atualizado com sucesso! " })
+        setUser(result.response ?? null);
+      }
+      else {
+        setOpenSnack({ open: true, severity: 'error', message: "Não foi possível salvar alterações " + result.error })
+      }
+    }
+    return result;
+  }
+
+  const verifyEmail = async (token: string) => {
+    const { verifyEmail } = createAuthService();
+
+    const result = await verifyEmail(token)
+    
+    return result;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, register, userSnack, setUser }}>
+    <AuthContext.Provider value={{ user, login, logout, register, userSnack, setUser, updateUser, verifyEmail }}>
       {children}
     </AuthContext.Provider>
   );

@@ -8,6 +8,7 @@ export const createAuthService = () => {
         getUser: () => request<UserData>({ method: 'GET', url: '/auth/user'}),
         updateUser: (data: UserData) => request<UserData>({ method: 'PATCH', url: '/auth/user', data}),
         deleteUser: (id: string) => request<UserData>({ method: 'DELETE', url: `/auth/user/${id}`}),
+        verifyEmail: (token: string) => request<string>({ method: 'GET', url: `/auth/verify-email?token=${token}`}),
     }
 }
 

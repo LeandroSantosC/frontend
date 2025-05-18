@@ -13,7 +13,7 @@ export type AlertColor = 'success' | 'info' | 'warning' | 'error';
 export interface CardContextType {
   cards: CardData[];
   setCards: React.Dispatch<React.SetStateAction<CardData[]>>;
-  categories: {id: string, name: string}[];
+  categories: string[];
   createCard: (data: EditCardData) => Promise<ApiResponse<CardData>>;
   deleteCard: (id: string) => Promise<ApiResponse<string>>;
   updateCard: (id: string, data: EditCardData) => Promise<ApiResponse<CardData>>;
@@ -40,7 +40,7 @@ export const CardContext = createContext<CardContextType | undefined>(undefined)
 export function CardProvider({ children }: { children: ReactNode }) {
   const [cards, setCards] = useState<CardData[]>([]);
   const [loadingCards, setLoadingCards] = useState(false);
-  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [editCard, setEditCard] = useState<{card: CardData, cardRef: React.RefObject<HTMLDivElement>} | null>(null);
   const [openSnack, setOpenSnack] = useState<{ open: boolean, severity?:OverridableStringUnion<AlertColor, AlertPropsColorOverrides> | undefined , message?: string, noTime?:boolean }>({ open: false });
   const [ isPublicCard, setPublicCard ] = useState(false);
@@ -51,10 +51,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
     name: "",
     image: "",
     sound: undefined,
-    category:{
-      id: undefined,
-      name: ""
-    }
+    category:""
   }
 
   const handleCloseSnack = (
@@ -114,8 +111,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
       setCategories(cards
         .map((card) => card.category)
-        .filter((category) => category.id !== null)
-        .filter((category, index, self) => self.findIndex((t) => t.name === category.name) === index) as { id: string; name: string }[]);
+        .filter((category, index, self) => self.findIndex((t) => t === category) === index) as []);
   }, [cards]);
 
   const setVisible = (id: string) => {

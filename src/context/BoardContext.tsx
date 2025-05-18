@@ -14,7 +14,7 @@ export interface BoardContextType {
   setBoards: React.Dispatch<React.SetStateAction<BoardData[]>>;
   createBoard: (data: NewBoardData) => Promise<ApiResponse<BoardData>>;
   deleteBoard: (id: string) => Promise<ApiResponse<string>>;
-  updateBoard: (id: string, data: BoardData) => Promise<ApiResponse<BoardData>>;
+  updateBoard: (id: string, data: NewBoardData) => Promise<ApiResponse<BoardData>>;
   editBoard: {board: BoardData, boardRef: React.RefObject<HTMLDivElement>} | null;
   setEditBoard: React.Dispatch<React.SetStateAction<{board: BoardData, boardRef: React.RefObject<HTMLDivElement>} | null>>;
   setVisible: (id: string) => void;
@@ -34,7 +34,7 @@ export function BoardProvider({ children }: { children: ReactNode }) {
 
   const newBoard:NewBoardData = {
     name: "",
-    cards: []
+    button: []
   }
 
   const handleCloseSnack = (

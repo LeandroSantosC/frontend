@@ -9,15 +9,15 @@ import { AnimatePresence, motion } from "framer-motion";
 import useRipple from "use-ripple-hook";
 import { useAuth } from "../../../context/AuthContext";
 import { CardData } from "../Card/Card";
-import { v4 as uuidv4 } from "uuid";
 import BoardTools from "./BoardTools/BoardTools";
+import { useNavigate } from "react-router-dom";
 
 export interface BoardData {
   id: string;
   name: string;
   visible: boolean;
   position: number;
-  cards: CardData[];
+  button: CardData[];
 }
 
 export interface NewBoardData {
@@ -25,25 +25,31 @@ export interface NewBoardData {
   name: string;
   visible?: boolean;
   position?: number;
-  cards: CardData[];
+  button: (CardData & { tempId?: string })[];
 }
 
 export interface BoardProps {
   board: BoardData;
 }
 
-function Board({ board }: { board: BoardData }) {
+function Board({ board, onEdit }: { board: BoardData, onEdit?: (board: NewBoardData, ref:React.RefObject<HTMLDivElement | null>) => void  }) {
   const { editMode } = useToolsContext();
   const { user } = useAuth();
-  const { id, name, cards, visible } = board;
+  const { id, name, button: cards, visible } = board;
   const { addCardOnMainBoard } = useMainBoardContext();
   const [ripple, event] = useRipple({ color: "rgba(255, 255, 255, .5)" });
+  const navigate = useNavigate();
 
   const ref = useRef<HTMLDivElement>(null);
 
   const handleClick = () => {
-    if (ref.current) {
-      onEdit(board, ref);
+    if (user){
+      if (ref.current && onEdit) {
+        onEdit(board, ref);
+      }
+    }
+    else{
+      navigate("/?login=true");
     }
   };
 
@@ -73,7 +79,7 @@ function Board({ board }: { board: BoardData }) {
     transition,
     touchAction: "none",
     zIndex: isDragging ? 100 : undefined,
-    // width: user?.layoutScale ? `clamp(${240/user.layoutScale}px, calc(${1/user.layoutScale * 100}% - 3%), ${390/user.layoutScale}px)` : undefined,
+    width: user?.layoutScale ? `calc(${1/user.layoutScale.board * 100}% - 4px)` : undefined,
   };
 
   return (
@@ -100,18 +106,21 @@ function Board({ board }: { board: BoardData }) {
           style={!visible && editMode ? { opacity: 0.3 } : {}}
           onClick={() => cards.map(card => addCardOnMainBoard(card))}
         >
-          <div className="flex flex-row items-center justify-evenly w-full h-[85%] m-0 p-0.5 bg-blue-500 overflow-ellipsis gap-1">
+          <div className="flex flex-row items-center justify-evenly w-full h-[85%] m-0 p-0.5 overflow-ellipsis gap-1 p-1">
             {cards.map((card) => (
-              <div className="aspect-[1/1.25] h-full w-auto bg-white rounded-xl">
-                <img src={card.image} alt={card.name} className="flex relative h-[80%] w-full aspect-square pointer-events-none" />
-                <div className="flex justify-center">
+              <div 
+              className=" aspect-[1/1.25] h-full w-auto bg-white rounded-lg"
+              style={{height:'100%', width:'auto', padding:2}}
+              >
+                <img src={card.image} alt={card.name} className="flex  relative h-[80%] w-full aspect-square pointer-events-none grow-0 shrink-0" />
+                <div className="flex justify-center items-center grow-0 shrink-0 h-[20%]">
                   <span className="pointer-events-none">{card.name}</span>
                 </div>
               </div>
             ))}
           </div>
           <div className="flex justify-center items-center h-[15%] w-fit">
-            <span className="pointer-events-none overflow-hidden text-center text-nowrap whitespace-nowrap font-bold text-[110%]">{name}</span>
+            <span className="pointer-events-none overflow-hidden text-center text-nowrap whitespace-nowrap font-bold text-[100%]">{name}</span>
           </div>
         </div>
         <BoardTools

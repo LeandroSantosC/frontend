@@ -101,8 +101,8 @@ const SignInContainer = styled(Stack)({
 
 export default function SignIn() {
   const [isValid, setIsValid] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState<string>('');
+  const [email, setEmail] = useState<string | undefined>();
+  const [password, setPassword] = useState<string | undefined>();
   const [open, setOpen] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -133,15 +133,22 @@ export default function SignIn() {
     if (!isValid) {
       return;
     }
-    const userLogin: UserLogin = {
-      login: email,
-      password: password,
-    }
 
-    login(userLogin, rememberMe).finally(() => {
-      setLoading(false)
-      closeLogin()
-    })
+    if(email && password){
+      const userLogin: UserLogin = {
+        login: email,
+        password: password,
+      }
+      
+      login(userLogin, rememberMe).then((resolve) => {
+        if(resolve){
+          closeLogin()
+        }
+      }).finally(() => {
+        setLoading(false)
+      })
+    }
+    
   };
 
   const validateInputs = () => {
@@ -193,14 +200,17 @@ export default function SignIn() {
               gap: 2,
             }}
           >
-            <FormControl>
+            <FormControl
+            disabled={isLoading}>
               <EmailInput setData={setEmail} />
             </FormControl>
-            <FormControl>
+            <FormControl
+            disabled={isLoading}>
               <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="password">Senha</FormLabel>
               <PasswordInput autoComplete="current-password" setData={setPassword} />
             </FormControl>
             <FormControlLabel
+              disabled={isLoading}
               sx={{
                 '& .MuiFormControlLabel-asterisk': {
                   display: 'none',
@@ -228,6 +238,7 @@ export default function SignIn() {
               onClick={handleClickOpen}
               variant="body2"
               sx={{ alignSelf: 'center' }}
+              disabled={isLoading}
             >
               Esqueceu sua senha?
             </Link>
@@ -235,6 +246,7 @@ export default function SignIn() {
           <Divider>ou</Divider>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Button
+              loading={isLoading}
               sx={{ borderRadius: '12px' }}
               fullWidth
               variant="outlined"
@@ -251,6 +263,7 @@ export default function SignIn() {
                 variant="body2"
                 sx={{ alignSelf: 'center' }}
                 onClick={openRegister}
+                disabled={isLoading}
               >
                 Registre-se
               </Link>
