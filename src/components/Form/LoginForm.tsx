@@ -100,7 +100,6 @@ const SignInContainer = styled(Stack)({
 });
 
 export default function SignIn() {
-  const [isValid, setIsValid] = useState(false);
   const [email, setEmail] = useState<string | undefined>();
   const [password, setPassword] = useState<string | undefined>();
   const [open, setOpen] = useState(false);
@@ -108,8 +107,8 @@ export default function SignIn() {
   const [rememberMe, setRememberMe] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const isLoginOpen = new URLSearchParams(location.search).get('login') === 'true';
-  const { login, userSnack } = useAuth();
+  const { login, user } = useAuth();
+  const isLoginOpen = !user && new URLSearchParams(location.search).get('login') === 'true';
 
   const openRegister = () => {
     navigate('?register=true');
@@ -130,7 +129,10 @@ export default function SignIn() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
-    if (!isValid) {
+    
+    const valid = validateInputs();
+    if (!valid) {
+      setLoading(false);
       return;
     }
 
@@ -162,7 +164,7 @@ export default function SignIn() {
       isValid = false;
     }
 
-    return setIsValid(isValid);
+    return isValid;
   };
 
   return (isLoginOpen &&
@@ -192,7 +194,6 @@ export default function SignIn() {
           <Box
             component="form"
             onSubmit={handleSubmit}
-            noValidate
             sx={{
               display: 'flex',
               flexDirection: 'column',
@@ -228,7 +229,6 @@ export default function SignIn() {
               type="submit"
               fullWidth
               variant="contained"
-              onClick={validateInputs}
             >
               Entrar
             </Button>
@@ -271,7 +271,6 @@ export default function SignIn() {
           </Box>
         </Card>
       </SignInContainer>
-      {userSnack()}
     </>
   );
 }

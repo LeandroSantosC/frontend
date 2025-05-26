@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormHelperText, IconButton, InputAdornment, OutlinedInput } from '@mui/material';
 import { Icon } from '@iconify/react/dist/iconify.js';
 
-export function PasswordInput({ setData, autoComplete, data }: { setData: React.Dispatch<React.SetStateAction<string | undefined>>, autoComplete?: string, data?: string }) {
+export function PasswordInput({ setData, autoComplete, data, isEdit }: { setData: React.Dispatch<React.SetStateAction<string | undefined>>, autoComplete?: string, data?: string, isEdit?: boolean }) {
   const [showPassword, setShowPassword] = React.useState(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const [rawValue, setRawValue] = useState('');
@@ -10,22 +10,26 @@ export function PasswordInput({ setData, autoComplete, data }: { setData: React.
   const [helper, setHelper] = React.useState('');
   const valueId = 'password';
 
-  if(data){
-    setRawValue(data);
-  }
+  useEffect(() => {
+      if(data){
+        setRawValue(data);
+      }
+      }, [data])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const data = e.target.value;
-
-    setError(false);
-    setHelper('');
-    setData('');
     setRawValue(data);
-    if (rawValue.length < 6) {
+
+    if (data.length == 0 && isEdit) return;
+
+    if (data.length < 6) {
       setError(true);
+      setHelper('Por favor, insira uma senha maior que 6 caracteres');
+      setData('');
       return;
     }
     setData(data);
+    setHelper('');
     setError(false);
   };
 
@@ -42,7 +46,7 @@ export function PasswordInput({ setData, autoComplete, data }: { setData: React.
             setHelper('');
           }
         }}
-        required
+        required={!isEdit}
         fullWidth
         name={valueId}
         placeholder="••••••"

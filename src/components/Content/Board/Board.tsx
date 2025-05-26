@@ -11,6 +11,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { CardData } from "../Card/Card";
 import BoardTools from "./BoardTools/BoardTools";
 import { useNavigate } from "react-router-dom";
+import { useBoardContext } from "../../../context/BoardContext";
 
 export interface BoardData {
   id: string;
@@ -32,9 +33,10 @@ export interface BoardProps {
   board: BoardData;
 }
 
-function Board({ board, onEdit }: { board: BoardData, onEdit?: (board: NewBoardData, ref:React.RefObject<HTMLDivElement | null>) => void  }) {
+function Board({ board }: { board: BoardData}) {
   const { editMode } = useToolsContext();
-  const { user } = useAuth();
+  const { setBoardEdit } = useBoardContext();
+  const { user, userLayout } = useAuth();
   const { id, name, button: cards, visible } = board;
   const { addCardOnMainBoard } = useMainBoardContext();
   const [ripple, event] = useRipple({ color: "rgba(255, 255, 255, .5)" });
@@ -44,8 +46,8 @@ function Board({ board, onEdit }: { board: BoardData, onEdit?: (board: NewBoardD
 
   const handleClick = () => {
     if (user){
-      if (ref.current && onEdit) {
-        onEdit(board, ref);
+      if (ref.current ) {
+        setBoardEdit(board, ref);
       }
     }
     else{
@@ -79,7 +81,6 @@ function Board({ board, onEdit }: { board: BoardData, onEdit?: (board: NewBoardD
     transition,
     touchAction: "none",
     zIndex: isDragging ? 100 : undefined,
-    width: user?.layoutScale ? `calc(${1/user.layoutScale.board * 100}% - 4px)` : undefined,
   };
 
   return (
@@ -98,7 +99,7 @@ function Board({ board, onEdit }: { board: BoardData, onEdit?: (board: NewBoardD
         }}
         onPointerDown={event}
         className={isDragging ? "board drag" : "board"}
-        style={{ ...style }}
+        style={{ ...style, ...userLayout.board }}
       >
         <div
           {...listeners}

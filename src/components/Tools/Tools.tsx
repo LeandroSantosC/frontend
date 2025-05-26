@@ -9,7 +9,7 @@ function Tools() {
   const { categories } = useCardContext();
 
   return (
-    <div className="flex justify-around bg-gray-100 p-1 h-[6%] w-full">
+    <div className="flex justify-around sticky bg-gray-100 p-1 h-[6%] w-full">
       <Autocomplete
         multiple
         disableCloseOnSelect

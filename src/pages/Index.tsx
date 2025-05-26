@@ -10,13 +10,9 @@ import SignUp from "../components/Form/RegisterForm";
 import SignIn from "../components/Form/LoginForm";
 import { AuthProvider } from "../context/AuthContext";
 import { BoardProvider } from "../context/BoardContext";
+import UpdateForm from "../components/Form/UpdateForm";
 
 export default function Index() {
-
-  // const boardButtons = [
-  //   { id: 1, text: "BoardBtn 1" },
-  //   { id: 2, text: "BoardBtn 2" },
-  // ];
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden">
@@ -35,6 +31,7 @@ export default function Index() {
         </MainBoardProvider>
         <SignUp />
         <SignIn />
+        <UpdateForm />
       </AuthProvider>
     </div>
   );

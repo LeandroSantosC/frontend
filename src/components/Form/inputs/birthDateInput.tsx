@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -11,9 +11,11 @@ export function BirthDateInput({ setData, data }: { setData: React.Dispatch<Reac
   const [helper, setHelper] = useState('');
   const valueId = 'bday';
 
-  if (data) {
-    setDate(dayjs(data).locale(ptBr));
-  }
+  useEffect(() => {
+    if(data){
+      setDate(dayjs(data).locale(ptBr));
+    }
+  }, [data])
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pt-br">
@@ -28,16 +30,13 @@ export function BirthDateInput({ setData, data }: { setData: React.Dispatch<Reac
         onChange={(date) => {
           setDate(date)
 
-          if (!date || date.isAfter(dayjs() || date.isBefore(dayjs().subtract(100, 'year')))) {
+          if (!date || date.isAfter(dayjs()) || date.isBefore(dayjs().subtract(100, 'year'))) {
             setError(true);
             setHelper('Por favor, insira uma data válida');
             setData('');
           } else {
             setError(false);
             setHelper('');
-          }
-
-          if (!error && date) {
             setData(date.format('YYYY-MM-DD'));
           }
         }}

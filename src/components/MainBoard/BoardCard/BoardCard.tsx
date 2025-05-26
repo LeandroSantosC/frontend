@@ -1,24 +1,17 @@
+import { CardData } from "../../Content/Card/Card";
 import "./BoardCard.css";
 
-export interface BoardCardData {
-  id: string;
-  tempId: string;
-  name: string;
-  img: string;
-  sound?: string;
-}
-
 interface BoardCardProps {
-  card: BoardCardData;
+  card: CardData;
   removeCard: () => void;
 }
 
 export default function BoardCard({ card, removeCard }: BoardCardProps) {
-  const { name, img } = card;
+  const { name, image } = card;
 
   return (
     <div className="boardCard overflow-hidden" onClick={removeCard}>
-        <img src={img} alt={name} className="flex relative h-[80%] w-[100%] aspect-square pointer-events-none" />
+        <img src={image} alt={name} className="flex relative h-[80%] w-[100%] aspect-square pointer-events-none" />
         <div className="flex justify-center items-center h-[20%]">
           <span className="pointer-events-none">{name}</span>
         </div>

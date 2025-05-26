@@ -28,9 +28,8 @@ interface CardEditorProps {
 function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
   const [cardtoUpdate, setCardtoUpdate] = useState<EditCardData>(card);
   const { id, name, image } = cardtoUpdate;
-  const { categories } = useCardContext();
   const [isFocused, setIsFocused] = useState(false);
-  const { updateCard, createCard, CardSnack } = useCardContext();
+  const { updateCard, createCard, categories } = useCardContext();
   const inputImgRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isUpdate, setIsUpdate] = useState<{ response?: ApiResponse<unknown>; loading: boolean } | null | undefined>(null);
@@ -512,7 +511,6 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
           </FormControl>
         </Box>
         <ImageSearchDialog open={openDialog} onClose={() => setOpenDialog(false)} onSelect={(img) => setCardtoUpdate(prev => ({ ...prev, image: img }))} />
-        {CardSnack()}
       </>
     </LayoutGroup >
   );

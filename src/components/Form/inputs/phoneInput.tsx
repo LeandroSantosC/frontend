@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MuiTelInput } from 'mui-tel-input'
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import { isValidPhoneNumber, parsePhoneNumberFromString } from 'libphonenumber-js';
 
 export function PhoneInput({ setData, data }: { setData: React.Dispatch<React.SetStateAction<string | undefined>>, data?: string }) {
   const [rawValue, setRawValue] = useState('');
   const [error, setError] = React.useState(false);
   const [helper, setHelper] = React.useState('');
 
-  if(data){
-    setRawValue(data);
-  }
+  useEffect(() => {
+      if(data){
+        setRawValue(data);
+      }
+      }, [data])
 
   return (
     <MuiTelInput
-    sx={{
+      sx={{
         '& .MuiOutlinedInput-root': {
           borderRadius: '12px',
         },
@@ -28,27 +30,28 @@ export function PhoneInput({ setData, data }: { setData: React.Dispatch<React.Se
       error={error}
       helperText={helper}
       variant="outlined"
-      value={parsePhoneNumberFromString(rawValue, 'BR')?.formatNational() || rawValue}
+      value={rawValue}
       onBlur={() => {
-        if(rawValue.length == 0 || rawValue.length < 15){
-            setError(true);
-            setHelper('Por favor, insira um número de celular válido');
+        if (isValidPhoneNumber(rawValue)) {
+          setError(false);
+          setHelper('');
         }
-        else{
-            setError(false);
-            setHelper('');
+        else {
+          setError(true);
+          setHelper('Por favor, insira um número de celular válido');
         }
       }}
       onChange={(value) => {
-        setRawValue(value)
-        setData('');
-        if(rawValue.length == 0 || rawValue.length < 15){
-            setError(true);
-            setHelper('Por favor, insira um número de celular válido');
-        }else{
-            setError(false);
-            setHelper('');
-            setData(value.replace(/\D/g, ''));
+        setRawValue(value);
+        const parsed = parsePhoneNumberFromString(value)
+        if (isValidPhoneNumber(value) && parsed?.isValid) {
+          setData(parsed.number);
+          setError(false);
+          setHelper('');
+        } else {
+          setData('');
+          setError(true);
+          setHelper('Por favor, insira um número de celular válido');
         }
       }}
     />

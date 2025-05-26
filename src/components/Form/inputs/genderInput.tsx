@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MenuItem, TextField } from '@mui/material';
 
 export function GenderInput({ setData, data }: { setData: React.Dispatch<React.SetStateAction<string | undefined>>, data?: string }) {
@@ -12,9 +12,11 @@ export function GenderInput({ setData, data }: { setData: React.Dispatch<React.S
     { value: 'feminino', label: 'Feminino' },
   ]
   
-  if(data){
-    setRawValue(data);
-  }
+  useEffect(() => {
+      if(data){
+        setRawValue(data);
+      }
+      }, [data])
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

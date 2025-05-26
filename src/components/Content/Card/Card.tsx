@@ -9,6 +9,7 @@ import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import useRipple from "use-ripple-hook";
 import { useAuth } from "../../../context/AuthContext";
+import { useCardContext } from "../../../context/CardContext";
 
 export interface CardData {
   id: string;
@@ -18,15 +19,17 @@ export interface CardData {
   visible: boolean;
   position: number;
   category: string;
+  tempId?: string;
 }
 
 export interface CardProps {
   card: CardData;
 }
 
-function Card({ card, onEdit }: { card: CardData, onEdit: (card: CardData, ref:React.RefObject<HTMLDivElement | null>) => void }) {
+function Card({ card }: { card: CardData }) {
   const { editMode } = useToolsContext();
-  const { user } = useAuth();
+  const { setCardEdit } = useCardContext();
+  const { userLayout } = useAuth();
   const { id, name, image, visible } = card;
   const { addCardOnMainBoard } = useMainBoardContext();
   const [ripple, event] = useRipple({ color: "rgba(255, 255, 255, .5)" });
@@ -35,7 +38,7 @@ function Card({ card, onEdit }: { card: CardData, onEdit: (card: CardData, ref:R
 
   const handleClick = () => {
     if (ref.current) {
-      onEdit(card, ref); // chama o handler do Content
+      setCardEdit(card, ref); // chama o handler do Content
     }
   };
 
@@ -65,7 +68,6 @@ function Card({ card, onEdit }: { card: CardData, onEdit: (card: CardData, ref:R
     transition,
     touchAction: "none",
     zIndex: isDragging ? 100 : undefined,
-    width: user?.layoutScale ? `clamp(${240/user.layoutScale.card}px, calc(${1/user.layoutScale.card * 100}% - 3%), ${390/user.layoutScale.card}px)` : undefined,
   };
 
   return (
@@ -84,7 +86,7 @@ function Card({ card, onEdit }: { card: CardData, onEdit: (card: CardData, ref:R
         }}
         onPointerDown={event}
         className={isDragging ? "card drag" : "card"}
-        style={{ ...style }}
+        style={{ ...style, ...userLayout.card }}
       >
         <div
           {...listeners}

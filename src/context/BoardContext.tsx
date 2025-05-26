@@ -1,11 +1,12 @@
 import { createContext, ReactNode, useContext, useState, useEffect } from "react";
 import { createBoardService } from "../services/BoardService";
-import { Alert, CircularProgress, Grow, Snackbar, SnackbarCloseReason } from "@mui/material";
-import { OverridableStringUnion } from '@mui/types';
-import { AlertPropsColorOverrides } from "@mui/material";
 import { ApiResponse } from "../services/api/request";
 import { useAuth } from "./AuthContext";
 import { BoardData, NewBoardData } from "../components/Content/Board/Board";
+import { useNavigate } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import BoardEditor from "../components/Content/Board/BoardEditor";
+import { useSnackbar } from "notistack";
 export type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 
@@ -15,21 +16,19 @@ export interface BoardContextType {
   createBoard: (data: NewBoardData) => Promise<ApiResponse<BoardData>>;
   deleteBoard: (id: string) => Promise<ApiResponse<string>>;
   updateBoard: (id: string, data: NewBoardData) => Promise<ApiResponse<BoardData>>;
-  editBoard: {board: BoardData, boardRef: React.RefObject<HTMLDivElement>} | null;
-  setEditBoard: React.Dispatch<React.SetStateAction<{board: BoardData, boardRef: React.RefObject<HTMLDivElement>} | null>>;
   setVisible: (id: string) => void;
   loadingBoards: boolean;
   newBoard:NewBoardData;
-  BoardSnack: () => void;
+  setBoardEdit: (board: NewBoardData, ref: React.RefObject<HTMLDivElement | null>) => void;
+  editingBoard: NewBoardData | null;
 }
 
 export const BoardContext = createContext<BoardContextType | undefined>(undefined);
 
 export function BoardProvider({ children }: { children: ReactNode }) {
   const [boards, setBoards] = useState<BoardData[]>([]);
+  const { enqueueSnackbar } = useSnackbar();
   const [loadingBoards, setLoadingBoards] = useState(false);
-  const [editBoard, setEditBoard] = useState<{board: BoardData, boardRef: React.RefObject<HTMLDivElement>} | null>(null);
-  const [openSnack, setOpenSnack] = useState<{ open: boolean, severity?:OverridableStringUnion<AlertColor, AlertPropsColorOverrides> | undefined , message?: string, noTime?:boolean }>({ open: false });
   const { user } = useAuth();
 
   const newBoard:NewBoardData = {
@@ -37,54 +36,26 @@ export function BoardProvider({ children }: { children: ReactNode }) {
     button: []
   }
 
-  const handleCloseSnack = (
-      _event: React.SyntheticEvent | Event,
-      reason?: SnackbarCloseReason,
-    ) => {
-      if (reason === 'clickaway') {
-        return;
-      }
-  
-      setOpenSnack({ open: false });
-    };
-
-  function BoardSnack(){
-    return (
-      <Snackbar
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          open={openSnack.open}
-          onClose={handleCloseSnack}
-          autoHideDuration={openSnack.noTime ? null : 5000}
-          slots={{ transition: Grow }}
-        >
-          <Alert
-            onClose={handleCloseSnack}
-            severity={openSnack.severity}
-            icon={loadingBoards ? <CircularProgress size={'20px'}/> : false}
-            variant="filled"
-            sx={{ width: '100%' }}
-          >
-            {openSnack.message}
-          </Alert>
-        </Snackbar>
-    )
-  }
 
   useEffect(() => {
     const fetchBoards = async () => {
       setLoadingBoards(true);
-      setOpenSnack({open: true, severity:'info', message: "Carregando!", noTime:true})
+      enqueueSnackbar("Carregando!", {variant: "info", persist: true, preventDuplicate: true});
       const { getBoards } = createBoardService();
       const result = await getBoards();
       console.log(result);
       if (result.success) {
         setLoadingBoards(false);
-        setOpenSnack({open: true, severity: 'success' , message: "Carregado com sucesso"});
+        setTimeout(() => {
+        enqueueSnackbar("Pranchas carregadas com sucesso!", {variant: "success", preventDuplicate: true});
+        }, 1500);
         setBoards(result.response?.sort((a: BoardData, b: BoardData) => a.position - b.position) || []);
       }
       else{
         setLoadingBoards(false);
-        setOpenSnack({open: true, severity: 'error' , message: "Erro ao carregar " + result.error});
+        setTimeout(() => {
+        enqueueSnackbar("Erro ao carregar pranchas! " + result.error, {variant: "error", preventDuplicate: true });
+        }, 1500);
       }
     };
 
@@ -105,10 +76,10 @@ export function BoardProvider({ children }: { children: ReactNode }) {
     const result = await deleteBoard(id);
     if (result.success) {
       setBoards((prevBoards) => prevBoards.filter((board) => board.id !== id));
-      setOpenSnack({ open: true, severity: 'success', message: "Board deletado com sucesso!" })
+      enqueueSnackbar("Prancha deletada!", {variant: "success", preventDuplicate: true });
     }
     else {
-      setOpenSnack({ open: true, severity: 'error', message: "Não foi possível deletar! tente novamente!" })
+      enqueueSnackbar("Não foi possível deletar! " + result.error, {variant: "error", preventDuplicate: true });
     }
 
     return result;
@@ -120,10 +91,10 @@ export function BoardProvider({ children }: { children: ReactNode }) {
     if (result.success && result.response) {
       const updatedBoard: BoardData = result.response;
       setBoards((prevBoards) => prevBoards.map((board) => (board.id === updatedBoard.id ? updatedBoard : board)));
-      setOpenSnack({ open: true, severity: 'success', message: "Board atualizado com sucesso!" })
+      enqueueSnackbar("Prancha atualizada com sucesso", {variant: "success", preventDuplicate: true });
     }
     else {
-      setOpenSnack({ open: true, severity: 'error', message: "Não foi possível atualizar! tente novamente!" })
+      enqueueSnackbar("Não foi possível atualizar! " + result.error, {variant: "error", preventDuplicate: true });
     }
     
     return result;
@@ -136,13 +107,31 @@ export function BoardProvider({ children }: { children: ReactNode }) {
       console.log("aqui o Board sendo setado nos Boards:" + result.response)
       const newBoard: BoardData = result.response;
       setBoards((prevBoards) => [...prevBoards, newBoard]);
-      setOpenSnack({ open: true, severity: 'success', message: "Board criado com sucesso!" })
+      enqueueSnackbar("Prancha criada!", {variant: "success", preventDuplicate: true });
     }
     else {
-      setOpenSnack({ open: true, severity: 'error', message: "Não foi possível criar! tente novamente!" })
+      enqueueSnackbar("Não foi possível criar! " + result.error, {variant: "error", preventDuplicate: true });
     }
     return result;
   };
+
+  const [editingBoard, setEditingBoard] = useState<NewBoardData | null>(null);
+  const [boardRect, setBoardRect] = useState<DOMRect | null>(null);
+  const navigate = useNavigate();
+
+  const setBoardEdit = (board: NewBoardData, ref: React.RefObject<HTMLDivElement | null>) => {
+    if(user){
+      if (ref.current) {
+        const rect = ref.current.getBoundingClientRect();
+        setEditingBoard(board);
+        setBoardRect(rect);
+      }
+    }
+    else{
+      navigate("/?login=true");
+    }
+  };
+
 
   return (
     <BoardContext.Provider value={{ boards, 
@@ -150,14 +139,22 @@ export function BoardProvider({ children }: { children: ReactNode }) {
     createBoard, 
     deleteBoard, 
     updateBoard, 
-    editBoard, 
-    setEditBoard, 
     setVisible, 
     loadingBoards, 
-    newBoard, 
-    BoardSnack, 
+    newBoard,
+    setBoardEdit,
+    editingBoard
     }}>
       {children}
+      <AnimatePresence onExitComplete={() => setEditingBoard(null)}>
+        {editingBoard && boardRect && (
+          <BoardEditor
+          board={editingBoard}
+          boardRect={boardRect}
+          closeEditor={() => setBoardRect(null)}
+          />
+        )}
+      </AnimatePresence>
     </BoardContext.Provider>
   );
 }

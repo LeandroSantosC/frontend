@@ -1,9 +1,7 @@
 import { createContext, ReactNode, useContext, useState, useEffect, SetStateAction } from "react";
 import {  createAuthService } from '../services/AuthService'
-import { Alert, Grow, Snackbar, SnackbarCloseReason } from "@mui/material";
-import { OverridableStringUnion } from '@mui/types';
-import { AlertPropsColorOverrides } from "@mui/material";
 import { ApiResponse } from "../services/api/request";
+import { useSnackbar } from "notistack";
 export type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 
@@ -12,10 +10,10 @@ export interface AuthContextType {
   login: (data: UserLogin, stay:boolean) => Promise<boolean>;
   logout: () => void
   register: (data: UserRegister) => Promise<boolean>;
-  userSnack: () => void;
   setUser: (user: SetStateAction<UserData | null>) => void;
   updateUser: (data: UserData) => Promise<ApiResponse<UserData> | undefined>;
   verifyEmail: (token: string) => Promise<ApiResponse<string>>;
+  userLayout: {card:{width: string | undefined, aspectRatio: number} , board: {width: string | undefined}}
 }
 
 export interface UserRegister {
@@ -50,8 +48,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserData | null>(null);
-  const [openSnack, setOpenSnack] = useState<{ open: boolean, severity?: OverridableStringUnion<AlertColor, AlertPropsColorOverrides> | undefined, message?: string }>({ open: false });
   const [isSession, setIsSession] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     if(user?.layoutScale && user && !isSession){
@@ -62,36 +60,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user?.layoutScale, user?.voice]);
 
-  const handleCloseSnack = (
-    _event: React.SyntheticEvent | Event,
-    reason?: SnackbarCloseReason,
-  ) => {
-    if (reason === 'clickaway') {
-      return;
+  const userLayout = {
+    card: {
+      width: user?.layoutScale ? `clamp(${240/user.layoutScale.card}px, calc(${1/user.layoutScale.card * 100}% - 3%), ${390/user.layoutScale.card}px)` : undefined,
+      aspectRatio: 1/1.25
+    },
+    board: {
+      width: user?.layoutScale ? `calc(${1/user.layoutScale.board * 100}% - 4px)` : undefined,
+      height: '15vh'
     }
-
-    setOpenSnack({ open: false });
-  };
-
-  function userSnack() {
-    return (
-      <Snackbar
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        open={openSnack.open}
-        onClose={handleCloseSnack}
-        autoHideDuration={5000}
-        slots={{ transition: Grow }}
-      >
-        <Alert
-          onClose={handleCloseSnack}
-          severity={openSnack.severity}
-          variant="filled"
-          sx={{ width: '100%' }}
-        >
-          {openSnack.message}
-        </Alert>
-      </Snackbar>
-    )
   }
 
   const fetchUser = async () => {
@@ -111,11 +88,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (voice) {
           setUser((prevUser) => ({ ...prevUser, voice: voice }));
         }
-        setOpenSnack({ open: true, severity: 'success', message: "Bem vindo! " + user?.fullname })
+        setTimeout(() => {
+        enqueueSnackbar("Bem vindo! " + result.response?.fullname, {variant: "success", preventDuplicate: true });
+        }, 1500);
       }
       else {
         localStorage.removeItem('token')
-        setOpenSnack({ open: true, severity: 'error', message: "Não foi possível logar! " + result.error })
+        setTimeout(() => {
+        enqueueSnackbar("Não foi possível logar! " + result.error, {variant: "error", preventDuplicate: true });
+        }, 1500);
       }
     }
   };
@@ -155,6 +136,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (data: UserRegister) => {
     const { register } = createAuthService();
     const result = await register(data);
+    if(result.success){
+      enqueueSnackbar("Usuário registrado com sucesso", {variant: "success", preventDuplicate: true });
+    }else{
+      enqueueSnackbar("Não foi possível registrar! " + result.error, {variant: "error", preventDuplicate: true });
+    }
     return result.success;
   };
 
@@ -175,7 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       fetchUser();
     }
     else {
-      setOpenSnack({ open: true, severity: 'error', message: result.error })
+      enqueueSnackbar("Não foi possível logar! " + result.error, {variant: "error", preventDuplicate: true });
     }
     return result.success;
   };
@@ -185,10 +171,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) {
       const result = await updateUser(user)
       if (result.success) {
-        setOpenSnack({ open: true, severity: 'success', message: "Até logo, " + user?.fullname })
+        enqueueSnackbar("Até logo, " + user?.fullname , {variant: "success", preventDuplicate: true });
       }
       else {
-        setOpenSnack({ open: true, severity: 'error', message: "Não foi possível salvar alterações " + result.error })
+        enqueueSnackbar("Não foi possível salvar alterações " + result.error , {variant: "error", preventDuplicate: true });
       }
     }
     sessionStorage.removeItem('token');
@@ -204,11 +190,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) {
       result = await updateUser(data);
       if (result.success) {
-        setOpenSnack({ open: true, severity: 'success', message: "Usuário atualizado com sucesso! " })
+        enqueueSnackbar("Usuário foi atualizado!" , {variant: "success", preventDuplicate: true });
         setUser(result.response ?? null);
       }
       else {
-        setOpenSnack({ open: true, severity: 'error', message: "Não foi possível salvar alterações " + result.error })
+        enqueueSnackbar("Não foi possível salvar alterações " + result.error , {variant: "error", preventDuplicate: true });
       }
     }
     return result;
@@ -223,7 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register, userSnack, setUser, updateUser, verifyEmail }}>
+    <AuthContext.Provider value={{ user, login, logout, register, setUser, updateUser, verifyEmail, userLayout }}>
       {children}
     </AuthContext.Provider>
   );

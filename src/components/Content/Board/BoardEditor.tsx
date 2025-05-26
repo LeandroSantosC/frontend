@@ -17,12 +17,12 @@ interface CardEditorProps {
   closeEditor: () => void;
 }
 
-function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
+function BoardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
   const { cards } = useCardContext();
   const [boardtoUpdate, setBoardtoUpdate] = useState<NewBoardData>(board);
   const { id, name, button: boardCards } = boardtoUpdate;
   const [isFocused, setIsFocused] = useState(false);
-  const { updateBoard, createBoard, BoardSnack } = useBoardContext();
+  const { updateBoard, createBoard } = useBoardContext();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isUpdate, setIsUpdate] = useState<{ response?: ApiResponse<unknown>; loading: boolean } | null | undefined>(null);
 
@@ -349,10 +349,9 @@ function CardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
             </motion.div>
           </FormControl>
         </Box>
-        {BoardSnack()}
       </>
     </LayoutGroup >
   );
 }
 
-export default CardEditor;
+export default BoardEditor;

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ApiResponse } from "../services/api/request";
 import { useAuth } from "../context/AuthContext";
+import '../../public/logo.png'
 
 export default function EmailVerify() {
 
@@ -32,10 +33,11 @@ export default function EmailVerify() {
 
   return (
       <div className="flex flex-col h-screen w-screen overflow-hidden bg-blue-500 items-center justify-center">
-        <div className="h-[30vh]">
-          <Typography>Redirecionando</Typography>
-          <Typography>{result?.success ? result.response : result?.error}</Typography>
-          <CircularProgress />
+        <img src="../../public/logo.png" alt='logo' style={{scale: 0.3, position: "absolute", top:-300 }}></img>
+        <div className="flex flex-col h-[30vh] items-center gap-5 justify-center">
+          <Typography color="white" fontSize='30px'>{result?.success ? result.response : result?.error}</Typography>
+          <Typography color="white" fontSize='30px'>Redirecionando</Typography>
+          <CircularProgress color={'inherit'} sx={{width: "100%"}}/>
         </div>
       </div>
   );

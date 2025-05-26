@@ -8,7 +8,6 @@ import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import { useLocation, useNavigate } from 'react-router';
-import dayjs from 'dayjs';
 import { PhoneInput } from './inputs/phoneInput';
 import { EmailInput } from './inputs/emailInput';
 import { NameInput } from './inputs/nameInput';
@@ -16,11 +15,11 @@ import { GenderInput } from './inputs/genderInput';
 import { BirthDateInput } from './inputs/birthDateInput';
 import { PasswordInput } from './inputs/passwordInput';
 import { useAuth, UserData } from '../../context/AuthContext';
-import { isValidPhoneNumber } from 'libphonenumber-js';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
+  position: 'relative',
   borderRadius: '32px',
   zIndex: 10,
   flexDirection: 'column',
@@ -30,6 +29,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
   padding: theme.spacing(4),
   gap: theme.spacing(2),
   margin: 'auto',
+  boxSizing: 'border-box',
   boxShadow:
     'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
   [theme.breakpoints.up('sm')]: {
@@ -42,34 +42,59 @@ const SignUpContainer = styled(Stack)({
   height: '100vh',
   width: '100vw',
   position: "absolute",
+  display: "flex",
+  boxSizing: 'border-box',
+  margin: '0',
 })
 
-export default function SignUp() {
+export default function UpdateForm() {
   const [isLoading, setLoading] = useState(false);
   const { user, updateUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const isUpdateOpen = new URLSearchParams(location.search).get('update') === 'true';
-  const [isValid, setIsValid] = React.useState(false);
-  const [date, setDate] = React.useState<string | undefined>();
-  const [phone, setPhone] = React.useState<string | undefined>();
-  const [name, setName] = React.useState<string | undefined>();
-  const [email, setEmail] = React.useState<string | undefined>();
-  const [gender, setGender] = React.useState<string | undefined>();
-  const [password, setPassword] = React.useState<string | undefined>();
+  const isUpdateOpen = user && new URLSearchParams(location.search).get('update') === 'true';
+  const [date, setDate] = useState<string | undefined>();
+  const [phone, setPhone] = useState<string | undefined>();
+  const [name, setName] = useState<string | undefined>();
+  const [email, setEmail] = useState<string | undefined>();
+  const [gender, setGender] = useState<string | undefined>();
+  const [password, setPassword] = useState<string | undefined>();
 
-  if(user){
+  useEffect(() => {
+  if (user) {
     setDate(user.birthDate);
     setPhone(user.phoneNumber);
     setName(user.fullname);
     setEmail(user.email);
-    setGender(user.gender)
+    setGender(user.gender);
   }
+}, [user]);
+
+
+function deepEqualSubset(a: UserData, b: UserData | null): boolean {
+  for (const key in b) {
+    if (!(key in a)) continue; // ignora chaves que não existem em 'a'
+
+    const valA = (a as Record<string, unknown>)[key];
+    const valB = (b as Record<string, unknown>)[key];
+
+    const bothAreObjects = valA && valB && typeof valA === 'object' && typeof valB === 'object';
+
+    if (bothAreObjects) {
+      if (!deepEqualSubset(valA, valB)) {
+        return false;
+      }
+    } else if (valA !== valB) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
   const closeRegister = () => {
     navigate('/');
   };
-
 
   const validateInputs = () => {
     let isValid = true;
@@ -79,12 +104,12 @@ export default function SignUp() {
       console.log('email ' + email + ' não ta valido')
     }
 
-    if (!password || password.length < 6) {
+    if (password && password.length < 6 && password.length > 0) {
       isValid = false;
       console.log('senha ' + password + ' não ta valido')
     }
 
-    if (phone && isValidPhoneNumber(phone)) {
+    if (!phone) {
       isValid = false;
       console.log('telefone ' + phone + ' não ta valido')
     }
@@ -99,18 +124,21 @@ export default function SignUp() {
       console.log('sexo ' + gender + ' não ta valido')
     }
 
-    if (!dayjs(date).isValid() || dayjs(date).isAfter(dayjs()) || dayjs(date).isBefore(dayjs().subtract(100, 'year'))) {
+    if (!date) {
       isValid = false;
       console.log('data ' + date + ' não ta valido')
     }
 
-    setIsValid(isValid);
+    return isValid
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
-    if (!isValid) {
+
+    const valid = validateInputs();
+    if (!valid) {
+      setLoading(false);
       return;
     }
     const data: UserData = {
@@ -124,8 +152,19 @@ export default function SignUp() {
         password: password
       }
     }
+
     console.log(data);
+    console.log(user);
+    console.log(deepEqualSubset(data, user));
+    if(deepEqualSubset(data, user)){
+      console.log("nao fez req")
+      setLoading(false);
+      navigate("/");
+      return;
+    }
+
     updateUser(data).then((resolve) => {
+      console.log("cagou")
         if(resolve){
           closeRegister()
         }
@@ -155,14 +194,21 @@ export default function SignUp() {
             variant="h4"
             sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)', textAlign: 'center' }}
           >
-            Registrar
+            Perfil
           </Typography>
           <Box
             component="form"
             onSubmit={handleSubmit}
-            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+            sx={{ display: 'flex', 
+              position: 'relative', 
+              flexDirection: 'column', 
+              gap: 2, 
+              height: '90%', 
+              boxSizing: 'border-box',
+              margin: '0'
+             }}
           >
-            <div className='overflow-y-scroll w-full flex flex-col h-[45vh]'>
+            <div className='overflow-auto w-full flex flex-col h-full'>
               <FormControl fullWidth variant="outlined"
               disabled={isLoading}>
                 <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="name">Nome completo</FormLabel>
@@ -191,7 +237,7 @@ export default function SignUp() {
               <FormControl fullWidth variant="outlined"
               disabled={isLoading}>
                 <FormLabel sx={{ paddingLeft: 0.5 }} htmlFor="password">Senha</FormLabel>
-                <PasswordInput setData={setPassword} />
+                <PasswordInput setData={setPassword} isEdit />
               </FormControl>
             </div>
             <Button
@@ -199,7 +245,6 @@ export default function SignUp() {
               type="submit"
               fullWidth
               variant="contained"
-              onClick={validateInputs}
               loading={isLoading}
             >
               Atualizar

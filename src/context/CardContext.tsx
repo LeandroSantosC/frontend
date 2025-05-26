@@ -1,12 +1,12 @@
 import { createContext, ReactNode, useContext, useState, useEffect } from "react";
 import { CardData } from "../components/Content/Card/Card";
 import { createCardService } from "../services/CardService";
-import { EditCardData } from "../components/Content/Card/CardEditor";
-import { Alert, CircularProgress, Grow, Snackbar, SnackbarCloseReason } from "@mui/material";
-import { OverridableStringUnion } from '@mui/types';
-import { AlertPropsColorOverrides } from "@mui/material";
+import CardEditor, { EditCardData } from "../components/Content/Card/CardEditor";
+import { useSnackbar } from "notistack";
 import { ApiResponse } from "../services/api/request";
 import { useAuth } from "./AuthContext";
+import { useNavigate } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 export type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 
@@ -17,14 +17,13 @@ export interface CardContextType {
   createCard: (data: EditCardData) => Promise<ApiResponse<CardData>>;
   deleteCard: (id: string) => Promise<ApiResponse<string>>;
   updateCard: (id: string, data: EditCardData) => Promise<ApiResponse<CardData>>;
-  editCard: {card: CardData, cardRef: React.RefObject<HTMLDivElement>} | null;
-  setEditCard: React.Dispatch<React.SetStateAction<{card: CardData, cardRef: React.RefObject<HTMLDivElement>} | null>>;
   setVisible: (id: string) => void;
   loadingCards: boolean;
   newCard:EditCardData;
-  CardSnack: () => void;
   setPublicCard: (isPublicCard: boolean) => void
   isPublicCard: boolean;
+  setCardEdit: (card: EditCardData, ref: React.RefObject<HTMLDivElement | null>) => void;
+  editingCard: EditCardData | null;
 }
 
 export interface NewCard {
@@ -39,10 +38,9 @@ export const CardContext = createContext<CardContextType | undefined>(undefined)
 
 export function CardProvider({ children }: { children: ReactNode }) {
   const [cards, setCards] = useState<CardData[]>([]);
+  const { enqueueSnackbar } = useSnackbar();
   const [loadingCards, setLoadingCards] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
-  const [editCard, setEditCard] = useState<{card: CardData, cardRef: React.RefObject<HTMLDivElement>} | null>(null);
-  const [openSnack, setOpenSnack] = useState<{ open: boolean, severity?:OverridableStringUnion<AlertColor, AlertPropsColorOverrides> | undefined , message?: string, noTime?:boolean }>({ open: false });
   const [ isPublicCard, setPublicCard ] = useState(false);
   const { user } = useAuth();
 
@@ -54,59 +52,32 @@ export function CardProvider({ children }: { children: ReactNode }) {
     category:""
   }
 
-  const handleCloseSnack = (
-      _event: React.SyntheticEvent | Event,
-      reason?: SnackbarCloseReason,
-    ) => {
-      if (reason === 'clickaway') {
-        return;
-      }
-  
-      setOpenSnack({ open: false });
-    };
-
-  function CardSnack(){
-    return (
-      <Snackbar
-          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          open={openSnack.open}
-          onClose={handleCloseSnack}
-          autoHideDuration={openSnack.noTime ? null : 5000}
-          slots={{ transition: Grow }}
-        >
-          <Alert
-            onClose={handleCloseSnack}
-            severity={openSnack.severity}
-            icon={loadingCards ? <CircularProgress size={'20px'}/> : false}
-            variant="filled"
-            sx={{ width: '100%' }}
-          >
-            {openSnack.message}
-          </Alert>
-        </Snackbar>
-    )
-  }
 
   useEffect(() => {
     const fetchCards = async () => {
       setLoadingCards(true);
-      setOpenSnack({open: true, severity:'info', message: "Carregando!", noTime:true})
+      enqueueSnackbar("Carregando!", {variant: "info", persist: true, preventDuplicate: true});
       const { getCards } = createCardService(isPublicCard);
       const result = await getCards();
       console.log(result);
       if (result.success) {
         setLoadingCards(false);
-        setOpenSnack({open: true, severity: 'success' , message: "Carregado com sucesso"});
+        // closeSnackbar(loading);
         setCards(result.response?.sort((a: CardData, b: CardData) => a.position - b.position) || []);
+        setTimeout(() => {
+          enqueueSnackbar("Cards carregados com sucesso!", {variant: "success", preventDuplicate: true });
+        }, 1500);
       }
       else{
         setLoadingCards(false);
-        setOpenSnack({open: true, severity: 'error' , message: "Erro ao carregar " + result.error});
+        setTimeout(() => {
+        enqueueSnackbar("Erro ao carregar " + result.error, {variant: "error", preventDuplicate: true });
+        }, 1500);
       }
     };
-
+    
     fetchCards();
-  }, [isPublicCard, user?.fullname]);
+  }, [isPublicCard]);
   
   useEffect(() => {
       setCategories(cards
@@ -127,10 +98,10 @@ export function CardProvider({ children }: { children: ReactNode }) {
     const result = await deleteCard(id);
     if (result.success) {
       setCards((prevCards) => prevCards.filter((card) => card.id !== id));
-      setOpenSnack({ open: true, severity: 'success', message: "Card deletado com sucesso!" })
+      enqueueSnackbar("Cards deletado com sucesso!", {variant: "success", preventDuplicate: true });
     }
     else {
-      setOpenSnack({ open: true, severity: 'error', message: "Não foi possível deletar! " + result.error })
+      enqueueSnackbar("Não foi possível deletar! " + result.error, {variant: "error", preventDuplicate: true });
     }
 
     return result;
@@ -142,10 +113,10 @@ export function CardProvider({ children }: { children: ReactNode }) {
     if (result.success && result.response) {
       const updatedCard: CardData = result.response;
       setCards((prevCards) => prevCards.map((card) => (card.id === updatedCard.id ? updatedCard : card)));
-      setOpenSnack({ open: true, severity: 'success', message: "Card atualizado com sucesso!" })
+      enqueueSnackbar("Card atualizado com sucesso !", {variant: "success", preventDuplicate: true });
     }
     else {
-      setOpenSnack({ open: true, severity: 'error', message: "Não foi possível atualizar! tente novamente!" })
+      enqueueSnackbar("Não foi possível atualizar! " + result.error, {variant: "error", preventDuplicate: true });
     }
     
     return result;
@@ -158,12 +129,30 @@ export function CardProvider({ children }: { children: ReactNode }) {
       console.log("aqui o card sendo setado nos Cards:" + result.response)
       const newCard: CardData = result.response;
       setCards((prevCards) => [...prevCards, newCard]);
-      setOpenSnack({ open: true, severity: 'success', message: "Card criado com sucesso!" })
+      enqueueSnackbar("Card criado com sucesso! ", {variant: "success", preventDuplicate: true });
     }
     else {
-      setOpenSnack({ open: true, severity: 'error', message: "Não foi possível criar! tente novamente!" })
+      enqueueSnackbar("Não foi possível criar! " + result.error, {variant: "error", preventDuplicate: true });
     }
     return result;
+  };
+
+  const [editingCard, setEditingCard] = useState<EditCardData | null>(null);
+  const [cardRect, setCardRect] = useState<DOMRect | null>(null);
+  const navigate = useNavigate();
+
+  const setCardEdit = (card: EditCardData, ref?: React.RefObject<HTMLDivElement | null>) => {
+
+    if(user){
+      setEditingCard(card);
+      if (ref && ref.current) {
+        const rect = ref.current.getBoundingClientRect();
+        setCardRect(rect);
+      }
+    }
+    else{
+      navigate("/?login=true");
+    }
   };
 
   return (
@@ -173,15 +162,17 @@ export function CardProvider({ children }: { children: ReactNode }) {
     createCard, 
     deleteCard, 
     updateCard, 
-    editCard, 
-    setEditCard, 
     setVisible, 
     loadingCards, 
     newCard, 
-    CardSnack, 
     setPublicCard, 
-    isPublicCard,}}>
+    isPublicCard,
+    setCardEdit,
+    editingCard}}>
       {children}
+      <AnimatePresence onExitComplete={() => setEditingCard(null)}>     
+      {editingCard && cardRect && <CardEditor card={editingCard} cardRect={cardRect} closeEditor={() => setCardRect(null)}  />}
+    </AnimatePresence>
     </CardContext.Provider>
   );
 }

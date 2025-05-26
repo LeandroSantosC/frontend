@@ -20,7 +20,6 @@ import { GenderInput } from './inputs/genderInput';
 import { BirthDateInput } from './inputs/birthDateInput';
 import { PasswordInput } from './inputs/passwordInput';
 import { useAuth, UserRegister } from '../../context/AuthContext';
-import { isValidPhoneNumber } from 'libphonenumber-js';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -49,11 +48,10 @@ const SignUpContainer = styled(Stack)({
 
 export default function SignUp() {
   const [isLoading, setLoading] = React.useState(false);
-  const { register } = useAuth();
+  const { register, user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const isRegisterOpen = new URLSearchParams(location.search).get('register') === 'true';
-  const [isValid, setIsValid] = React.useState(false);
+  const isRegisterOpen = !user && new URLSearchParams(location.search).get('register') === 'true';
   const [date, setDate] = React.useState<string | undefined>();
   const [phone, setPhone] = React.useState<string | undefined>();
   const [name, setName] = React.useState<string | undefined>();
@@ -84,9 +82,9 @@ export default function SignUp() {
       console.log('senha ' + password + ' não ta valido')
     }
 
-    if (phone && isValidPhoneNumber(phone)) {
+    if (!phone) {
       isValid = false;
-      console.log('telefone ' + phone + ' não ta valido')
+      console.log('telefone ' + phone + ' não ta valido ??????')
     }
 
     if (!name) {
@@ -104,15 +102,19 @@ export default function SignUp() {
       console.log('data ' + date + ' não ta valido')
     }
 
-    setIsValid(isValid);
+    return isValid;
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
-    if (!isValid) {
+
+    const valid = validateInputs();
+    if (!valid) {
+      setLoading(false)
       return;
     }
+
     if(name && email && phone && gender && date && password){
       const data: UserRegister = {
         fullname: name,
@@ -131,6 +133,9 @@ export default function SignUp() {
       }).finally(() => {
         setLoading(false)
       })
+    }
+    else{
+      console.log("NÃO PASSOU EM NADA " + name+ " - " + email+ " - " + phone+ " - " + gender+ " - " + date+ " - " + password )
     }
   };
 
@@ -217,7 +222,6 @@ export default function SignUp() {
               type="submit"
               fullWidth
               variant="contained"
-              onClick={validateInputs}
               loading={isLoading}
             >
               Registrar

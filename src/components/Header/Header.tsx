@@ -60,9 +60,9 @@ function Header() {
 
 
   return (
-    <header className="flex items-center justify-center bg-blue-500 text-white p-2 h-[5%] w-full">
+    <header className="flex sticky items-center justify-center bg-blue-500 text-white p-2 h-[5%] w-full">
       <h1 className="text-2xl">MATRACA</h1>
-      <Box sx={{ position: 'absolute', right: 10, height:'5%', justifyContent: 'center', alignItems: 'center' }}>
+      <Box sx={{ position: 'absolute', right: 10, height:'100%', justifyContent: 'center', alignItems: 'center' }}>
         <Tooltip title="Logar">
           <IconButton onClick={openMenu} sx={{ p: 0, color: 'white', height: '100%', width: '100%' }}>
             <StyledBadge
@@ -119,7 +119,12 @@ function Header() {
             {user?.fullname}
           </Typography>
           <Divider sx={{ my: 0.5 }} />
-          <MenuItem>
+          <MenuItem
+          onClick={() => {
+            navigate("/?update=true")
+            setOpen(false);
+          }}
+          >
             <ListItemIcon>
               <Icon icon="solar:user-bold" width="32px" height="32px" />
             </ListItemIcon>

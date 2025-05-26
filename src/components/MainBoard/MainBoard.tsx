@@ -4,14 +4,18 @@ import { useMainBoardContext } from "../../context/MainboardContext";
 import { BoardContextType } from "../../context/MainboardContext";
 import { Icon } from "@iconify/react";
 import { Button } from "@mui/material";
+import { useBoardContext } from "../../context/BoardContext";
+import { useRef } from "react";
 
 
 export default function MainBoard() {
   const { mainBoard, speak, removeCard, removeAllCards, removeLastCard }:BoardContextType = useMainBoardContext(); 
+  const { setBoardEdit } = useBoardContext();
+  const ref = useRef<HTMLDivElement | null>(null);
 
   return (
-    <div className="MainBoard">
-      <div className="flex flex-col shrink-0 w-[12%] max-w-10 justify-around h-full">
+    <div className="MainBoard" ref={ref}>
+      <div className="flex flex-col sticky shrink-0 w-[12%] max-w-10 justify-around h-full">
         <Button
           variant="contained"
           color="error"
@@ -54,7 +58,7 @@ export default function MainBoard() {
         <Button
           variant="contained"
           color="primary"
-          onClick={speak}
+          onClick={() => setBoardEdit({name: "", button: mainBoard}, ref)}
           sx={{
             width: '100%',
             aspectRatio: '1 / 1',

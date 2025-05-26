@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TextField } from '@mui/material';
 
 export function EmailInput({ setData, data }: { setData: React.Dispatch<React.SetStateAction<string | undefined>>, data?: string }) {
@@ -7,9 +7,11 @@ export function EmailInput({ setData, data }: { setData: React.Dispatch<React.Se
   const [helper, setHelper] = React.useState('');
   const valueId = 'email';
 
-  if(data){
+  useEffect(() => {
+    if(data){
       setRawValue(data);
     }
+    }, [data])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const data = e.target.value;

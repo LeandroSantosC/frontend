@@ -34,6 +34,7 @@
     "frontend": "file:",
     "libphonenumber-js": "^1.12.8",
     "mui-tel-input": "^9.0.0",
+    "notistack": "^3.0.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-input-mask": "^2.0.4",

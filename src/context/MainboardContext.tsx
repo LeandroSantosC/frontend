@@ -1,5 +1,4 @@
 import { createContext, useState, Dispatch, SetStateAction, useContext } from "react";
-import { BoardCardData } from "../components/MainBoard/BoardCard/BoardCard";
 import { ReactNode } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { CardData } from "../components/Content/Card/Card";
@@ -8,10 +7,10 @@ import { useAuth } from "./AuthContext.tsx";
 
 
 export interface BoardContextType {
-    mainBoard: BoardCardData[];
-    setMainBoard: Dispatch<SetStateAction<BoardCardData[]>>;
+    mainBoard: CardData[];
+    setMainBoard: Dispatch<SetStateAction<CardData[]>>;
     addCardOnMainBoard: (card: CardData) => void;
-    removeCard: (tempId: string) => void;
+    removeCard: (tempId: string | undefined) => void;
     removeLastCard: () => void;
     removeAllCards: () => void;
     speak: () => void;
@@ -20,7 +19,7 @@ export interface BoardContextType {
 const MainBoardContext = createContext<BoardContextType | undefined>(undefined);
 
 export function MainBoardProvider({ children }: { children: ReactNode }) {
-  const [mainBoard, setMainBoard] = useState<BoardCardData[]>([]);
+  const [mainBoard, setMainBoard] = useState<CardData[]>([]);
   const { user } = useAuth();
   const utterance = new SpeechSynthesisUtterance;
 
@@ -52,13 +51,7 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
   
 
   const addCardOnMainBoard = (card: CardData) => {
-    const newBoardCard: BoardCardData = {
-      id: card.id,
-      tempId: uuidv4(),
-      name: card.name,
-      img: card.image,
-      sound: card.sound,
-    };
+    const newBoardCard: CardData = { ...card, tempId: uuidv4() };
 
     if(card.name.endsWith("ar") || 
       card.name.endsWith("er") || 
@@ -79,7 +72,7 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
     window.speechSynthesis.cancel();
     utterance.text = newBoardCard.name;
     window.speechSynthesis.speak(utterance);
-    setMainBoard((prevCards: BoardCardData[]) => [...prevCards, newBoardCard]);
+    setMainBoard((prevCards: CardData[]) => [...prevCards, newBoardCard]);
   };
 
   const speak = () => {
@@ -90,7 +83,7 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
     window.speechSynthesis.speak(utterance);
   } 
 
-  const removeCard = (tempId: string) => {
+  const removeCard = (tempId: string | undefined) => {
     setMainBoard((prevCards) => prevCards.filter((card) => card.tempId !== tempId));
   }
 
