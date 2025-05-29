@@ -1,4 +1,4 @@
-import { createContext, useState, Dispatch, SetStateAction, useContext } from "react";
+import { createContext, useState, Dispatch, SetStateAction, useContext, useEffect } from "react";
 import { ReactNode } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { CardData } from "../components/Content/Card/Card";
@@ -14,21 +14,57 @@ export interface BoardContextType {
     removeLastCard: () => void;
     removeAllCards: () => void;
     speak: () => void;
+    voices: SpeechSynthesisVoice[]
+    selectedVoice: SpeechSynthesisVoice | null
+    setSelectedVoice: Dispatch<SetStateAction<SpeechSynthesisVoice | null>>
+    utterance: SpeechSynthesisUtterance;
 }
+
+const getAvailableVoices = (): Promise<SpeechSynthesisVoice[]> => {
+    return new Promise((resolve) => {
+        let voices = window.speechSynthesis.getVoices();
+        if (voices.length) {
+            resolve(voices);
+        } else {
+            // Algumas vezes as vozes ainda não carregaram
+            window.speechSynthesis.onvoiceschanged = () => {
+                voices = window.speechSynthesis.getVoices();
+                resolve(voices);
+            };
+        }
+    });
+};
 
 const MainBoardContext = createContext<BoardContextType | undefined>(undefined);
 
 export function MainBoardProvider({ children }: { children: ReactNode }) {
   const [mainBoard, setMainBoard] = useState<CardData[]>([]);
   const { user } = useAuth();
-  const utterance = new SpeechSynthesisUtterance;
+  const [ utterance, setUtterance ] = useState(new SpeechSynthesisUtterance);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
 
-  if(user?.voice) {
-    const selectedVoice = window.speechSynthesis.getVoices().find((voice) => voice.name === user.voice);
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-    }
-  }
+  useEffect(() => {
+          getAvailableVoices().then((availableVoices) => {
+              setVoices(availableVoices);
+              let selectedVoice: SpeechSynthesisVoice | undefined;
+              if(user?.voice) {
+                  selectedVoice = availableVoices.find((voice) => voice.voiceURI === user.voice);
+              } else {
+                  selectedVoice = availableVoices.find((voice) => voice.default);
+              }
+              if (selectedVoice) {
+                  setSelectedVoice(selectedVoice);
+              }
+          });
+      }, []);
+
+  useEffect(() => {
+    setUtterance((prev) => {
+      prev.voice = selectedVoice || null;
+      return prev;
+    });
+  },[selectedVoice])
 
   const pronomes = {
     eu: 0,
@@ -96,7 +132,7 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <MainBoardContext.Provider value={{ mainBoard, setMainBoard, addCardOnMainBoard, removeCard, removeLastCard, removeAllCards, speak }}>
+    <MainBoardContext.Provider value={{ mainBoard, setMainBoard, addCardOnMainBoard, removeCard, removeLastCard, removeAllCards, speak, voices, selectedVoice, setSelectedVoice, utterance }}>
       {children}
     </MainBoardContext.Provider>
   );

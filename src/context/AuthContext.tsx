@@ -62,11 +62,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const userLayout = {
     card: {
-      width: user?.layoutScale ? `clamp(${240/user.layoutScale.card}px, calc(${1/user.layoutScale.card * 100}% - 3%), ${390/user.layoutScale.card}px)` : undefined,
+      width: user?.layoutScale ? `clamp(${240/user.layoutScale.card}px, calc((100% - ${(user.layoutScale.card - 1) * 8}px) / ${user.layoutScale.card}), ${390/user.layoutScale.card}px)` : undefined,
       aspectRatio: 1/1.25
     },
     board: {
-      width: user?.layoutScale ? `calc(${1/user.layoutScale.board * 100}% - 4px)` : undefined,
+      width: user?.layoutScale ? `calc((100% - ${(user.layoutScale.board - 1) * 8}px) / ${user.layoutScale.board})` : undefined,
       height: '15vh'
     }
   }

@@ -1,46 +1,17 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, OutlinedInput, Select } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-
-
-const getAvailableVoices = (): Promise<SpeechSynthesisVoice[]> => {
-    return new Promise((resolve) => {
-        let voices = window.speechSynthesis.getVoices();
-        if (voices.length) {
-            resolve(voices);
-        } else {
-            // Algumas vezes as vozes ainda não carregaram
-            window.speechSynthesis.onvoiceschanged = () => {
-                voices = window.speechSynthesis.getVoices();
-                resolve(voices);
-            };
-        }
-    });
-};
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { useMainBoardContext } from "../../context/MainboardContext";
 
 export default function VoiceSelector({voiceOpen, setVoiceOpen}:{voiceOpen: boolean, setVoiceOpen: React.Dispatch<React.SetStateAction<boolean>>}) {
-    const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
-    const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
-    const utterance = new SpeechSynthesisUtterance("Olá! Tudo bem?");
-    const { user, setUser } = useAuth();
+    const { voices, selectedVoice, setSelectedVoice } = useMainBoardContext();
+    const utterance = new SpeechSynthesisUtterance;
+    const { setUser } = useAuth();
 
     useEffect(() => {
-        getAvailableVoices().then((availableVoices) => {
-            setVoices(availableVoices);
-            let selectedVoice: SpeechSynthesisVoice | undefined;
-            if(user?.voice) {
-                selectedVoice = availableVoices.find((voice) => voice.name === user.voice);
-            } else {
-                selectedVoice = availableVoices.find((voice) => voice.default);
-            }
-            if (selectedVoice) {
-                setSelectedVoice(selectedVoice);
-            }
-        });
-    }, []);
-
-    useEffect(() => {
-        if (selectedVoice) {
+        if (voiceOpen) {
+            utterance.text = "Vou falar com essa voz!";
             utterance.voice = selectedVoice;
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(utterance);
@@ -48,39 +19,92 @@ export default function VoiceSelector({voiceOpen, setVoiceOpen}:{voiceOpen: bool
     }, [selectedVoice]);
 
     return (
-        <Dialog disableEscapeKeyDown open={voiceOpen} onClose={() => setVoiceOpen(false)}>
-            <DialogTitle>Selecionar Voz</DialogTitle>
-            <DialogContent>
-                <Box component="form" sx={{ display: 'flex', flexWrap: 'wrap' }}>
-                    <FormControl sx={{ m: 1, minWidth: 120 }}>
-                        <Select
-                            native
-                            value={selectedVoice?.name || ''}
-                            onChange={(e) => {
-                                setSelectedVoice(voices.find((voice) => voice.name === e.target.value) || null);
-                            }}
-                            input={<OutlinedInput id="voice-dialog-native" />}
-                            >
-                            {voices.map((voice, index) => (
-                                <option key={index} value={voice.name}>
-                                    {voice.name} ({voice.lang})
-                                </option>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </Box>
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={() => {
-                    setVoiceOpen(false)
-                    window.speechSynthesis.cancel();
-                    }}>Cancel</Button>
-                <Button onClick={() => {
-                    setUser(prev => prev ? {...prev, voice: selectedVoice?.voiceURI} : prev)
-                    setVoiceOpen(false);
-                    window.speechSynthesis.cancel();
-                    }}>Ok</Button>
-            </DialogActions>
-        </Dialog>
-    )
+    <Dialog disableEscapeKeyDown open={voiceOpen} onClose={() => setVoiceOpen(false)}>
+      <DialogTitle>Selecionar Voz</DialogTitle>
+      <DialogContent>
+        <Box
+          component="form"
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 1,
+            flexDirection: { xs: "column", sm: "row" },
+          }}
+        >
+          <FormControl sx={{display: "flex", width: { xs: "100%", sm: "68%" } }}>
+            <Select
+              native
+              value={selectedVoice?.name || ""}
+              onChange={(e) =>
+                setSelectedVoice(voices.find((voice) => voice.name === e.target.value) || null)
+              }
+              input={<OutlinedInput id="voice-dialog-native" />}
+            >
+              {voices
+                .filter((voice) => voice.lang === selectedVoice?.lang)
+                .map((voice, index) => (
+                  <option key={index} value={voice.name}>
+                    {voice.name}
+                  </option>
+                ))}
+            </Select>
+          </FormControl>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              width: { xs: "100%", sm: "30%" },
+              gap: 1,
+            }}
+          >
+            <FormControl sx={{ width: "80%" }}>
+              <Select
+                native
+                value={selectedVoice?.lang || ""}
+                onChange={(e) =>
+                  setSelectedVoice(voices.find((voice) => voice.lang === e.target.value) || null)
+                }
+                input={<OutlinedInput id="voice-dialog" />}
+              >
+                {Array.from(new Set(voices.map((voice) => voice.lang))).map((lang, index) => (
+                  <option key={index} value={lang}>
+                    {lang}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+
+            <Icon
+              icon="fluent:speaker-2-32-filled"
+              width="15%"
+              height="100%"
+              style={{ cursor: "pointer" }}
+              onClick={() => window.speechSynthesis.speak(utterance)}
+            />
+          </Box>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={() => {
+            setVoiceOpen(false);
+            window.speechSynthesis.cancel();
+          }}
+        >
+          Cancelar
+        </Button>
+        <Button
+          onClick={() => {
+            setUser((prev) =>
+              prev ? { ...prev, voice: selectedVoice?.voiceURI } : prev
+            );
+            setVoiceOpen(false);
+            window.speechSynthesis.cancel();
+          }}
+        >
+          Ok
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }

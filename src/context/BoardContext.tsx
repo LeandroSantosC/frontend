@@ -54,13 +54,13 @@ export function BoardProvider({ children }: { children: ReactNode }) {
       else{
         setLoadingBoards(false);
         setTimeout(() => {
-        enqueueSnackbar("Erro ao carregar pranchas! " + result.error, {variant: "error", preventDuplicate: true });
+        if(user){enqueueSnackbar("Erro ao carregar pranchas! " + result.error, {variant: "error", preventDuplicate: true })};
         }, 1500);
       }
     };
 
     fetchBoards();
-  }, [user?.fullname]);
+  }, [user?.id]);
   
 
   const setVisible = (id: string) => {

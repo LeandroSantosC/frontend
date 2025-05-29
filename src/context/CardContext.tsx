@@ -77,7 +77,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
     };
     
     fetchCards();
-  }, [isPublicCard]);
+  }, [isPublicCard, user?.id]);
   
   useEffect(() => {
       setCategories(cards

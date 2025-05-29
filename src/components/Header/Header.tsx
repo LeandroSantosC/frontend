@@ -159,7 +159,7 @@ function Header() {
             alignItems: 'center',
             justifyContent: 'center' }}>
             <Box px={2} py={1}>
-              <Typography>Botões</Typography>
+              <Typography>Cards por linha</Typography>
               <Slider
               sx={{ width: '100%' }}
                 aria-label="layout-slider"
@@ -175,13 +175,13 @@ function Header() {
                 }
                 valueLabelDisplay="auto"
                 marks
-                min={0.5}
+                min={1}
                 max={6}
-                step={0.5}
+                step={1}
               />
             </Box>
             <Box px={2} py={1}>
-              <Typography>Pranchas</Typography>
+              <Typography>Pranchas por linha</Typography>
               <Slider
               sx={{ width: '100%' }}
                 aria-label="layout-slider"

@@ -4,7 +4,7 @@ import { useCardContext } from "../../context/CardContext";
 import Card from "./Card/Card";
 import './Board/Board.css'
 import { AnimatePresence, motion } from "framer-motion";
-import { closestCenter, DndContext, MeasuringStrategy, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import { closestCenter, DndContext, MeasuringStrategy, PointerSensor, useSensor, useSensors, DragEndEvent, MouseSensor, TouchSensor } from "@dnd-kit/core";
 import { arrayMove, rectSortingStrategy, SortableContext } from "@dnd-kit/sortable";
 import { Button, Skeleton, Tab, Tabs } from "@mui/material";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -22,12 +22,15 @@ function Content() {
   const CardEditref = useRef<HTMLDivElement>(null);
   const BoardEditref = useRef<HTMLDivElement>(null);
   const { user, userLayout } = useAuth();
-  const sensors = useSensors(useSensor(PointerSensor, {
+  const sensors = useSensors(
+  useSensor(MouseSensor),
+  useSensor(TouchSensor, {
     activationConstraint: {
-      delay: 250, // tempo em milissegundos (0.25s)
-      tolerance: 5, // distância mínima para considerar movimento
+      delay: 250,
+      tolerance: 5,
     },
-  }));
+  })
+);
   const isCellphone = user?.layoutScale?.board == 1
 
   let loadingSnack;
@@ -94,7 +97,7 @@ function Content() {
       </Tabs>
       {tab === "cards" && (
         <>
-          <div className="flex w-full grow-0 overflow-x-visible scrollbar-hide p-2 overflow-y-auto flex-row justify-evenly gap-2 flex-wrap">
+          <div className="flex w-full overflow-x-visible scrollbar-hide p-2 overflow-y-auto flex-row justify-evenly gap-2 flex-wrap">
             <AnimatePresence>
               {editMode ? (
                 <motion.div
