@@ -4,9 +4,6 @@ import Button from '@mui/material/Button';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
 import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
-import MuiCard from '@mui/material/Card';
-import { styled } from '@mui/material/styles';
 import { useLocation, useNavigate } from 'react-router';
 import { PhoneInput } from './inputs/phoneInput';
 import { EmailInput } from './inputs/emailInput';
@@ -16,36 +13,9 @@ import { BirthDateInput } from './inputs/birthDateInput';
 import { PasswordInput } from './inputs/passwordInput';
 import { useAuth, UserData } from '../../context/AuthContext';
 import { useEffect, useState } from 'react';
+import { Card, Container } from './LoginForm'
+import { Icon } from '@iconify/react/dist/iconify.js';
 
-const Card = styled(MuiCard)(({ theme }) => ({
-  display: 'flex',
-  position: 'relative',
-  borderRadius: '32px',
-  zIndex: 10,
-  flexDirection: 'column',
-  alignSelf: 'center',
-  width: '100%',
-  height: '100%',
-  padding: theme.spacing(4),
-  gap: theme.spacing(2),
-  margin: 'auto',
-  boxSizing: 'border-box',
-  boxShadow:
-    'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
-  [theme.breakpoints.up('sm')]: {
-    width: '450px',
-    height: 'auto'
-  },
-}));
-
-const SignUpContainer = styled(Stack)({
-  height: '100vh',
-  width: '100vw',
-  position: "absolute",
-  display: "flex",
-  boxSizing: 'border-box',
-  margin: '0',
-})
 
 export default function UpdateForm() {
   const [isLoading, setLoading] = useState(false);
@@ -175,7 +145,7 @@ function deepEqualSubset(a: UserData, b: UserData | null): boolean {
 
   return (isUpdateOpen &&
     <>
-      <SignUpContainer direction="column" justifyContent="space-between">
+      <Container direction="column" justifyContent="space-between">
         <div
           onClick={closeRegister}
           style={{
@@ -189,13 +159,16 @@ function deepEqualSubset(a: UserData, b: UserData | null): boolean {
           }}
         />
         <Card variant="outlined">
-          <Typography
-            component="h1"
-            variant="h4"
-            sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)', textAlign: 'center' }}
-          >
-            Perfil
-          </Typography>
+          <div className='flex relative flex-row justify-center items-center'>
+            <Typography
+              component="h1"
+              variant="h4"
+              sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)', textAlign: 'center' }}
+              >
+              Perfil
+            </Typography>
+            <Icon className='absolute right-0' icon="line-md:close-circle-filled" width="30" height="30" color={'#1976d2'} onClick={closeRegister} />
+          </div>
           <Box
             component="form"
             onSubmit={handleSubmit}
@@ -251,7 +224,7 @@ function deepEqualSubset(a: UserData, b: UserData | null): boolean {
             </Button>
           </Box>
         </Card>
-      </SignUpContainer>
+      </Container>
     </>
   );
 }

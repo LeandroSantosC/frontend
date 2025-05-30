@@ -12,7 +12,7 @@ export function BirthDateInput({ setData, data }: { setData: React.Dispatch<Reac
   const valueId = 'bday';
 
   useEffect(() => {
-    if(data){
+    if (data) {
       setDate(dayjs(data).locale(ptBr));
     }
   }, [data])
@@ -29,6 +29,10 @@ export function BirthDateInput({ setData, data }: { setData: React.Dispatch<Reac
         }
         onChange={(date) => {
           setDate(date)
+
+          if (!date || !date.isValid()) {
+            return;
+          }
 
           if (!date || date.isAfter(dayjs()) || date.isBefore(dayjs().subtract(100, 'year'))) {
             setError(true);

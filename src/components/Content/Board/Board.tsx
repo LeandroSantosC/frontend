@@ -38,7 +38,7 @@ function Board({ board }: { board: BoardData}) {
   const { setBoardEdit } = useBoardContext();
   const { user, userLayout } = useAuth();
   const { id, name, button: cards, visible } = board;
-  const { addCardOnMainBoard } = useMainBoardContext();
+  const { addCardOnMainBoard, utterance } = useMainBoardContext();
   const [ripple, event] = useRipple({ color: "rgba(255, 255, 255, .5)" });
   const navigate = useNavigate();
 
@@ -105,7 +105,13 @@ function Board({ board }: { board: BoardData}) {
           {...listeners}
           className="flex flex-col items-center h-full w-full m-0 p-0"
           style={!visible && editMode ? { opacity: 0.3 } : {}}
-          onClick={() => cards.map(card => addCardOnMainBoard(card))}
+          onClick={() => {
+            cards.map(card => addCardOnMainBoard(card))
+            
+              window.speechSynthesis.cancel();
+              utterance.text = name;
+              window.speechSynthesis.speak(utterance);
+          }}
         >
           <div className="flex flex-row items-center justify-evenly w-full h-[85%] m-0 p-0.5 overflow-ellipsis gap-1 p-1">
             {cards.map((card) => (
@@ -120,7 +126,7 @@ function Board({ board }: { board: BoardData}) {
               </div>
             ))}
           </div>
-          <div className="flex justify-center items-center h-[15%] w-fit">
+          <div className="flex justify-center items-center h-[10%] w-fit">
             <span className="pointer-events-none overflow-hidden text-center text-nowrap whitespace-nowrap font-bold text-[100%]">{name}</span>
           </div>
         </div>

@@ -25,6 +25,11 @@ function BoardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
   const { updateBoard, createBoard } = useBoardContext();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isUpdate, setIsUpdate] = useState<{ response?: ApiResponse<unknown>; loading: boolean } | null | undefined>(null);
+  const isSmall = useMediaQuery('(max-width: 600px)');
+  const isMedium = useMediaQuery('(min-width: 601px) and (max-width: 900px)');
+
+  const qntCards = isSmall ? 3 :
+    isMedium ? 6 : 7
 
   useEffect(() => {
     if (!isUpdate || isUpdate.loading) return;
@@ -84,7 +89,7 @@ function BoardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
           event.preventDefault()
           attBoard(id, boardtoUpdate)
         }}
-        sx={{ overflow: 'hidden', height: '100vh'}}
+          sx={{ overflow: 'hidden', height: '100vh' }}
         >
           <FormControl
             disabled={isUpdate?.loading}
@@ -151,34 +156,35 @@ function BoardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
               <div className="flex flex-col h-[80%] w-full bg-transparent items-center justify-center grow-0 shrink-0">
                 <motion.div
                   layout
-                initial={{
-                  width: '100%',
-                  height: '30vh',
-                  opacity: 0,
-                  position: 'absolute',
-                  top: '0',
-                }}
-                animate={{
-                  height: '70%',
-                  opacity: 1,
-                  position: 'relative',
-                }}
-                exit={{
-                  width: '100%',
-                  height: '30vh',
-                  opacity: 0,
-                  position: 'absolute',
-                  top: "50%",
-                }}
-                transition={{
-                  duration: 0.7,
-                  ease: easeInOut
-                }}
+                  initial={{
+                    width: '100%',
+                    height: '30vh',
+                    opacity: 0,
+                    position: 'absolute',
+                    top: '0',
+                  }}
+                  animate={{
+                    height: '70%',
+                    opacity: 1,
+                    position: 'relative',
+                  }}
+                  exit={{
+                    width: '100%',
+                    height: '30vh',
+                    opacity: 0,
+                    position: 'absolute',
+                    top: "50%",
+                  }}
+                  transition={{
+                    duration: 0.7,
+                    ease: easeInOut
+                  }}
                   className="flex w-full h-full grow-0 overflow-x-visible scrollbar-hide p-2 overflow-y-auto flex-row justify-start items-start gap-2 flex-wrap">
                   {cards.map((card) => (
                     <div
                       key={card.id}
                       className="card"
+                      style={{width: `calc((100% - ${(qntCards - 1) * 8}px) / ${qntCards})`}}
                       onClick={() => setBoardtoUpdate(prev => ({ ...prev, button: [...prev.button, { ...card, tempId: uuidv4() }] }))}
                     >
                       <div
@@ -219,7 +225,7 @@ function BoardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
                     duration: 0.5,
                     ease: easeInOut
                   }}
-                  className="bg-[#f0f0f0] flex flex-col grow-0 items-center h-[30%] w-full m-0 p-0 rounded-xl overflow-clip">
+                  className="bg-[#f0f0f0] shadow-[0px_0.15rem_1rem_1px] flex flex-col grow-0 items-center h-[30%] w-full m-0 p-0 rounded-xl overflow-clip">
                   <div className="flex flex-row items-center justify-evenly w-full h-[80%] m-0 p-1 overflow-y-auto scrollbar-hide gap-1">
                     {boardCards.map((card) => (
                       <div className="card"

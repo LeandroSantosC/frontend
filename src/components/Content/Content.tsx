@@ -1,17 +1,18 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useToolsContext } from "../../context/ToolsContext";
 import { useCardContext } from "../../context/CardContext";
-import Card from "./Card/Card";
+import Card, { CardData } from "./Card/Card";
 import './Board/Board.css'
 import { AnimatePresence, motion } from "framer-motion";
-import { closestCenter, DndContext, MeasuringStrategy, PointerSensor, useSensor, useSensors, DragEndEvent, MouseSensor, TouchSensor } from "@dnd-kit/core";
+import { closestCenter, DndContext, MeasuringStrategy, useSensor, useSensors, DragEndEvent, MouseSensor, TouchSensor, PointerSensor } from "@dnd-kit/core";
 import { arrayMove, rectSortingStrategy, SortableContext } from "@dnd-kit/sortable";
-import { Button, Skeleton, Tab, Tabs } from "@mui/material";
+import { Button, Skeleton, Tab, Tabs, useMediaQuery } from "@mui/material";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useAuth } from "../../context/AuthContext";
-import Board from "./Board/Board";
+import Board, { BoardData } from "./Board/Board";
 import { useBoardContext } from "../../context/BoardContext";
 import { useSnackbar } from "notistack";
+import { useNavigate } from "react-router-dom";
 
 function Content() {
   const [tab, setTab] = useState<'cards' | 'boards'>('cards');
@@ -22,61 +23,58 @@ function Content() {
   const CardEditref = useRef<HTMLDivElement>(null);
   const BoardEditref = useRef<HTMLDivElement>(null);
   const { user, userLayout } = useAuth();
+  const navigate = useNavigate();
   const sensors = useSensors(
-  useSensor(MouseSensor),
-  useSensor(TouchSensor, {
-    activationConstraint: {
-      delay: 250,
-      tolerance: 5,
-    },
-  })
-);
-  const isCellphone = user?.layoutScale?.board == 1
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
+  const isMobile = useMediaQuery('(max-width:600px)');
+
+  useEffect(() => {
+    if (isPublicCard && tab === 'boards') {
+      setTab('cards');
+    }
+  }, [isPublicCard, tab]);
 
   let loadingSnack;
-  if(loadingCards && tab == 'cards'){
-    loadingSnack = enqueueSnackbar("Carregando!", {variant: "info", persist: true, preventDuplicate: true});
+  if (loadingCards && tab == 'cards') {
+    loadingSnack = enqueueSnackbar("Carregando!", { variant: "info", persist: true, preventDuplicate: true });
   }
-  else
-  {
+  else {
     closeSnackbar(loadingSnack);
   }
 
-  if(loadingBoards && tab == 'boards'){
-    loadingSnack = enqueueSnackbar("Carregando!", {variant: "info", persist: true, preventDuplicate: true});
+  if (loadingBoards && tab == 'boards') {
+    loadingSnack = enqueueSnackbar("Carregando!", { variant: "info", persist: true, preventDuplicate: true });
   }
-  else
-  {
+  else {
     closeSnackbar(loadingSnack);
   }
 
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+  function handleDragEnd<T extends { id: string; position: number }>(
+  event: DragEndEvent,
+  items: T[],
+  setItems: React.Dispatch<React.SetStateAction<T[]>>
+) {
+  const { active, over } = event;
+  if (!over || active.id === over.id) return;
 
-    if (active.id !== over?.id) {
-      const oldIndex = cards.findIndex((card) => card.id === active.id);
-      const newIndex = cards.findIndex((card) => card.id === over?.id);
-      setCards(() => {
-        const updatedCards = arrayMove(cards, oldIndex, newIndex);
-        return updatedCards.map((card, index) => ({ ...card, position: index }));
-      });
-    }
-  };
+  const oldIndex = items.findIndex(item => item.id === active.id);
+  const newIndex = items.findIndex(item => item.id === over.id);
 
-  const handleDragEndBoard = (event: DragEndEvent) => {
-    const { active, over } = event;
+  if (oldIndex === -1 || newIndex === -1) return;
 
-    if (active.id !== over?.id) {
-      const oldIndex = boards.findIndex((board) => board.id === active.id);
-      const newIndex = boards.findIndex((board) => board.id === over?.id);
-      setBoards(() => {
-        const updatedBoards = arrayMove(boards, oldIndex, newIndex);
-        return updatedBoards.map((board, index) => ({ ...board, position: index }));
-      });
-    }
-  };
-
+  setItems(() => {
+    const updated = arrayMove(items, oldIndex, newIndex);
+    return updated.map((item, index) => ({ ...item, position: index }));
+  });
+}
 
   const filteredCards = cards
     .filter((card) => categorySelected.some((cat) => cat === card.category) || categorySelected.length === 0)
@@ -84,16 +82,25 @@ function Content() {
     .filter((card) => card !== editingCard)
     .filter((card) => editMode || card.visible);
 
-    const filteredBoards = boards
+  const filteredBoards = boards
     .filter((board) => board.name.toLowerCase().includes(search.toLowerCase()))
     .filter((board) => board !== editingBoard)
     .filter((board) => editMode || board.visible);
 
   return (
     <div className="flex flex-col items-center w-full pt-1 h-[69%] overflow-visible">
-      <Tabs value={tab} onChange={(_, newValue) => setTab(newValue)} centered>
+      <Tabs value={tab} onChange={(_, newValue) => {
+        if (!user && newValue === 'boards') {
+          navigate('/?login=true');
+          return;
+        }
+        setTab(newValue)
+      }} centered>
         <Tab label={isPublicCard ? "Botões Públicos" : "Botões"} value='cards'/>
-        {!isPublicCard && <Tab label="Pranchas" value='boards'/>}
+        {!isPublicCard && <Tab label={
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            Pranchas{user ? '' : <Icon icon="solar:lock-bold" width={16} />}
+          </span>} value='boards' />}
       </Tabs>
       {tab === "cards" && (
         <>
@@ -115,7 +122,7 @@ function Content() {
                   onClick={() => setCardEdit(newCard, CardEditref)}
                 >
                   <Button className="card"
-                    style={{backgroundColor: "oklch(0.623 0.214 259.815)", borderRadius: "16px", width: '100%', aspectRatio: 'auto', height: '100%' }}
+                    style={{ backgroundColor: "oklch(0.623 0.214 259.815)", borderRadius: "16px", width: '100%', aspectRatio: 'auto', height: '100%' }}
                   >
                     <Icon icon="solar:add-circle-bold" className="flex relative w-full h-[50%] rounded-inherit pointer-events-none text-white" />
                   </Button>
@@ -130,7 +137,7 @@ function Content() {
                   }
                 }}
                 collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
+                onDragEnd={(event) => handleDragEnd(event, cards, setCards)}
                 autoScroll={{ threshold: { x: 0, y: 0.1 } }}
               >
                 <SortableContext items={filteredCards.map((card) => card.id)} strategy={rectSortingStrategy}>
@@ -139,10 +146,10 @@ function Content() {
                       filteredCards.map((card) => (
                         <Card key={card.id} card={card} />
                       )) : editMode ? null :
-                      <div className="flex h-[50vh] w-full justify-center items-center text-[2.5vh] flex-col gap-5 font-bold">
-                        <img src="sadshake.gif" width={'150vh'}></img>
-                        <span>Nenhuma correspondência encontrada</span>
-                      </div>
+                        <div className="flex h-[50vh] w-full justify-center items-center text-[2.5vh] flex-col gap-5 font-bold">
+                          <img src="sadshake.gif" width={'150vh'}></img>
+                          <span>Nenhuma correspondência encontrada</span>
+                        </div>
                   }
                 </SortableContext>
               </DndContext>
@@ -158,9 +165,9 @@ function Content() {
           </div>
         </>)}
       {tab === "boards" &&
-      <>
-        <div className="flex w-full grow-0 overflow-x-visible scrollbar-hide p-2 overflow-y-auto flex-row justify-start gap-2 flex-wrap">
-        <AnimatePresence>
+        <>
+          <div className="flex w-full grow-0 overflow-x-visible scrollbar-hide p-2 overflow-y-auto flex-row justify-start gap-2 flex-wrap">
+            <AnimatePresence>
               {editMode ? (
                 <motion.div
                   ref={BoardEditref}
@@ -168,9 +175,9 @@ function Content() {
                   key="AddBoard"
                   className="board"
                   style={{ left: 0, ...userLayout.board }}
-                  initial={isCellphone ? { width: '', height: 0 }:{width: 0, height: ''}}
-                  animate={{ ...userLayout.board}}
-                  exit={isCellphone ? { width: '', height: 0 }:{width: 0, height: ''}}
+                  initial={user?.layoutScale?.board == 1 ? { width: '', height: 0 } : { width: 0, height: '' }}
+                  animate={{ ...userLayout.board }}
+                  exit={user?.layoutScale?.board == 1 ? { width: '', height: 0 } : { width: 0, height: '' }}
                   transition={{
                     ease: 'easeInOut',
                     duration: 0.3
@@ -184,8 +191,8 @@ function Content() {
                   </Button>
                 </motion.div>
               ) : null}
-          </AnimatePresence>
-          {!loadingBoards ? (boards.length > 0 ?
+            </AnimatePresence>
+            {!loadingBoards ? (boards.length > 0 ?
               <DndContext sensors={sensors}
                 measuring={{
                   droppable: {
@@ -193,7 +200,7 @@ function Content() {
                   }
                 }}
                 collisionDetection={closestCenter}
-                onDragEnd={handleDragEndBoard}
+                onDragEnd={(event) => handleDragEnd(event, boards, setBoards)}
                 autoScroll={{ threshold: { x: 0, y: 0.1 } }}
               >
                 <SortableContext items={filteredBoards.map((board) => board.id)} strategy={rectSortingStrategy}>
@@ -202,10 +209,10 @@ function Content() {
                       filteredBoards.map((board) => (
                         <Board key={board.id} board={board} />
                       )) : editMode ? null :
-                      <div className="flex h-[50vh] w-full justify-center items-center text-[2.5vh] flex-col gap-5 font-bold">
-                        <img src="sadshake.gif" width={'150vh'}></img>
-                        <span>Nenhuma correspondência encontrada</span>
-                      </div>
+                        <div className="flex h-[50vh] w-full justify-center items-center text-[2.5vh] flex-col gap-5 font-bold">
+                          <img src="sadshake.gif" width={'150vh'}></img>
+                          <span>Nenhuma correspondência encontrada</span>
+                        </div>
                   }
                 </SortableContext>
               </DndContext>
@@ -219,8 +226,8 @@ function Content() {
                 <Skeleton className="card" variant="rounded" width="clamp(80px, calc(33.3% - 4%), 130px)" height="auto" sx={{ aspectRatio: 1 / 1.25, borderRadius: "16px" }} />
               ))
             }
-        </div>
-      </>
+          </div>
+        </>
       }
     </div>
   );

@@ -74,9 +74,8 @@ function ForgotPassword({ open, handleClose }: ForgotPasswordProps) {
 }
 
 
-const Card = styled(MuiCard)(({ theme }) => ({
+export const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
-  borderRadius: '32px',
   zIndex: 100,
   flexDirection: 'column',
   alignSelf: 'center',
@@ -89,11 +88,12 @@ const Card = styled(MuiCard)(({ theme }) => ({
     'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
   [theme.breakpoints.up('sm')]: {
     width: '450px',
+    borderRadius: '32px',
     height: 'auto'
   },
 }));
 
-const SignInContainer = styled(Stack)({
+export const Container = styled(Stack)({
   position: "absolute",
   height: '100vh',
   width: '100vw',
@@ -169,7 +169,7 @@ export default function SignIn() {
 
   return (isLoginOpen &&
     <>
-      <SignInContainer direction="column" justifyContent="space-between">
+      <Container direction="column" justifyContent="space-between">
         <div
           onClick={closeLogin}
           style={{
@@ -184,13 +184,16 @@ export default function SignIn() {
         />
 
         <Card variant="outlined">
-          <Typography
-            component="h1"
-            variant="h4"
-            sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)', textAlign: 'center' }}
-          >
-            Entrar
-          </Typography>
+          <div className='flex relative flex-row justify-center items-center'>
+            <Typography
+              component="h1"
+              variant="h4"
+              sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)', textAlign: 'center' }}
+              >
+              Entrar
+            </Typography>
+            <Icon className='absolute right-0' icon="line-md:close-circle-filled" width="30" height="30" color={'#1976d2'} onClick={closeLogin} />
+          </div>
           <Box
             component="form"
             onSubmit={handleSubmit}
@@ -270,7 +273,7 @@ export default function SignIn() {
             </Typography>
           </Box>
         </Card>
-      </SignInContainer>
+      </Container>
     </>
   );
 }

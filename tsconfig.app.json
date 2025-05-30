@@ -6,6 +6,8 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "checkJs": true,
+    "allowJs": true,
 
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

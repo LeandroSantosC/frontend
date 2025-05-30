@@ -2,6 +2,7 @@ import { createContext, ReactNode, useContext, useState, useEffect, SetStateActi
 import {  createAuthService } from '../services/AuthService'
 import { ApiResponse } from "../services/api/request";
 import { useSnackbar } from "notistack";
+import { useMediaQuery } from "@mui/material";
 export type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 
@@ -52,21 +53,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
-    if(user?.layoutScale && user && !isSession){
-      localStorage.setItem('layout', JSON.stringify(user.layoutScale));
-    }
     if(user?.voice && user && !isSession){
       localStorage.setItem('voice', user.voice);
     }
-  }, [user?.layoutScale, user?.voice]);
+  }, [user?.voice]);
 
+  useEffect(() => {
+    if(user?.layoutScale && user && !isSession){
+      localStorage.setItem('layout', JSON.stringify(user.layoutScale));
+    }
+  }, [user?.layoutScale]);
+
+
+  const isMobile = useMediaQuery('(max-width:600px)');
   const userLayout = {
     card: {
-      width: user?.layoutScale ? `clamp(${240/user.layoutScale.card}px, calc((100% - ${(user.layoutScale.card - 1) * 8}px) / ${user.layoutScale.card}), ${390/user.layoutScale.card}px)` : undefined,
+      width: user?.layoutScale ? `clamp(${240/user.layoutScale.card}px, calc((100% - ${(user.layoutScale.card - 1) * 8}px) / ${user.layoutScale.card}), ${390/user.layoutScale.card}px)` :
+      'clamp(80px, calc(33.3% - 4%), 130px)',
       aspectRatio: 1/1.25
     },
     board: {
-      width: user?.layoutScale ? `calc((100% - ${(user.layoutScale.board - 1) * 8}px) / ${user.layoutScale.board})` : undefined,
+      width: user?.layoutScale ? `calc((100% - ${(user.layoutScale.board - 1) * 8}px) / ${user.layoutScale.board})` :
+      isMobile? '100%' : '50%',
       height: '15vh'
     }
   }

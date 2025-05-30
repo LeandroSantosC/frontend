@@ -8,9 +8,6 @@ import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
-import MuiCard from '@mui/material/Card';
-import { styled } from '@mui/material/styles';
 import { useLocation, useNavigate } from 'react-router';
 import dayjs from 'dayjs';
 import { PhoneInput } from './inputs/phoneInput';
@@ -20,31 +17,8 @@ import { GenderInput } from './inputs/genderInput';
 import { BirthDateInput } from './inputs/birthDateInput';
 import { PasswordInput } from './inputs/passwordInput';
 import { useAuth, UserRegister } from '../../context/AuthContext';
-
-const Card = styled(MuiCard)(({ theme }) => ({
-  display: 'flex',
-  borderRadius: '32px',
-  zIndex: 10,
-  flexDirection: 'column',
-  alignSelf: 'center',
-  width: '100%',
-  height: '100%',
-  padding: theme.spacing(4),
-  gap: theme.spacing(2),
-  margin: 'auto',
-  boxShadow:
-    'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
-  [theme.breakpoints.up('sm')]: {
-    width: '450px',
-    height: 'auto'
-  },
-}));
-
-const SignUpContainer = styled(Stack)({
-  height: '100vh',
-  width: '100vw',
-  position: "absolute",
-})
+import { Card, Container } from './LoginForm'
+import { Icon } from '@iconify/react/dist/iconify.js';
 
 export default function SignUp() {
   const [isLoading, setLoading] = React.useState(false);
@@ -141,7 +115,7 @@ export default function SignUp() {
 
   return (isRegisterOpen &&
     <>
-      <SignUpContainer direction="column" justifyContent="space-between">
+      <Container direction="column" justifyContent="space-between">
         <div
           onClick={closeRegister}
           style={{
@@ -155,13 +129,16 @@ export default function SignUp() {
           }}
         />
         <Card variant="outlined">
-          <Typography
-            component="h1"
-            variant="h4"
-            sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)', textAlign: 'center' }}
-          >
-            Registrar
-          </Typography>
+          <div className='flex relative flex-row justify-center items-center'>
+            <Typography
+              component="h1"
+              variant="h4"
+              sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)', textAlign: 'center' }}
+              >
+              Registrar
+            </Typography>
+            <Icon className='absolute right-0' icon="line-md:close-circle-filled" width="30" height="30" color={'#1976d2'} onClick={closeRegister} />
+          </div>
           <Box
             component="form"
             onSubmit={handleSubmit}
@@ -244,7 +221,7 @@ export default function SignUp() {
             </Typography>
           </Box>
         </Card>
-      </SignUpContainer>
+      </Container>
     </>
   );
 }
