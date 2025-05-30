@@ -30,9 +30,8 @@ function Tools() {
         }}
         getOptionLabel={(option) => option}
         renderOption={(props, option, { selected }) => {
-          const { key, ...optionProps } = props;
           return (
-            <li key={key} {...optionProps}>
+            <li {...props}>
               <Checkbox
                 style={{ marginRight: 8 }}
                 checked={selected}

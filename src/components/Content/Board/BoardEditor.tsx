@@ -229,6 +229,7 @@ function BoardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
                   <div className="flex flex-row items-center justify-evenly w-full h-[80%] m-0 p-1 overflow-y-auto scrollbar-hide gap-1">
                     {boardCards.map((card) => (
                       <div className="card"
+                        key={card.tempId}
                         style={{ height: '100%', width: 'auto' }}
                         onClick={() => setBoardtoUpdate(prev => ({ ...prev, button: prev.button.filter((c) => c.tempId !== card.tempId) }))}
                       >

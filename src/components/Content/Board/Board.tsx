@@ -115,7 +115,8 @@ function Board({ board }: { board: BoardData}) {
         >
           <div className="flex flex-row items-center justify-evenly w-full h-[85%] m-0 p-0.5 overflow-ellipsis gap-1 p-1">
             {cards.map((card) => (
-              <div 
+              <div
+              key={card.id}
               className=" aspect-[1/1.25] h-full w-auto bg-white rounded-lg"
               style={{height:'100%', width:'auto', padding:2}}
               >

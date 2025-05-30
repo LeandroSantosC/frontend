@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useToolsContext } from "../../context/ToolsContext";
 import { useCardContext } from "../../context/CardContext";
-import Card, { CardData } from "./Card/Card";
+import Card from "./Card/Card";
 import './Board/Board.css'
 import { AnimatePresence, motion } from "framer-motion";
-import { closestCenter, DndContext, MeasuringStrategy, useSensor, useSensors, DragEndEvent, MouseSensor, TouchSensor, PointerSensor } from "@dnd-kit/core";
+import { closestCenter, DndContext, MeasuringStrategy, useSensor, useSensors, DragEndEvent, MouseSensor, TouchSensor } from "@dnd-kit/core";
 import { arrayMove, rectSortingStrategy, SortableContext } from "@dnd-kit/sortable";
-import { Button, Skeleton, Tab, Tabs, useMediaQuery } from "@mui/material";
+import { Button, Skeleton, Tab, Tabs } from "@mui/material";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useAuth } from "../../context/AuthContext";
-import Board, { BoardData } from "./Board/Board";
+import Board from "./Board/Board";
 import { useBoardContext } from "../../context/BoardContext";
 import { useSnackbar } from "notistack";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +25,12 @@ function Content() {
   const { user, userLayout } = useAuth();
   const navigate = useNavigate();
   const sensors = useSensors(
-    useSensor(MouseSensor),
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    }),
     useSensor(TouchSensor, {
       activationConstraint: {
         delay: 250,
@@ -33,7 +38,6 @@ function Content() {
       },
     })
   );
-  const isMobile = useMediaQuery('(max-width:600px)');
 
   useEffect(() => {
     if (isPublicCard && tab === 'boards') {
@@ -158,8 +162,8 @@ function Content() {
                 <span>Você não tem nenhum card</span>
               </div>)
             )
-              : Array.from({ length: 30 }).map(() => (
-                <Skeleton className="card" variant="rounded" width="clamp(80px, calc(33.3% - 4%), 130px)" height="auto" sx={{ aspectRatio: 1 / 1.25, borderRadius: "16px" }} />
+              : Array.from({ length: 30 }).map((_, index) => (
+                <Skeleton className="card" key={index} variant="rounded" width="clamp(80px, calc(33.3% - 4%), 130px)" height="auto" sx={{ aspectRatio: 1 / 1.25, borderRadius: "16px" }} />
               ))
             }
           </div>
@@ -222,8 +226,8 @@ function Content() {
               </div>)
             )
               :
-              Array.from({ length: 30 }).map(() => (
-                <Skeleton className="card" variant="rounded" width="clamp(80px, calc(33.3% - 4%), 130px)" height="auto" sx={{ aspectRatio: 1 / 1.25, borderRadius: "16px" }} />
+              Array.from({ length: 30 }).map((_, index) => (
+                <Skeleton className="card" key={index} variant="rounded" width="clamp(80px, calc(33.3% - 4%), 130px)" height="auto" sx={{ aspectRatio: 1 / 1.25, borderRadius: "16px" }} />
               ))
             }
           </div>
