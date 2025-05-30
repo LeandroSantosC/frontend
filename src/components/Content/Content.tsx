@@ -108,7 +108,7 @@ function Content() {
       </Tabs>
       {tab === "cards" && (
         <>
-          <div className="flex w-full overflow-x-visible scrollbar-hide p-2 overflow-y-auto flex-row justify-evenly gap-2 flex-wrap">
+          <div className="flex w-full overflow-x-visible touch-auto scrollbar-hide p-2 overflow-y-auto flex-row justify-evenly gap-2 flex-wrap">
             <AnimatePresence>
               {editMode ? (
                 <motion.div
