@@ -43,7 +43,7 @@ export interface UserData {
 export interface UserLogin {
   login: string;
   password: string;
-  rememberMe?: boolean;
+  rememberMe: boolean;
 }
 
 
