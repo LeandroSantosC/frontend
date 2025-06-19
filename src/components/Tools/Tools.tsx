@@ -9,7 +9,7 @@ function Tools() {
   const { categories } = useCardContext();
 
   return (
-    <div className="flex justify-around sticky bg-gray-100 p-1 h-[6%] w-full">
+    <div className="flex items-center justify-around sticky bg-gray-100 p-1 h-[6%] w-full">
       <Autocomplete
         multiple
         disableCloseOnSelect
@@ -113,7 +113,7 @@ function Tools() {
             borderRadius: '16px',
           },
           '& .MuiInputBase-input': {
-            padding: '10px 0',
+            padding: '!important 0'
           },
           '& .MuiInputLabel-root': {
             textAlign: 'center',
@@ -128,6 +128,12 @@ function Tools() {
       <IconButton
         onClick={() => setEditMode(!editMode)}
         sx={{
+          display: 'flex',
+          height: '100%',
+          width: 'auto',
+          minWidth: 0,
+          padding: 0,
+          minHeight: 0,
           backgroundColor: editMode ? 'primary.main' : 'grey.400',
           transform: editMode ? 'rotate(-45deg)' : 'rotate(0deg)',
           transition: 'ease-in-out 0.5s',
@@ -139,7 +145,7 @@ function Tools() {
           },
         }}
       >
-        <Icon icon="solar:pen-bold" width="100%" height="100%" />
+        <Icon icon="solar:pen-bold" width="70%" height="100%" />
       </IconButton>
     </div>
   );

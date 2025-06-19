@@ -82,12 +82,12 @@ function Header() {
               marginTop: 1,
               minWidth: 200,
               '& .MuiMenu-list': {
-                padding: '5px 0',
+                padding: '5px 10px',
                 justifyItems: "center"
               },
               '& .MuiMenuItem-root': {
-                gap: 2,
-                fontSize: 25,
+                gap: 1,
+                fontSize: '120%',
                 textAlign: 'center',
                 width: '100%',
                 '&:active': {

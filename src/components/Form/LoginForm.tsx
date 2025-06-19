@@ -107,7 +107,7 @@ export default function SignIn() {
   const [rememberMe, setRememberMe] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { login, user } = useAuth();
+  const { login, loginGoogle, user } = useAuth();
   const isLoginOpen = !user && new URLSearchParams(location.search).get('login') === 'true';
 
   const openRegister = () => {
@@ -140,9 +140,10 @@ export default function SignIn() {
       const userLogin: UserLogin = {
         login: email,
         password: password,
+        rememberMe: rememberMe,
       }
       
-      login(userLogin, rememberMe).then((resolve) => {
+      login(userLogin).then((resolve) => {
         if(resolve){
           closeLogin()
         }
@@ -253,9 +254,8 @@ export default function SignIn() {
               sx={{ borderRadius: '12px' }}
               fullWidth
               variant="outlined"
-              onClick={() => alert('Sign in with Google')}
+              onClick={() => loginGoogle()}
               startIcon={<Icon icon="flat-color-icons:google" width="24" height="24" />}
-              href="/login/oauth2/code/google"
             >
               Entre com o google
             </Button>

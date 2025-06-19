@@ -9,7 +9,7 @@ const configURL = true
 //  false: usando localhost como backend
 /**********************************************/
 
-const config = {
+export const config = {
     url: configURL ? "https://wasteful-rochell-fatec-aa30349c.koyeb.app" : "http://localhost:8080",
 }
 

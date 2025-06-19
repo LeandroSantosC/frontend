@@ -66,7 +66,7 @@ function Card({ card }: { card: CardData }) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    touchAction: "none",
+    touchAction: isDragging ? "none": "auto",
     zIndex: isDragging ? 100 : undefined,
   };
 

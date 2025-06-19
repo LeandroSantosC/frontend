@@ -8,7 +8,8 @@ export type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 export interface AuthContextType {
   user: UserData | null;
-  login: (data: UserLogin, stay:boolean) => Promise<boolean>;
+  login: (data: UserLogin) => Promise<boolean>;
+  loginGoogle: () => void;
   logout: () => void
   register: (data: UserRegister) => Promise<boolean>;
   setUser: (user: SetStateAction<UserData | null>) => void;
@@ -42,6 +43,7 @@ export interface UserData {
 export interface UserLogin {
   login: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 
@@ -49,17 +51,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserData | null>(null);
-  const [isSession, setIsSession] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
-    if(user?.voice && user && !isSession){
+    if(user?.voice && user){
       localStorage.setItem('voice', user.voice);
     }
   }, [user?.voice]);
 
   useEffect(() => {
-    if(user?.layoutScale && user && !isSession){
+    if(user?.layoutScale && user){
       localStorage.setItem('layout', JSON.stringify(user.layoutScale));
     }
   }, [user?.layoutScale]);
@@ -79,10 +80,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const fetchUser = async () => {
-    const token = localStorage.getItem('token') ?? sessionStorage.getItem('token');
+  function cookieExists(name: string) {
+  return document.cookie
+    .split(';')
+    .some(cookie => cookie.trim().startsWith(`${name}=`));
+}
 
-    if (token) {
+  const fetchUser = async () => {
+
+    if(cookieExists('JWT_TOKEN')){
       const { getUser } = createAuthService();
       const result = await getUser();
       if (result.success && result.response) {
@@ -152,20 +158,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return result.success;
   };
 
-  const login = async (data: UserLogin, stay:boolean) => {
+  const login = async (data: UserLogin) => {
     const { login } = createAuthService();
     const result = await login(data);
 
     if (result.success && result.response) {
-      if(stay){
-        setIsSession(false);
-        localStorage.setItem('token', result.response);
-      }
-      else{
-        setIsSession(true);
-        sessionStorage.setItem('token', result.response);
-        localStorage.removeItem('token');
-      }
       fetchUser();
     }
     else {
@@ -174,8 +171,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return result.success;
   };
 
+  const loginGoogle = () => {
+    const { loginGoogle } = createAuthService();
+    window.location.href = loginGoogle; // Redireciona para o login do Google
+  };
+
   const logout = async () => {
-    const { updateUser } = createAuthService();
+    const { updateUser, logout } = createAuthService();
     if (user) {
       const result = await updateUser(user)
       if (result.success) {
@@ -184,11 +186,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       else {
         enqueueSnackbar("Não foi possível salvar alterações " + result.error , {variant: "error", preventDuplicate: true });
       }
+      await logout();
     }
-    sessionStorage.removeItem('token');
-    localStorage.removeItem('token');
-    localStorage.removeItem('voice');
-    localStorage.removeItem('layout');
+    
     setUser(null);
   };
 
@@ -217,7 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register, setUser, updateUser, verifyEmail, userLayout }}>
+    <AuthContext.Provider value={{ user, login, loginGoogle, logout, register, setUser, updateUser, verifyEmail, userLayout }}>
       {children}
     </AuthContext.Provider>
   );

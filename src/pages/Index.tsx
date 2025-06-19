@@ -15,7 +15,7 @@ import UpdateForm from "../components/Form/UpdateForm";
 export default function Index() {
 
   return (
-    <div className="flex flex-col h-dvh w-dvw overflow-hidden">
+    <div className="flex flex-col h-full w-full overflow-hidden">
       <AuthProvider>
         <MainBoardProvider>
           <ToolsProvider>

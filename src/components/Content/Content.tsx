@@ -4,7 +4,7 @@ import { useCardContext } from "../../context/CardContext";
 import Card from "./Card/Card";
 import './Board/Board.css'
 import { AnimatePresence, motion } from "framer-motion";
-import { closestCenter, DndContext, MeasuringStrategy, useSensor, useSensors, DragEndEvent, MouseSensor, TouchSensor } from "@dnd-kit/core";
+import { closestCenter, DndContext, MeasuringStrategy, useSensor, useSensors, DragEndEvent, PointerSensor } from "@dnd-kit/core";
 import { arrayMove, rectSortingStrategy, SortableContext } from "@dnd-kit/sortable";
 import { Button, Skeleton, Tab, Tabs } from "@mui/material";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -25,17 +25,11 @@ function Content() {
   const { user, userLayout } = useAuth();
   const navigate = useNavigate();
   const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
+    useSensor(PointerSensor, {
+    activationConstraint: {
+      delay: 100,
+      tolerance: 5,
+    }
     })
   );
 
@@ -92,7 +86,7 @@ function Content() {
     .filter((board) => editMode || board.visible);
 
   return (
-    <div className="flex flex-col items-center w-full pt-1 h-[69%] overflow-visible">
+    <div className="flex flex-col items-center w-full pt-1 h-full overflow-auto">
       <Tabs value={tab} onChange={(_, newValue) => {
         if (!user && newValue === 'boards') {
           navigate('/?login=true');
@@ -108,7 +102,7 @@ function Content() {
       </Tabs>
       {tab === "cards" && (
         <>
-          <div className="flex w-full overflow-x-visible touch-auto scrollbar-hide p-2 overflow-y-auto flex-row justify-evenly gap-2 flex-wrap">
+          <div className="flex w-full overflow-x-visible touch-pan-y scrollbar-hide p-2 overflow-y-auto flex-row justify-evenly gap-2 flex-wrap">
             <AnimatePresence>
               {editMode ? (
                 <motion.div
@@ -170,7 +164,7 @@ function Content() {
         </>)}
       {tab === "boards" &&
         <>
-          <div className="flex w-full grow-0 overflow-x-visible scrollbar-hide p-2 overflow-y-auto flex-row justify-start gap-2 flex-wrap">
+          <div className="flex w-full touch-auto grow-0 overflow-x-visible scrollbar-hide p-2 overflow-y-auto flex-row justify-start gap-2 flex-wrap">
             <AnimatePresence>
               {editMode ? (
                 <motion.div
