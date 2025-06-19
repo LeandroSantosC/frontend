@@ -29,7 +29,7 @@ export function BoardProvider({ children }: { children: ReactNode }) {
   const [boards, setBoards] = useState<BoardData[]>([]);
   const { enqueueSnackbar } = useSnackbar();
   const [loadingBoards, setLoadingBoards] = useState(false);
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   const newBoard:NewBoardData = {
     name: "",
@@ -61,6 +61,12 @@ export function BoardProvider({ children }: { children: ReactNode }) {
 
     fetchBoards();
   }, [user?.id]);
+
+  useEffect(() => {
+    if(user){
+      setUser({...user, boards: boards});
+    }
+  }, [boards]);
   
 
   const setVisible = (id: string) => {

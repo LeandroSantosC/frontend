@@ -3,6 +3,9 @@ import {  createAuthService } from '../services/AuthService'
 import { ApiResponse } from "../services/api/request";
 import { useSnackbar } from "notistack";
 import { useMediaQuery } from "@mui/material";
+import { useBeforeUnload } from "react-router-dom";
+import { CardData } from "../components/Content/Card/Card";
+import { BoardData } from "../components/Content/Board/Board";
 export type AlertColor = 'success' | 'info' | 'warning' | 'error';
 
 
@@ -14,8 +17,16 @@ export interface AuthContextType {
   register: (data: UserRegister) => Promise<boolean>;
   setUser: (user: SetStateAction<UserData | null>) => void;
   updateUser: (data: UserData) => Promise<ApiResponse<UserData> | undefined>;
+  savePreferences: (data: UserPreferences) => Promise<ApiResponse<string> | undefined>;
   verifyEmail: (token: string) => Promise<ApiResponse<string>>;
   userLayout: {card:{width: string | undefined, aspectRatio: number} , board: {width: string | undefined}}
+}
+
+export interface UserPreferences {
+  voice?: string;
+  layoutScale?: { card: number, board: number };
+  cards?: { id: string, position: number, visible: boolean }[];
+  boards?: { id: string, position: number, visible: boolean }[];
 }
 
 export interface UserRegister {
@@ -36,6 +47,8 @@ export interface UserData {
   gender?: "masculino" | "feminino";
   birthDate?: string;
   voice?: string
+  cards?: CardData[];
+  boards?: BoardData[];
   layoutScale?: { card: number, board: number }
   credentials?: { password?:string, login?: string, role?: string }
 }
@@ -53,18 +66,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserData | null>(null);
   const { enqueueSnackbar } = useSnackbar();
 
-  useEffect(() => {
-    if(user?.voice && user){
-      localStorage.setItem('voice', user.voice);
+  useBeforeUnload(() => {
+    if (user) {
+      const userPreferences = {
+        voice: user.voice,
+        layoutScale: user.layoutScale,
+        cards: user.cards,
+        boards: user.boards
+      };
+      savePreferences(userPreferences);
     }
-  }, [user?.voice]);
-
-  useEffect(() => {
-    if(user?.layoutScale && user){
-      localStorage.setItem('layout', JSON.stringify(user.layoutScale));
-    }
-  }, [user?.layoutScale]);
-
+  })
 
   const isMobile = useMediaQuery('(max-width:600px)');
   const userLayout = {
@@ -80,39 +92,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  function cookieExists(name: string) {
-  return document.cookie
-    .split(';')
-    .some(cookie => cookie.trim().startsWith(`${name}=`));
-}
-
   const fetchUser = async () => {
 
-    if(cookieExists('JWT_TOKEN')){
-      const { getUser } = createAuthService();
-      const result = await getUser();
-      if (result.success && result.response) {
-        setUser(result.response);
-        const layout = localStorage.getItem('layout');
-        const voice = localStorage.getItem('voice');
-        if (layout) {
-          const parsedLayout = JSON.parse(layout);
-          setUser((prevUser) => ({ ...prevUser, layoutScale: parsedLayout }));
-        }
-        if (voice) {
-          setUser((prevUser) => ({ ...prevUser, voice: voice }));
-        }
-        setTimeout(() => {
-        enqueueSnackbar("Bem vindo! " + result.response?.fullname, {variant: "success", preventDuplicate: true });
-        }, 1500);
-      }
-      else {
-        localStorage.removeItem('token')
-        setTimeout(() => {
-        enqueueSnackbar("Não foi possível logar! " + result.error, {variant: "error", preventDuplicate: true });
-        }, 1500);
-      }
+    const { getUser } = createAuthService();
+    const result = await getUser();
+    if (result.success && result.response) {
+      setUser(result.response);
+
+      setTimeout(() => {
+      enqueueSnackbar("Bem vindo! " + result.response?.fullname, {variant: "success", preventDuplicate: true });
+      }, 1500);
     }
+    
   };
 
   useEffect(() => {
@@ -208,6 +199,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return result;
   }
 
+  const savePreferences = async (data: UserPreferences) => {
+    const { savePreferences } = createAuthService();
+    let result;
+    if (user) {
+      result = await savePreferences(data);
+      if (result.success) {
+        console.log(result.response);
+      }
+      else {
+        console.log(result.error);
+      }
+    }
+    return result;
+  }
+
   const verifyEmail = async (token: string) => {
     const { verifyEmail } = createAuthService();
 
@@ -217,7 +223,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, loginGoogle, logout, register, setUser, updateUser, verifyEmail, userLayout }}>
+    <AuthContext.Provider value={{ user, login, loginGoogle, logout, register, setUser, updateUser, savePreferences, verifyEmail, userLayout }}>
       {children}
     </AuthContext.Provider>
   );

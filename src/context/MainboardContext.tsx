@@ -57,7 +57,7 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
         setSelectedVoice(selectedVoice);
       }
     });
-  }, []);
+  }, [user?.voice]);
 
   useEffect(() => {
     setUtterance((prev) => {

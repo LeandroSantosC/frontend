@@ -42,7 +42,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
   const [loadingCards, setLoadingCards] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [ isPublicCard, setPublicCard ] = useState(false);
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
   const newCard:EditCardData = {
     id: undefined,
@@ -80,9 +80,13 @@ export function CardProvider({ children }: { children: ReactNode }) {
   }, [isPublicCard, user?.id]);
   
   useEffect(() => {
-      setCategories(cards
-        .map((card) => card.category)
-        .filter((category, index, self) => self.findIndex((t) => t === category) === index) as []);
+    if(user){
+      setUser({...user, cards: cards});
+    }
+
+    setCategories(cards
+      .map((card) => card.category)
+      .filter((category, index, self) => self.findIndex((t) => t === category) === index) as []);
   }, [cards]);
 
   const setVisible = (id: string) => {

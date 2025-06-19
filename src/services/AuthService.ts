@@ -1,4 +1,4 @@
-import { UserData, UserLogin, UserRegister } from '../context/AuthContext'
+import { UserData, UserLogin, UserRegister, UserPreferences } from '../context/AuthContext'
 import { config } from './api/config'
 import { request } from './api/request'
 
@@ -10,6 +10,7 @@ export const createAuthService = () => {
         register: (data: UserRegister) => request<string>({ method: 'POST', url: '/auth/register', data}),
         getUser: () => request<UserData>({ method: 'GET', url: '/auth/user'}),
         updateUser: (data: UserData) => request<UserData>({ method: 'PATCH', url: '/auth/user', data}),
+        savePreferences: (data: UserPreferences) => request<string>({ method: 'POST', url: '/auth/user/preferences', data}),
         deleteUser: (id: string) => request<UserData>({ method: 'DELETE', url: `/auth/user/${id}`}),
         verifyEmail: (token: string) => request<string>({ method: 'GET', url: `/auth/verify-email?token=${token}`}),
     }
