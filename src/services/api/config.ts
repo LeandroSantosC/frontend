@@ -4,7 +4,7 @@
 import axios from "axios";
 
 //  URL BACKEND
-const configURL = true
+const configURL = false
 //  true: usando o Koeyb como backend
 //  false: usando localhost como backend
 /**********************************************/
@@ -19,11 +19,11 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token') ?? sessionStorage.getItem('token'); // pega o token salvo no login
+    // const token = localStorage.getItem('token') ?? sessionStorage.getItem('token'); // pega o token salvo no login
 
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`; // adiciona o token no header
-    }
+    // if (token) {
+    //     config.headers.Authorization = `Bearer ${token}`; // adiciona o token no header
+    // }
 
     return config;
 }, (error) => {

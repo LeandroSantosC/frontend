@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [user?.id]);
 
   //   const deleteUser = async (id: string) => {
 
