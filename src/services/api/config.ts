@@ -4,7 +4,8 @@
 import axios from "axios";
 
 //  URL BACKEND
-const configURL = false
+const host = window.location.hostname;
+const configURL = host === "localhost" ? false : true;
 //  true: usando o Koeyb como backend
 //  false: usando localhost como backend
 /**********************************************/
