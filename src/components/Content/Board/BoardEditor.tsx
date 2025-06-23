@@ -28,6 +28,18 @@ function BoardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
   const isSmall = useMediaQuery('(max-width: 600px)');
   const isMedium = useMediaQuery('(min-width: 601px) and (max-width: 900px)');
 
+  useEffect(() => {
+  const buttonComTempId = board.button.map(card => ({
+    ...card,
+    tempId: card.tempId || uuidv4()
+  }));
+
+  setBoardtoUpdate(prev => ({
+    ...prev,
+    button: buttonComTempId
+  }));
+}, [board]);
+
   const qntCards = isSmall ? 3 :
     isMedium ? 6 : 7
 
