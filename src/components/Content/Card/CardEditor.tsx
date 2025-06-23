@@ -125,7 +125,7 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                 top: '50%',
                 left: '50%',
                 width: '40vh',
-                height: '100vh',
+                height: '100dvh',
                 zIndex: 100,
               }}
               exit={{
@@ -210,7 +210,7 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                       onClick={() => setOpenDialog(true)}
                     >
                     </SpeedDialAction>
-                    <SpeedDialAction
+                    {/* <SpeedDialAction
                       key={"Arquivos"}
                       onClick={() => inputImgRef.current?.click()}
                       tooltipTitle={"Arquivos"}
@@ -221,7 +221,7 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                       type="file"
                       // onChange={(event) => setCardtoUpdate(prev => ({...prev, image: event.target.files}))}
                       multiple
-                    />
+                    /> */}
                   </SpeedDial>
                   <div className="flex relative h-full w-full rounded-inherit pointer-events-none">
                     {image && (
@@ -371,7 +371,7 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                   )}
                 />
               </motion.div>
-              <motion.div className="flex h-[7%] w-full bg-gray-100 rounded-4xl items-center"
+              {/* <motion.div className="flex h-[7%] w-full bg-gray-100 rounded-4xl items-center"
                 layout
                 initial={{
                   top: "-50%",
@@ -433,7 +433,7 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                     icon={<Icon icon="solar:archive-bold" width="100%" height="70%" />}
                   />
                 </SpeedDial>
-              </motion.div>
+              </motion.div> */}
               <motion.div className="flex h-[7%] w-full bg-transparent rounded-4xl items-center"
                 layout
                 initial={{
@@ -506,7 +506,6 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
                   <Icon icon="solar:close-circle-bold" width="100%" height="70%" />
                 </Button>
               </motion.div>
-              <div className="flex h-[7%] w-full bg-transparent rounded-4xl items-center pointer-events-none"></div>
             </motion.div>
           </FormControl>
         </Box>

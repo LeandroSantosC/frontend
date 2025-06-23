@@ -86,7 +86,8 @@ export function CardProvider({ children }: { children: ReactNode }) {
 
     setCategories(cards
       .map((card) => card.category)
-      .filter((category, index, self) => self.findIndex((t) => t === category) === index) as []);
+      .filter((category, index, self) => self.findIndex((t) => t === category) === index)
+      .sort((a, b) => a.localeCompare(b)) as []);
   }, [cards]);
 
   const setVisible = (id: string) => {

@@ -44,7 +44,7 @@ export function BoardProvider({ children }: { children: ReactNode }) {
       const { getBoards } = createBoardService();
       const result = await getBoards();
       console.log(result);
-      if (result.success) {
+      if (result.success && user) {
         setLoadingBoards(false);
         setTimeout(() => {
         enqueueSnackbar("Pranchas carregadas com sucesso!", {variant: "success", preventDuplicate: true});

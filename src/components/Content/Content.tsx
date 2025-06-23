@@ -94,7 +94,7 @@ function Content() {
         }
         setTab(newValue)
       }} centered>
-        <Tab label={isPublicCard ? "Botões Públicos" : "Botões"} value='cards'/>
+        <Tab label={isPublicCard ? "Cards Públicos" : "Cards"} value='cards'/>
         {!isPublicCard && <Tab label={
           <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             Pranchas{user ? '' : <Icon icon="solar:lock-bold" width={16} />}

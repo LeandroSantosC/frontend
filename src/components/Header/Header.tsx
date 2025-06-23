@@ -159,7 +159,7 @@ function Header() {
             alignItems: 'center',
             justifyContent: 'center' }}>
             <Box px={2} py={1}>
-              <Typography>Cards por linha</Typography>
+              <Typography>Cards</Typography>
               <Slider
               sx={{ width: '100%' }}
                 aria-label="layout-slider"
@@ -181,7 +181,7 @@ function Header() {
               />
             </Box>
             <Box px={2} py={1}>
-              <Typography>Pranchas por linha</Typography>
+              <Typography>Pranchas</Typography>
               <Slider
               sx={{ width: '100%' }}
                 aria-label="layout-slider"

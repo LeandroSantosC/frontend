@@ -89,14 +89,14 @@ function BoardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
           event.preventDefault()
           attBoard(id, boardtoUpdate)
         }}
-          sx={{ overflow: 'hidden', height: '100vh' }}
+          sx={{ overflow: 'hidden', height: '100dvh' }}
         >
           <FormControl
             disabled={isUpdate?.loading}
             variant="outlined" sx={{ display: 'contents', overflow: 'hidden' }}>
             <motion.div
-              style={{ opacity: 1, zIndex: 100 }}
-              className="flex flex-col items-center justify-around gap-4 my-0 h-full overflow-hidden"
+              style={{ opacity: 1, zIndex: 100, justifyContent: 'space-around' }}
+              className="flex flex-col items-center justify-around p-2"
               initial={{
                 top: boardRect.top,
                 left: boardRect.left,
@@ -109,7 +109,7 @@ function BoardEditor({ board, boardRect, closeEditor }: CardEditorProps) {
                 top: '50%',
                 left: '50%',
                 width: isMobile ? '90vw' : '70vw',
-                height: '95vh',
+                height: '100dvh',
                 overflow: 'hidden',
                 zIndex: 100,
               }}
