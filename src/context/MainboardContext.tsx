@@ -99,6 +99,7 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
 
   const [queue, setQueue] = useState<CardData[]>([]);
   const processingRef = useRef(false);
+  
   useEffect(() => {
     if (queue.length === 0 || processingRef.current) return;
 
@@ -126,6 +127,10 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
       return updated;
     });
 
+    window.speechSynthesis.cancel();
+    utterance.text = newCard.name;
+    window.speechSynthesis.speak(utterance);
+
     // Aguarda um ciclo para o React atualizar antes de processar o próximo
     setTimeout(() => {
       processingRef.current = false;
@@ -136,9 +141,9 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
 
   const addCardOnMainBoard = (card: CardData) => {
     setQueue((prev) => [...prev, card]);
-    window.speechSynthesis.cancel();
-    utterance.text = card.name;
-    window.speechSynthesis.speak(utterance);
+    // window.speechSynthesis.cancel();
+    // utterance.text = card.name;
+    // window.speechSynthesis.speak(utterance);
   };
 
   const speak = () => {
