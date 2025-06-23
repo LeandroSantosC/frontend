@@ -71,7 +71,7 @@ export function CardProvider({ children }: { children: ReactNode }) {
       else{
         setLoadingCards(false);
         setTimeout(() => {
-        enqueueSnackbar("Erro ao carregar " + result.error, {variant: "error", preventDuplicate: true });
+        enqueueSnackbar("Erro ao carregar cards - " + result.error, {variant: "error", preventDuplicate: true });
         }, 1500);
       }
     };
@@ -89,6 +89,13 @@ export function CardProvider({ children }: { children: ReactNode }) {
       .filter((category, index, self) => self.findIndex((t) => t === category) === index)
       .sort((a, b) => a.localeCompare(b)) as []);
   }, [cards]);
+
+  useEffect(() => {
+    if(user?.credentials?.role === 'ADMIN'){
+      return;
+    }
+    setPublicCard(false);
+  }, [user]);
 
   const setVisible = (id: string) => {
     setCards((prevCards) =>

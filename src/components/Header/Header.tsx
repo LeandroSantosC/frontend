@@ -57,10 +57,9 @@ function Header() {
     }
   }
 
-
-
   return (
     <header className="flex sticky items-center justify-center bg-blue-500 text-white p-2 h-[5%] w-full">
+      <img className="flex h-[180%] mr-2" src="/logo2.png" alt="logo" />
       <h1 className="text-2xl">MATRACA</h1>
       <Box sx={{ position: 'absolute', right: 10, height:'100%', justifyContent: 'center', alignItems: 'center' }}>
         <Tooltip title="Logar">
@@ -139,7 +138,7 @@ function Header() {
               <ListItemIcon>
                 <Icon icon="solar:pen-new-square-bold" width="32px" height="32px" />
               </ListItemIcon>
-              Botões Públicos
+              Cards Públicos
               <Switch
                 checked={isPublicCard}
                 onChange={(_, checked) => setPublicCard(checked)}

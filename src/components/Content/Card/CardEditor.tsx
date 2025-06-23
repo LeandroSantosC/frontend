@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
-import { Autocomplete, Button, CircularProgress, FormControl, IconButton, styled, TextField } from '@mui/material';
+import { Autocomplete, Button, CircularProgress, FormControl, IconButton, TextField } from '@mui/material';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { useEffect, useRef, useState } from 'react';
 import { ApiResponse } from '../../../services/api/request';
@@ -30,7 +30,7 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
   const { id, name, image } = cardtoUpdate;
   const [isFocused, setIsFocused] = useState(false);
   const { updateCard, createCard, categories } = useCardContext();
-  const inputImgRef = useRef<HTMLInputElement>(null);
+  // const inputImgRef = useRef<HTMLInputElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [isUpdate, setIsUpdate] = useState<{ response?: ApiResponse<unknown>; loading: boolean } | null | undefined>(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -73,17 +73,17 @@ function CardEditor({ card, cardRect, closeEditor }: CardEditorProps) {
     }
   };
 
-  const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
+  // const VisuallyHiddenInput = styled('input')({
+  //   clip: 'rect(0 0 0 0)',
+  //   clipPath: 'inset(50%)',
+  //   height: 1,
+  //   overflow: 'hidden',
+  //   position: 'absolute',
+  //   bottom: 0,
+  //   left: 0,
+  //   whiteSpace: 'nowrap',
+  //   width: 1,
+  // });
 
   return (
     <LayoutGroup>

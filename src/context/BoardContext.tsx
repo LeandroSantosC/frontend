@@ -44,7 +44,7 @@ export function BoardProvider({ children }: { children: ReactNode }) {
       const { getBoards } = createBoardService();
       const result = await getBoards();
       console.log(result);
-      if (result.success && user) {
+      if (result.success) {
         setLoadingBoards(false);
         setTimeout(() => {
         enqueueSnackbar("Pranchas carregadas com sucesso!", {variant: "success", preventDuplicate: true});
@@ -54,12 +54,14 @@ export function BoardProvider({ children }: { children: ReactNode }) {
       else{
         setLoadingBoards(false);
         setTimeout(() => {
-        if(user){enqueueSnackbar("Erro ao carregar pranchas! " + result.error, {variant: "error", preventDuplicate: true })};
+        enqueueSnackbar("Erro ao carregar pranchas - " + result.error, {variant: "error", preventDuplicate: true });
         }, 1500);
       }
     };
 
-    fetchBoards();
+    if(user){
+      fetchBoards();
+    }
   }, [user?.id]);
 
   useEffect(() => {
