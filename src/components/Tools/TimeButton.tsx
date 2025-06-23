@@ -49,7 +49,7 @@ function TimeButton() {
           open={openMenu}
           onClose={() => setOpenMenu(false)}>
         <MenuItem onClick={() => {
-            setVerbalTime(VerbalTimeEnum.PRETERITO_PERFEITO)
+            setVerbalTime(VerbalTimeEnum.PRETERITO_IMPERFEITO)
             setOpenMenu(false)
             }}>Passado</MenuItem>
         <MenuItem onClick={() => {
