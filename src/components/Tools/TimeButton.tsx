@@ -30,7 +30,7 @@ function TimeButton() {
             alignItems: 'center'
             }}>
             <img
-            src={verbalTime == VerbalTimeEnum.FUTURO_DO_PRESENTE ? "/future.png" : verbalTime == VerbalTimeEnum.PRETERITO_PERFEITO ? "/past.png" : "/present.png"}
+            src={verbalTime == VerbalTimeEnum.FUTURO_DO_PRESENTE ? "/future.png" : verbalTime == VerbalTimeEnum.PRETERITO_IMPERFEITO ? "/past.png" : "/present.png"}
             ref={ref}
             />
           </IconButton>
