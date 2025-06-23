@@ -212,6 +212,7 @@ function Header() {
           </MenuItem>
           <MenuItem
             onClick={() => {
+              setPublicCard(false);
               logout();
               setOpen(false);
             }}
