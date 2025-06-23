@@ -18,6 +18,8 @@ export interface BoardContextType {
   selectedVoice: SpeechSynthesisVoice | null
   setSelectedVoice: Dispatch<SetStateAction<SpeechSynthesisVoice | null>>
   utterance: SpeechSynthesisUtterance;
+  setVerbalTime: Dispatch<SetStateAction<VerbalTimeEnum>>;
+  verbalTime: VerbalTimeEnum;
 }
 
 const getAvailableVoices = (): Promise<SpeechSynthesisVoice[]> => {
@@ -35,6 +37,15 @@ const getAvailableVoices = (): Promise<SpeechSynthesisVoice[]> => {
   });
 };
 
+export enum VerbalTimeEnum {
+  PRESENTE = "p",
+  PRETERITO_PERFEITO = "pp",
+  PRETERITO_IMPERFEITO = "pi",
+  PRETERITO_MAIS_QUE_PERFEITO = "pmqp",
+  FUTURO_DO_PRESENTE = "fpte",
+  FUTURO_DO_PRETERITO = "fpto",
+}
+
 const MainBoardContext = createContext<BoardContextType | undefined>(undefined);
 
 export function MainBoardProvider({ children }: { children: ReactNode }) {
@@ -43,6 +54,7 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
   const [utterance, setUtterance] = useState(new SpeechSynthesisUtterance);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+  const [ verbalTime, setVerbalTime ] = useState<VerbalTimeEnum>(VerbalTimeEnum.PRESENTE);
 
   useEffect(() => {
     getAvailableVoices().then((availableVoices) => {
@@ -104,8 +116,8 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
       const index = pronomes[lastWord as Pronome];
       const conjugated = conjugate(card.name);
 
-      if (conjugated?.p) {
-        newCard.name = conjugated.p[index];
+      if (conjugated && conjugated[verbalTime]) {
+        newCard.name = conjugated[verbalTime][index];
       }
     }
 
@@ -150,7 +162,7 @@ export function MainBoardProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <MainBoardContext.Provider value={{ mainBoard, setMainBoard, addCardOnMainBoard, removeCard, removeLastCard, removeAllCards, speak, voices, selectedVoice, setSelectedVoice, utterance }}>
+    <MainBoardContext.Provider value={{ mainBoard, setMainBoard, setVerbalTime, verbalTime, addCardOnMainBoard, removeCard, removeLastCard, removeAllCards, speak, voices, selectedVoice, setSelectedVoice, utterance }}>
       {children}
     </MainBoardContext.Provider>
   );

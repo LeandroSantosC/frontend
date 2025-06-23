@@ -2,6 +2,7 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { useCardContext } from "../../context/CardContext";
 import { useToolsContext } from "../../context/ToolsContext";
 import { Autocomplete, Checkbox, IconButton, TextField } from "@mui/material";
+import TimeButton from "./TimeButton";
 
 
 function Tools() {
@@ -125,6 +126,7 @@ function Tools() {
         }}
         onChange={(e) => setSearch(e.target.value)}
       />
+      <TimeButton />
       <IconButton
         onClick={() => setEditMode(!editMode)}
         sx={{
